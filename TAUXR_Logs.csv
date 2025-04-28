@@ -1,0 +1,56 @@
+LogTime,LogText
+84.2211761,Selected experiment type: Type 1, Active
+104.854576,Instructions board shown: Press to Start Instructions
+213.490936,Instructions board hidden Press to Start Instructions
+213.490936,Instructions board shown: Welcome Instructions
+235.126968,Instructions board hidden Welcome Instructions
+235.126968,Instructions board shown: Follow the Arrow Instruction
+239.765045,Instructions board hidden Follow the Arrow Instruction
+239.765045,Instructions board shown: Press The Button Instruction
+251.14,Player entered the zone of Demo Piece 3, zone radius in cm: 100
+256.897644,Instructions board hidden Press The Button Instruction
+258.16,Player exited the zone of Demo Piece 3, zone radius in cm: 100
+266.228,Instructions board shown: Answer The Question Instruction
+276.865082,Instructions board hidden Answer The Question Instruction
+280.28,Player entered the zone of Demo Piece 3, zone radius in cm: 100
+281.8878,Instructions board shown: Follow The Arrow 2 Instruction
+282.38,Player exited the zone of Demo Piece 3, zone radius in cm: 100
+286.527435,Instructions board hidden Follow The Arrow 2 Instruction
+293.0795,Instructions board shown: Lets start the tour Instructions
+299.182953,Instructions board hidden Lets start the tour Instructions
+361.47998,Player entered the zone of Klimt, zone radius in cm: 200
+469.66,Player exited the zone of Klimt, zone radius in cm: 200
+479.47998,Player entered the zone of Pollock, zone radius in cm: 100
+481.039978,Player exited the zone of Pollock, zone radius in cm: 100
+575.04,Player entered the zone of Pollock, zone radius in cm: 100
+576.019958,Player exited the zone of Pollock, zone radius in cm: 100
+581.82,Player entered the zone of van Dongen, zone radius in cm: 100
+585.68,Player exited the zone of van Dongen, zone radius in cm: 100
+671.8,Player entered the zone of van Dongen, zone radius in cm: 100
+672.72,Player exited the zone of van Dongen, zone radius in cm: 100
+679.6,Player entered the zone of Braque, zone radius in cm: 100
+680.2,Player exited the zone of Braque, zone radius in cm: 100
+766.68,Player entered the zone of de Chirico, zone radius in cm: 100
+770.959961,Player exited the zone of de Chirico, zone radius in cm: 100
+778.68,Player entered the zone of de Chirico, zone radius in cm: 100
+780.86,Player exited the zone of de Chirico, zone radius in cm: 100
+783.5,Player entered the zone of de Chirico, zone radius in cm: 100
+783.54,Player exited the zone of de Chirico, zone radius in cm: 100
+784.139954,Player entered the zone of de Chirico, zone radius in cm: 100
+785.48,Player exited the zone of de Chirico, zone radius in cm: 100
+786.7,Player entered the zone of de Chirico, zone radius in cm: 100
+787.06,Player exited the zone of de Chirico, zone radius in cm: 100
+787.68,Player entered the zone of de Chirico, zone radius in cm: 100
+825.38,Player exited the zone of de Chirico, zone radius in cm: 100
+902.66,Player entered the zone of Janco, zone radius in cm: 100
+904.74,Player exited the zone of Janco, zone radius in cm: 100
+908.3,Player entered the zone of Picasso, zone radius in cm: 100
+912.839966,Player exited the zone of Picasso, zone radius in cm: 100
+914.579956,Player entered the zone of Picasso, zone radius in cm: 100
+916.5,Player exited the zone of Picasso, zone radius in cm: 100
+918.019958,Player entered the zone of Picasso, zone radius in cm: 100
+920.32,Player exited the zone of Picasso, zone radius in cm: 100
+921.199951,Player entered the zone of Picasso, zone radius in cm: 100
+921.339966,Player exited the zone of Picasso, zone radius in cm: 100
+970.097046,Instructions board shown: End Instructions
+975.722351,Instructions board hidden End Instructions

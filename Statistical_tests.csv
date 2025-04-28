@@ -1,0 +1,85 @@
+Test,Question,Type1,Type2,Type3,Statistic,p-value,Effect Size,Interpretation
+Kruskal-Wallis,Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,All,All,All,0.985,0.611,0.024625,Not Significant
+Kruskal-Wallis,Please rate your satisfaction with the explanations about the artworks.,All,All,All,1.091,0.579,0.027275,Not Significant
+Kruskal-Wallis,Was the duration of the visit to your liking?,All,All,All,1.702,0.427,0.04255,Not Significant
+Kruskal-Wallis,Would you like to hear more explanations of this kind about other works in the collection?,All,All,All,0.567,0.753,0.014174999999999998,Not Significant
+Kruskal-Wallis,Would you like to visit the museum again with such a guide?,All,All,All,2.612,0.271,0.0653,Not Significant
+Kruskal-Wallis,Would you like to visit other museums with similar guidance?,All,All,All,4.11,0.128,0.10275000000000001,Not Significant
+Kruskal-Wallis,Would you recommend your friends to visit the collection accompanied by this type of audio guide?,All,All,All,4.237,0.12,0.105925,Not Significant
+Kruskal-Wallis,Please rate how much you liked the artwork.,All,All,All,5.099,0.078,0.127475,Not Significant
+Kruskal-Wallis,Please rate how much you liked the artwork..1,All,All,All,0.115,0.944,0.002875,Not Significant
+Kruskal-Wallis,Please rate how much you liked the artwork..2,All,All,All,0.505,0.777,0.012625,Not Significant
+Kruskal-Wallis,Please rate how much you liked the artwork..3,All,All,All,0.76,0.684,0.019,Not Significant
+Kruskal-Wallis,Please rate how much you liked the artwork..4,All,All,All,8.855,0.012,0.22137500000000002,Significant
+Kruskal-Wallis,Please rate how much you liked the artwork..5,All,All,All,0.909,0.635,0.022725000000000002,Not Significant
+Kruskal-Wallis,Please rate how much you liked the artwork..6,All,All,All,2.349,0.309,0.058725000000000006,Not Significant
+"Mann-Whitney U Test, 1 and 3",Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,1 Fully active,3 Passive,-,116.0,0.38,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 3",Please rate your satisfaction with the explanations about the artworks.,1 Fully active,3 Passive,-,93.5,0.848,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 3",Was the duration of the visit to your liking?,1 Fully active,3 Passive,-,93.5,0.833,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 3",Would you like to hear more explanations of this kind about other works in the collection?,1 Fully active,3 Passive,-,104.5,0.776,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 3",Would you like to visit the museum again with such a guide?,1 Fully active,3 Passive,-,118.0,0.36,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 3",Would you like to visit other museums with similar guidance?,1 Fully active,3 Passive,-,96.0,0.943,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 3",Would you recommend your friends to visit the collection accompanied by this type of audio guide?,1 Fully active,3 Passive,-,86.5,0.597,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 3",Please rate how much you liked the artwork.,1 Fully active,3 Passive,-,134.0,0.089,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 3",Please rate how much you liked the artwork..1,1 Fully active,3 Passive,-,94.5,0.888,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 3",Please rate how much you liked the artwork..2,1 Fully active,3 Passive,-,105.0,0.76,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 3",Please rate how much you liked the artwork..3,1 Fully active,3 Passive,-,102.5,0.852,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 3",Please rate how much you liked the artwork..4,1 Fully active,3 Passive,-,147.5,0.017,N/A,Significant
+"Mann-Whitney U Test, 1 and 3",Please rate how much you liked the artwork..5,1 Fully active,3 Passive,-,97.0,0.981,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 3",Please rate how much you liked the artwork..6,1 Fully active,3 Passive,-,73.0,0.244,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,1 Fully active,2 Semi-active,-,92.5,0.957,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Please rate your satisfaction with the explanations about the artworks.,1 Fully active,2 Semi-active,-,72.0,0.343,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Was the duration of the visit to your liking?,1 Fully active,2 Semi-active,-,69.0,0.257,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Would you like to hear more explanations of this kind about other works in the collection?,1 Fully active,2 Semi-active,-,80.0,0.599,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Would you like to visit the museum again with such a guide?,1 Fully active,2 Semi-active,-,80.0,0.597,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Would you like to visit other museums with similar guidance?,1 Fully active,2 Semi-active,-,54.0,0.06,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Would you recommend your friends to visit the collection accompanied by this type of audio guide?,1 Fully active,2 Semi-active,-,52.5,0.052,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Please rate how much you liked the artwork.,1 Fully active,2 Semi-active,-,81.5,0.646,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Please rate how much you liked the artwork..1,1 Fully active,2 Semi-active,-,91.5,1.0,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Please rate how much you liked the artwork..2,1 Fully active,2 Semi-active,-,104.5,0.52,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Please rate how much you liked the artwork..3,1 Fully active,2 Semi-active,-,77.0,0.504,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Please rate how much you liked the artwork..4,1 Fully active,2 Semi-active,-,142.5,0.01,N/A,Significant
+"Mann-Whitney U Test, 1 and 2",Please rate how much you liked the artwork..5,1 Fully active,2 Semi-active,-,73.0,0.374,N/A,Not Significant
+"Mann-Whitney U Test, 1 and 2",Please rate how much you liked the artwork..6,1 Fully active,2 Semi-active,-,63.0,0.171,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,2 Semi-active,3 Passive,-,106.0,0.449,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Please rate your satisfaction with the explanations about the artworks.,2 Semi-active,3 Passive,-,107.0,0.429,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Was the duration of the visit to your liking?,2 Semi-active,3 Passive,-,111.0,0.303,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Would you like to hear more explanations of this kind about other works in the collection?,2 Semi-active,3 Passive,-,104.5,0.513,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Would you like to visit the museum again with such a guide?,2 Semi-active,3 Passive,-,124.0,0.104,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Would you like to visit other museums with similar guidance?,2 Semi-active,3 Passive,-,123.5,0.105,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Would you recommend your friends to visit the collection accompanied by this type of audio guide?,2 Semi-active,3 Passive,-,120.0,0.142,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Please rate how much you liked the artwork.,2 Semi-active,3 Passive,-,132.0,0.04,N/A,Significant
+"Mann-Whitney U Test, 2 and 3",Please rate how much you liked the artwork..1,2 Semi-active,3 Passive,-,83.0,0.706,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Please rate how much you liked the artwork..2,2 Semi-active,3 Passive,-,82.0,0.67,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Please rate how much you liked the artwork..3,2 Semi-active,3 Passive,-,107.0,0.444,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Please rate how much you liked the artwork..4,2 Semi-active,3 Passive,-,72.5,0.36,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Please rate how much you liked the artwork..5,2 Semi-active,3 Passive,-,105.5,0.474,N/A,Not Significant
+"Mann-Whitney U Test, 2 and 3",Please rate how much you liked the artwork..6,2 Semi-active,3 Passive,-,97.0,0.777,N/A,Not Significant
+Fligner-Killeen Test,Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,All,All,All,0.031,0.984,N/A,Not Significant
+Fligner-Killeen Test,Please rate your satisfaction with the explanations about the artworks.,All,All,All,0.186,0.911,N/A,Not Significant
+Fligner-Killeen Test,Was the duration of the visit to your liking?,All,All,All,0.279,0.87,N/A,Not Significant
+Fligner-Killeen Test,Would you like to hear more explanations of this kind about other works in the collection?,All,All,All,2.937,0.23,N/A,Not Significant
+Fligner-Killeen Test,Would you like to visit the museum again with such a guide?,All,All,All,1.073,0.585,N/A,Not Significant
+Fligner-Killeen Test,Would you like to visit other museums with similar guidance?,All,All,All,0.711,0.701,N/A,Not Significant
+Fligner-Killeen Test,Would you recommend your friends to visit the collection accompanied by this type of audio guide?,All,All,All,0.32,0.852,N/A,Not Significant
+Fligner-Killeen Test,Please rate how much you liked the artwork.,All,All,All,0.177,0.915,N/A,Not Significant
+Fligner-Killeen Test,Please rate how much you liked the artwork..1,All,All,All,1.117,0.572,N/A,Not Significant
+Fligner-Killeen Test,Please rate how much you liked the artwork..2,All,All,All,1.054,0.59,N/A,Not Significant
+Fligner-Killeen Test,Please rate how much you liked the artwork..3,All,All,All,0.098,0.952,N/A,Not Significant
+Fligner-Killeen Test,Please rate how much you liked the artwork..4,All,All,All,0.926,0.629,N/A,Not Significant
+Fligner-Killeen Test,Please rate how much you liked the artwork..5,All,All,All,0.358,0.836,N/A,Not Significant
+Fligner-Killeen Test,Please rate how much you liked the artwork..6,All,All,All,4.35,0.114,N/A,Not Significant
+Chi-Squared,Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,All,All,All,6.369,0.383,N/A,Not Significant
+Chi-Squared,Please rate your satisfaction with the explanations about the artworks.,All,All,All,12.076,0.148,N/A,Not Significant
+Chi-Squared,Was the duration of the visit to your liking?,All,All,All,7.929,0.243,N/A,Not Significant
+Chi-Squared,Would you like to hear more explanations of this kind about other works in the collection?,All,All,All,9.299,0.504,N/A,Not Significant
+Chi-Squared,Would you like to visit the museum again with such a guide?,All,All,All,9.95,0.445,N/A,Not Significant
+Chi-Squared,Would you like to visit other museums with similar guidance?,All,All,All,13.33,0.101,N/A,Not Significant
+Chi-Squared,Would you recommend your friends to visit the collection accompanied by this type of audio guide?,All,All,All,4.846,0.564,N/A,Not Significant
+Chi-Squared,Please rate how much you liked the artwork.,All,All,All,7.301,0.697,N/A,Not Significant
+Chi-Squared,Please rate how much you liked the artwork..1,All,All,All,5.171,0.879,N/A,Not Significant
+Chi-Squared,Please rate how much you liked the artwork..2,All,All,All,8.523,0.578,N/A,Not Significant
+Chi-Squared,Please rate how much you liked the artwork..3,All,All,All,10.136,0.604,N/A,Not Significant
+Chi-Squared,Please rate how much you liked the artwork..4,All,All,All,18.834,0.042,N/A,Significant
+Chi-Squared,Please rate how much you liked the artwork..5,All,All,All,9.886,0.451,N/A,Not Significant
+Chi-Squared,Please rate how much you liked the artwork..6,All,All,All,16.826,0.156,N/A,Not Significant
