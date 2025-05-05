@@ -8,7 +8,7 @@ class LevelSensitiveFormatter(logging.Formatter):
             self._style._fmt = '%(asctime)s - %(levelname)s - %(message)s'
         return super().format(record)
 
-def configure_logger(level: int = logging.INFO):
+def configure_logging(level: int = logging.INFO):
     """
     Configure logging format. Includes line numbers only for warnings and above.
 
