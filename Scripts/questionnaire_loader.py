@@ -1,6 +1,8 @@
 import pandas as pd
 import csv
 
+pd.set_option('future.no_silent_downcasting', True) # opt in to future behavior and avoid warnings
+
 def load_questionnaire_data(csv_path: str) -> pd.DataFrame:
     # Load the questionnaire data
     data = pd.read_csv(csv_path, quoting=csv.QUOTE_NONE, sep=';')
@@ -23,12 +25,11 @@ def load_questionnaire_data(csv_path: str) -> pd.DataFrame:
     }
     
     
-    numerical_data = data.replace(order_mapping) # Convert categorical data to numeric values
+    numerical_data = data.replace(order_mapping).infer_objects(copy=False) # Convert categorical data to numeric values, determines the dtype of each column
     response_columns = numerical_data.columns[2:16] # Select only the relevant columns with question responses
     numeric_responses = numerical_data[response_columns] # Select only the relevant columns with numeric responses
-    numeric_responses.index = data['Number'] # Add participant IDs as index
-    numeric_responses = numeric_responses.rename_axis("ID") # Rename the index to "ID"
-
+    numeric_responses.index = data['Number'].rename_axis("ID") # Add participant IDs as index
+    
 
     # Rename artwork columns
     return numeric_responses.rename(columns={

@@ -4,6 +4,9 @@ import pandas as pd
 import pickle
 import logging
 import os
+from face_analysis import calculate_emotion_intensities
+
+# region ------- Constants -------
 
 # helper variables for the dataframes names
 audioGuideTiming = 'AudioGuideTiming'
@@ -12,8 +15,9 @@ face = 'FaceExpressionData'
 questions = 'QuestionsData'
 logs = 'TAUXR_logs'
 
+# endregion
 
-
+# ---------- Base class for participant data ----------
 
 class BaseParticipantData(ABC):
     """
@@ -35,7 +39,7 @@ class BaseParticipantData(ABC):
         self.continuous_data = None
         self.face_data = None
 
-        self.trial_data = None
+        self.trials_data = None
 
     @abstractmethod
     def load_data(self) -> None:
@@ -45,7 +49,7 @@ class BaseParticipantData(ABC):
         self.continuous_data = self.dataframes['ContinuousData']
         self.face_data = self.dataframes['FaceExpressionData']
         
-        self.trial_data = self._extract_trials_data()
+        self.trials_data = self._extract_trials_data()
         # TODO : decide if this is done in the constructor or in the load_data method.
 
     @property
@@ -82,12 +86,22 @@ class BaseParticipantData(ABC):
         """
         pass
 
+# ------- Experiment specific participant data -------
 
 class MuseumVRParticipantData(BaseParticipantData):
     def __init__(self, participant_id: str, data_path: str):
-        super().__init__(participant_id, data_path)
+        super().__init__(participant_id, data_path) # initialize the base class
+        
+        # Initialize experiment specific attributes
         self.questionnaire_data = None
+        self.emotions_df = None
+        self.tour_type = None
+        
+        # Load data and perform analysis
         self.load_data()
+        self.analyze_face_expressions()
+
+    # region ------- Data Loading -------
 
     def load_data(self) -> None:
         """
@@ -432,7 +446,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         if not invalid_times.empty:
             logging.warning(f"Some trials have StartTime >= EndTime:\n{invalid_times}")
         else:
-            logging.info("Trial times validated successfully.")
+            logging.debug("Trial times validated successfully.")
     
     def _filter_by_trial_time(self, df: pd.DataFrame, trial_name: str) -> pd.DataFrame:
             """
@@ -444,8 +458,29 @@ class MuseumVRParticipantData(BaseParticipantData):
 
             return df[(df['Time'] >= start_time) & (df['Time'] <= end_time)]
 
+    # endregion 
+    # region ------- Face analysis -------
+    
+    def analyze_face_expressions(self):
+        """
+        Calculates emotion intensities and valence per artwork based on facial expression data.
+        Results are saved to self.emotions_df.
+        """
+        from face_analysis import calculate_emotion_intensities
 
+        logs_df = self.dataframes.get('TAUXR_logs')
+        face_df = self.dataframes.get('FaceExpressionData')
 
+        if logs_df is None or face_df is None:
+            raise ValueError("Missing required dataframes: TAUXR_logs or FaceExpressionData.")
+        try:
+            self.emotions_df = calculate_emotion_intensities(face_df, logs_df)
+            logging.debug(f"Analized emotions for participant {self.participant_id}")
+        except Exception as e:
+            logging.error(f"Error analyzing face expressions for participant {self.participant_id}: {str(e)}")
+            raise e
+
+    # endregion
 
 #test:
 if __name__ == "__main__":

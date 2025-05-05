@@ -5,8 +5,8 @@ import pickle
 from pathlib import Path
 from typing import Dict, Any
 from logger_config import configure_logging
-from ParticipantData import *
-from QuestionnaireLoader import load_questionnaire_data
+from participant_data import *
+from questionnaire_loader import load_questionnaire_data
 
 # ---------------------configuration-------------------
 
