@@ -86,16 +86,15 @@ class BaseParticipantData(ABC):
 class MuseumVRParticipantData(BaseParticipantData):
     def __init__(self, participant_id: str, data_path: str):
         super().__init__(participant_id, data_path)
+        self.questionnaire_data = None
         self.load_data()
-        self.dataframes['QuestionsData'] = self._clean_questions_data(self.dataframes['QuestionsData'])
-        self.tour_type = self._determine_tour_type()  # 'active', 'semi-active', 'passive' as an integer (1, 2, or 3)
-        self.trial_data = self._extract_trials_data()
 
     def load_data(self) -> None:
         """
-        Loads the participant data.
+        This method is called from the constructor to load and process raw data into DataFrames.
         """
         self.dataframes = self._load_dataframes()
+        self.dataframes['QuestionsData'] = self._clean_questions_data(self.dataframes['QuestionsData'])
         self.tour_type = self._determine_tour_type()
         self.trial_data = self._extract_trials_data()
 
@@ -130,15 +129,17 @@ class MuseumVRParticipantData(BaseParticipantData):
                 file_path = os.path.join(self.data_path, file)
                 
                 if file.endswith('.csv'):
+                    logging.debug(f"Loading CSV file: {file}")
                     if base_name == 'TAUXR':
                         # Special handling for TAUXR logs
                         df = self._load_TAUXR_logs_to_df(file_path)
-                        logging.debug(f"Loaded TAUXR logs file: {file}")
                         base_name = 'TAUXR_logs' #fix the name
                     else:
-                        df = pd.read_csv(file_path)
-                        logging.debug(f"Loaded CSV file: {file}")
-                
+                        if "ContinuousData" in file:
+                            df = pd.read_csv(file_path, dtype={"FocusedObject": str}) # avoid dtype warning
+                        else:
+                            df = pd.read_csv(file_path)
+                    
                 # Standardize time column names
                 if df.columns[0] in ['LogTime', 'Time', 'TimeFromStart']:
                     df.rename(columns={df.columns[0]: 'Time'}, inplace=True)
@@ -149,7 +150,8 @@ class MuseumVRParticipantData(BaseParticipantData):
 
             except Exception as e:
                 logging.error(f"Error loading file {file}: {str(e)}")
-        
+                raise e  # Re-raise the exception for further handling
+            
         # Save the dataframes to a pickle file for future use
         if dataframes:
             try:
@@ -239,7 +241,8 @@ class MuseumVRParticipantData(BaseParticipantData):
         # (we already removed non-feature questions here)
 
         # === Step 4: Concatenate cleaned dataframes ===
-        cleaned_df = pd.concat([valid_experiment_type_df, feature_questions_clean], ignore_index=True)
+        dfs_to_concat = [df for df in [valid_experiment_type_df, feature_questions_clean] if not df.empty]
+        cleaned_df = pd.concat(dfs_to_concat, ignore_index=True)
 
         # Sort by Time
         cleaned_df = cleaned_df.sort_values('Time').reset_index(drop=True)
@@ -398,7 +401,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         ].sort_values('Time')
 
         if next_feature.empty:
-            raise ValueError("No next feature question found after given time.")
+            raise ValueError(f"Error extracting trials for participant {self.participant_id}: No next feature question found after given time.")
         
         return next_feature.iloc[0]
 
