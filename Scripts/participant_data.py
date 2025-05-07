@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 import pandas as pd
+import numpy as np
 import pickle
 import logging
 import os
 from face_analysis import calculate_emotion_intensities
+from io import StringIO
 
 # region ------- Constants -------
 
@@ -14,6 +16,18 @@ continupus = 'ContinuousData'
 face = 'FaceExpressionData'
 questions = 'QuestionsData'
 logs = 'TAUXR_logs'
+
+DEFAULT_COLLIDER_CSV = """name,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,bounds_x,bounds_y,bounds_z,bounds_size_x,bounds_size_y,bounds_size_z
+Klimt,1.984,1.562,1.292,0,90,0,1.984,1.562,1.292,0.001000166,2.003331,1.521984
+Pollock,0.5606009,1.619,-5.546001,0,180,0,0.5599192,1.617158,-5.546001,0.5911672,0.8356895,3.814697E-05
+van Dongen,0.1109,1.592,-2.39115,0,270,0,0.1109,1.590215,-2.389365,0.001000062,0.6447186,0.492722
+Braque,-0.109,1.63,-2.35815,0,90,0,-0.109,1.63,-2.35815,0.001000062,0.6753142,0.4546061
+de Chirico,0.099,1.566,-1.51175,0,270,0,0.1,1.565238,-1.509465,0.01000005,0.5423059,0.440496
+Janco,-2.031,1.718,0.961,0,270,0,-2.031,1.720237,0.9580168,0.000295639,0.9234918,0.9535842
+Picasso,-0.106,1.607499,-1.506,0,270,0,-0.106,1.607499,-1.506,0.001000062,0.5955708,0.4894981
+"""
+
+default_art_piece_colliders = pd.read_csv(StringIO(DEFAULT_COLLIDER_CSV))
 
 # endregion
 
@@ -99,6 +113,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         
         # Load data and perform analysis
         self.load_data()
+        self._offline_gaze_correction()  # Correct gaze data based on colliders positions
         self.analyze_face_expressions()
 
     # region ------- Data Loading -------
@@ -110,7 +125,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         self.dataframes = self._load_dataframes()
         self.dataframes['QuestionsData'] = self._clean_questions_data(self.dataframes['QuestionsData'])
         self.tour_type = self._determine_tour_type()
-        self.trial_data = self._extract_trials_data()
+        self.trials_data = self._extract_trials_data()
 
     def _load_dataframes(self) -> Dict[str, pd.DataFrame]:
         """
@@ -452,12 +467,161 @@ class MuseumVRParticipantData(BaseParticipantData):
             """
             Filters a dataframe to the timeframe of a given trial.
             """
-            trial = self.trial_data[self.trial_data['TrialName'] == trial_name].iloc[0]
+            trial = self.trials_data[self.trials_data['TrialName'] == trial_name].iloc[0]
             start_time = trial['StartTime']
             end_time = trial['EndTime']
 
             return df[(df['Time'] >= start_time) & (df['Time'] <= end_time)]
 
+    def _offline_gaze_correction(self):
+        """
+        Recalculates the gaze raycast from headset position and gaze direction to correct
+        the 'FocusedObject' and 'EyeGazeHitPoint' values in the ContinuousData dataframe,
+        based on the actual colliders' positions of the art pieces (hidden by the invisible demo pieces colliders).
+
+        This replicates Unity’s logic:
+        - Ray is cast from between the two eyes (approximated here as Head_Position_x/y/z - which is basically centerEyeAnchor on unity).
+        - Direction is based on Gaze_Pitch and Gaze_Yaw.
+        - Intersects with bounding boxes representing the artwork colliders.
+        
+        Adds new columns:
+            - 'CorrectedFocusedObject': corrected name of the object intersected or original FocusedObject.
+            - 'CorrectedEyeGazeHitPoint_X/Y/Z': corrected hit point, or original if no correction needed.
+        """
+        if self.dataframes is None:
+            raise ValueError("Dataframes not loaded. Please load data first.")
+        if self.trials_data is None or self.trials_data.empty:
+            raise ValueError("No tour start time available for gaze correction.")
+        
+        df = self.dataframes["ContinuousData"]
+
+        # Use fallback collider data if file isn't present
+        colliders = self._get_art_piece_colliders()
+        
+        # Get start time of first real trial
+        first_trial_start = self.trials_data.iloc[0]['StartTime']
+
+
+        # Extract relevant columns
+        eye_pitch = df["Gaze_Pitch"]
+        eye_yaw = df["Gaze_Yaw"]
+        head_x = df["Head_Position_x"]
+        head_y = df["Head_Height"]
+        head_z = df["Head_Position_Z"]
+        time = df["Time"]
+
+        corrected_objects = []
+        corrected_hit_x = []
+        corrected_hit_y = []
+        corrected_hit_z = []
+
+        for i in range(len(df)):
+            if time.iloc[i] < first_trial_start:
+                # Before first trial — keep original
+                corrected_objects.append(df["FocusedObject"].iloc[i])
+                corrected_hit_x.append(df["EyeGazeHitPosition_X"].iloc[i])
+                corrected_hit_y.append(df["EyeGazeHitPosition_Y"].iloc[i])
+                corrected_hit_z.append(df["EyeGazeHitPosition_Z"].iloc[i])
+                continue
+
+            origin = np.array([head_x.iloc[i], head_y.iloc[i], head_z.iloc[i]])
+            forward = self._gaze_direction_from_yaw_pitch(eye_yaw.iloc[i], eye_pitch.iloc[i])
+
+            hit_obj, hit_point = self._intersect_ray_with_colliders(origin, forward, colliders)
+
+            if hit_obj is not None:
+                corrected_objects.append(hit_obj)
+                corrected_hit_x.append(hit_point[0])
+                corrected_hit_y.append(hit_point[1])
+                corrected_hit_z.append(hit_point[2])
+            else:
+                # No correction possible — keep original
+                corrected_objects.append(df["FocusedObject"].iloc[i])
+                corrected_hit_x.append(df["EyeGazeHitPosition_X"].iloc[i])
+                corrected_hit_y.append(df["EyeGazeHitPosition_Y"].iloc[i])
+                corrected_hit_z.append(df["EyeGazeHitPosition_Z"].iloc[i])
+
+        df["CorrectedFocusedObject"] = corrected_objects
+        df["CorrectedEyeGazeHitPoint_X"] = corrected_hit_x
+        df["CorrectedEyeGazeHitPoint_Y"] = corrected_hit_y
+        df["CorrectedEyeGazeHitPoint_Z"] = corrected_hit_z
+
+        self.dataframes["ContinuousData"] = df
+
+    def _intersect_ray_box(self, origin, direction, bounds_center, bounds_size):
+        """
+        Calculates intersection of a ray with an axis-aligned bounding box using the slab method.
+        Returns the hit point if intersecting, otherwise None.
+        """
+        bounds_min = np.array(bounds_center) - np.array(bounds_size) / 2
+        bounds_max = np.array(bounds_center) + np.array(bounds_size) / 2
+
+        tmin = (bounds_min - origin) / direction
+        tmax = (bounds_max - origin) / direction
+
+        t1 = np.minimum(tmin, tmax)
+        t2 = np.maximum(tmin, tmax)
+
+        t_near = np.max(t1)
+        t_far = np.min(t2)
+
+        if t_near > t_far or t_far < 0:
+            return None  # no intersection
+
+        return origin + direction * t_near
+    
+    def _intersect_ray_with_colliders(self, origin: np.ndarray, direction: np.ndarray, colliders_df: pd.DataFrame):
+        """
+        Iterates over all artwork colliders and checks for intersection with the given ray.
+        
+        Args:
+            origin (np.ndarray): The ray origin point (eye position).
+            direction (np.ndarray): The ray direction (gaze).
+            colliders_df (pd.DataFrame): DataFrame with collider info (center + size).
+        
+        Returns:
+            Tuple[str, np.ndarray] or (None, None): Name of hit object and hit point if found, else None.
+        """
+        for _, row in colliders_df.iterrows():
+            center = np.array([row['bounds_x'], row['bounds_y'], row['bounds_z']])
+            size = np.array([row['bounds_size_x'], row['bounds_size_y'], row['bounds_size_z']])
+            hit_point = self._intersect_ray_box(origin, direction, center, size)
+            if hit_point is not None:
+                return row['name'], hit_point
+
+        return None, None
+
+    
+    def _gaze_direction_from_yaw_pitch(self, yaw_deg: float, pitch_deg: float) -> np.ndarray:
+        """
+        Converts gaze yaw and pitch angles (in degrees) into a 3D direction vector.
+
+        Unity's forward is (0, 0, 1), yaw rotates around Y (vertical), and pitch rotates around X (sideways).
+        So this mimics Unity's:
+            Quaternion.Euler(pitch, yaw, 0) * Vector3.forward
+
+        Parameters:
+        - yaw_deg (float): Horizontal rotation in degrees (around Y axis)
+        - pitch_deg (float): Vertical rotation in degrees (around X axis)
+
+        Returns:
+        - np.ndarray: Normalized 3D direction vector
+        """
+        yaw_rad = np.radians(yaw_deg)
+        pitch_rad = np.radians(pitch_deg)
+
+        # Calculate direction vector components
+        x = np.sin(yaw_rad) * np.cos(pitch_rad)
+        y = -np.sin(pitch_rad)
+        z = np.cos(yaw_rad) * np.cos(pitch_rad)
+
+        direction = np.array([x, y, z])
+        return direction / np.linalg.norm(direction)
+
+    def _get_art_piece_colliders(self):
+        #TODO  in next runs of the experiment replace with per run colliders csv, if not exist return the default one
+        return default_art_piece_colliders
+    
     # endregion 
     # region ------- Face analysis -------
     
