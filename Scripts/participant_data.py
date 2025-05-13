@@ -5,14 +5,14 @@ import numpy as np
 import pickle
 import logging
 import os
-from face_analysis import calculate_emotion_intensities
+from face_analysis import *
 from io import StringIO
 
 # region ------- Constants -------
 
 # helper variables for the dataframes names
 audioGuideTiming = 'AudioGuideTiming'
-continupus = 'ContinuousData'
+continuous = 'ContinuousData'
 face = 'FaceExpressionData'
 questions = 'QuestionsData'
 logs = 'TAUXR_logs'
@@ -50,8 +50,8 @@ class BaseParticipantData(ABC):
         self.data_path = data_path
         
         self.dataframes = None
-        self.continuous_data = None
-        self.face_data = None
+        # self.continuous_data = None
+        # self.face_data = None
 
         self.trials_data = None
 
@@ -122,12 +122,12 @@ class MuseumVRParticipantData(BaseParticipantData):
         """
         This method is called from the constructor to load and process raw data into DataFrames.
         """
-        self.dataframes = self._load_dataframes()
+        self.dataframes = self._load_dataframes(False)
         self.dataframes['QuestionsData'] = self._clean_questions_data(self.dataframes['QuestionsData'])
         self.tour_type = self._determine_tour_type()
         self.trials_data = self._extract_trials_data()
 
-    def _load_dataframes(self) -> Dict[str, pd.DataFrame]:
+    def _load_dataframes(self, usePkl=True) -> Dict[str, pd.DataFrame]:
         """
         A suggested implementaion to load all CSV files for this participant into DataFrames.
         Uses pickle caching for faster loading on subsequent runs.
@@ -135,17 +135,18 @@ class MuseumVRParticipantData(BaseParticipantData):
         Returns:
             Dictionary mapping file names to DataFrames
         """
-        # Path to the pickle file where dataframes will be saved/loaded
-        pickle_path = os.path.join(self.data_path, 'dataframes.pkl')
-        
-        if os.path.exists(pickle_path):
-            logging.info(f"Loading dataframes from pickle: {pickle_path}")
-            try:
-                with open(pickle_path, 'rb') as f:
-                    return pickle.load(f)
-            except Exception as e:
-                logging.error(f"Error loading pickle file: {str(e)}")
-        
+        if usePkl:
+            # Path to the pickle file where dataframes will be saved/loaded
+            pickle_path = os.path.join(self.data_path, 'dataframes.pkl')
+            
+            if os.path.exists(pickle_path):
+                logging.info(f"Loading dataframes from pickle: {pickle_path}")
+                try:
+                    with open(pickle_path, 'rb') as f:
+                        return pickle.load(f)
+                except Exception as e:
+                    logging.error(f"Error loading pickle file: {str(e)}")
+            
         # If pickle doesn't exist or failed to load, process the raw files
         logging.info("Processing raw data files")
         files = [f for f in os.listdir(self.data_path) if f.endswith('.csv')]
@@ -362,30 +363,34 @@ class MuseumVRParticipantData(BaseParticipantData):
                 if self.tour_type == 1:  # Active
                     if piece == "Klimt":
                         trial["StartTime"] = current_start_time
-                        feature_row = self._find_next_feature_question_answer(after_time=current_start_time)
-                        trial["EndTime"] = feature_row['Time']
+                        audio_finish_time = self._find_audio_finish(piece)
+                        trial["EndTime"] = audio_finish_time
+                        feature_row = self._find_next_feature_question_answer(after_time=audio_finish_time)
                         current_start_time = feature_row['Time']
                     else:
                         trial["StartTime"] = current_start_time
                         audio_finish_time = self._find_audio_finish(piece)
                         trial["EndTime"] = audio_finish_time
-                        current_start_time = audio_finish_time
+                        feature_row = self._find_next_feature_question_answer(after_time=audio_finish_time)
+                        current_start_time = feature_row['Time']
 
                 elif self.tour_type == 2:  # Semi-Active
                     if piece in ["Klimt", "Pollock", "van Dongen"]:
                         trial["StartTime"] = current_start_time
+                        audio_finish_time = self._find_audio_finish(piece)
+                        trial["EndTime"] = audio_finish_time
                         feature_row = self._find_next_feature_question_answer(after_time=current_start_time)
-                        trial["EndTime"] = feature_row['Time']
                         current_start_time = feature_row['Time']
 
                     elif piece == "de Chirico":
                         trial["StartTime"] = current_start_time
+                        audio_finish_time = self._find_audio_finish(piece)
+                        trial["EndTime"] = audio_finish_time
                         end_of_active = logs_df[
                             logs_df['LogText'] == "Instructions board hidden End of active choice Instructions"
                         ]
                         if end_of_active.empty:
                             raise ValueError("End of active choice instruction not found in logs.")
-                        trial["EndTime"] = end_of_active.iloc[0]['Time']
                         current_start_time = end_of_active.iloc[0]['Time']
 
                     else:  # Janco, Picasso
@@ -452,7 +457,7 @@ class MuseumVRParticipantData(BaseParticipantData):
 
     def _validate_trials_data(self, trials_df: pd.DataFrame):
         """
-        Validates the extracted trials data.
+        Validates the extracted trials data - checks for NaN values and ensures StartTime < EndTime.
         """
         if trials_df.isnull().any().any():
             logging.warning("Trials data contains NaN values!")
@@ -472,7 +477,8 @@ class MuseumVRParticipantData(BaseParticipantData):
             end_time = trial['EndTime']
 
             return df[(df['Time'] >= start_time) & (df['Time'] <= end_time)]
-
+    # endregion 
+    # region ------- Gaze correction -------
     def _offline_gaze_correction(self):
         """
         Recalculates the gaze raycast from headset position and gaze direction to correct
@@ -591,7 +597,6 @@ class MuseumVRParticipantData(BaseParticipantData):
 
         return None, None
 
-    
     def _gaze_direction_from_yaw_pitch(self, yaw_deg: float, pitch_deg: float) -> np.ndarray:
         """
         Converts gaze yaw and pitch angles (in degrees) into a 3D direction vector.
@@ -621,16 +626,15 @@ class MuseumVRParticipantData(BaseParticipantData):
     def _get_art_piece_colliders(self):
         #TODO  in next runs of the experiment replace with per run colliders csv, if not exist return the default one
         return default_art_piece_colliders
-    
-    # endregion 
+    # endregion
     # region ------- Face analysis -------
     
-    def analyze_face_expressions(self):
+    def analyze_face_expressions(self):  # this function is before our review
         """
         Calculates emotion intensities and valence per artwork based on facial expression data.
         Results are saved to self.emotions_df.
         """
-        from face_analysis import calculate_emotion_intensities
+    
 
         logs_df = self.dataframes.get('TAUXR_logs')
         face_df = self.dataframes.get('FaceExpressionData')
@@ -643,6 +647,66 @@ class MuseumVRParticipantData(BaseParticipantData):
         except Exception as e:
             logging.error(f"Error analyzing face expressions for participant {self.participant_id}: {str(e)}")
             raise e
+
+    def calculate_first_impression(self, painting_name):
+        face_df = self.dataframes.get('FaceExpressionData')
+        continuous_df = self.dataframes.get('ContinuousData')
+
+    def get_first_imression_window(self, painting_name: str) -> pd.DataFrame:
+
+        """
+        Get the first impression window for a specific painting.
+        first impression is defined as the first full 2 seconds the participant was looking at the painting (regardless of the trial they're at).
+        """
+        continuous_df = self.dataframes.get('ContinuousData')
+
+
+        # Finding windows of consecutive rows where CorrectedFocusedObject == painting_name
+        windows = []
+        current_window = []
+
+        for index, row in continuous_df.iterrows():
+            if row['CorrectedFocusedObject'] == painting_name:
+                current_window.append(row)
+            else:
+                if current_window:  # Save the current window if it's not empty
+                    windows.append(current_window)
+                    current_window = []
+                    
+                    start_time = current_window[0]['Time']
+                    end_time = current_window[-1]['Time']
+                    
+                    if end_time - start_time >= 2.0:
+                    # Create a DataFrame from the window
+                        window_df = pd.DataFrame(current_window)
+                        return window_df
+
+        return None
+
+    def get_first_impression_emotions(self, painting_name: str) -> pd.DataFrame:
+        """
+        Get the first impression emotions for a specific painting.
+        """
+        face_df = self.dataframes.get('FaceExpressionData')
+        continuous_df = self.dataframes.get('ContinuousData')
+
+        # Get the first impression window
+        first_impression_window = self.get_first_imression_window(painting_name)
+
+        if first_impression_window is None:
+            logging.warning(f"No first impression window found for {painting_name}.")
+            return None
+
+        window_start_time = first_impression_window.iloc[0]['Time']
+
+        max_emotion, max_intensity = get_dominant_emotion_after_time(face_df, continuous_df, window_start_time)
+        valence = get_valence_after_time(face_df, continuous_df, window_start_time)
+        return pd.DataFrame({
+            'PaintingName': [painting_name],
+            'MaxEmotion': [max_emotion],
+            'MaxIntensity': [max_intensity],
+            'Valence': [valence]
+        })
 
     # endregion
 
