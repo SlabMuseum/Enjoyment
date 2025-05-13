@@ -1,16 +1,127 @@
 import os
 import glob
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
-from utilities import assign_tiles, add_pixels, deal_with_demo
-from scipy.ndimage import convolve1d
-from matplotlib.collections import LineCollection
-from matplotlib.colors import Normalize
-from matplotlib.lines import Line2D
 
-# ========== PREPROCESSING FUNCTIONS ========== #
+def assign_tiles(df):
+    # Define bounding boxes in pixel coordinates: (xmin, xmax, ymin, ymax)
+    # Each tuple = (x_min, x_max, y_min, y_max)
+    tiles = {
+        "Pollock":    (398, 774, 324, 691),
+        "van Dongen": (388, 694, 892, 1200),
+        "de Chirico": (388, 694, 1295, 1600),
+        "Klimt":      (305, 686, 1873, 2243),
+        "Braque":     (790, 1100, 892, 1200),
+        "Picasso":    (790, 1100, 1295, 1600),
+        "Janco":      (890, 1210, 1902, 2206),
+    }
+
+    # Initialize a column for tile labels
+    df["tile_label"] = "None"
+
+    # Assign tiles based on (x_pix, y_pix) falling within bounding boxes
+    for label, (xmin, xmax, ymin, ymax) in tiles.items():
+        condition = (df["x_pix"] >= xmin) & (df["x_pix"] <= xmax) & \
+                    (df["y_pix"] >= ymin) & (df["y_pix"] <= ymax)
+        df.loc[condition, "tile_label"] = label
+
+    return df
+
+def add_pixels(df, pixel_size):
+    origin_x = df["Head_Position_x"].iloc[0]
+    origin_y = df["Head_Position_Z"].iloc[0]
+    anchor_x = 755
+    anchor_y = 1800
+    df["x_pix"] = anchor_x - ((df["Head_Position_x"] - origin_x) / pixel_size)
+    df["y_pix"] = ((df["Head_Position_Z"] - origin_y) / pixel_size) + anchor_y
+    return df
+
+def deal_with_demo(file):
+    logs_data_folder = "/Users/yanasklar/Documents/TAU/Data/Logs/"
+    df = pd.read_csv(file, sep=",", engine="python")
+    participant_id = os.path.basename(file).split(".csv")[0][-3:]  # Extract participant ID
+    if participant_id == "143":
+        print(df)
+
+
+    # Load the corresponding Logs file
+    logs_file_path = glob.glob(os.path.join(logs_data_folder, f"*{participant_id}.csv"))
+    if not logs_file_path:
+        print(f"No logs file found for participant {participant_id}. Skipping...")
+    logs_df = pd.read_csv(logs_file_path[0], names=["LogTime", "LogText", "Extra"], dtype=str, engine="python", skiprows=1)
+
+    # Extract timestamps from the logs
+    if participant_id == "109":
+        experiment_start_time = 129.0
+    else:    
+        experiment_start_time = logs_df.loc[logs_df['LogText'] == "Instructions board hidden Lets start the tour Instructions", 'LogTime'].astype(float).values
+        experiment_start_time = experiment_start_time[0] if len(experiment_start_time) > 0 else None
+    demo_3_switch = logs_df.loc[logs_df['LogText'] == "Player exited the zone of van Dongen", 'LogTime'].astype(float).values
+    demo_2_switch = logs_df.loc[logs_df['LogText'] == "Player exited the zone of de Chirico", 'LogTime'].astype(float).values
+
+    # Ensure we have valid values
+    demo_3_switch = demo_3_switch[0] if len(demo_3_switch) > 0 else float('inf')
+    demo_2_switch = demo_2_switch[0] if len(demo_2_switch) > 0 else float('inf')
+
+    if experiment_start_time is None:
+        print(f"Experiment start time not found for participant {participant_id}. Skipping...")
+    
+    # Filter the Continuous data to keep only data collected after experiment_start_time
+    df["Time"] = df["Time"].astype(float)
+    origin_row = df.iloc[[0]]
+    filtered_rows = df[df["Time"] >= experiment_start_time]
+    df = pd.concat([origin_row, filtered_rows], ignore_index=True)
+
+    # Replace demo object names based on Time conditions
+    df.loc[df["FocusedObject"] == "Demo Piece 4", "FocusedObject"] = "Janco"
+    df.loc[df["FocusedObject"] == "Demo Piece 1", "FocusedObject"] = "Klimt"
+
+    df.loc[(df["FocusedObject"] == "Demo Piece 3") & (df["Time"] < demo_3_switch), "FocusedObject"] = "van Dongen"
+    df.loc[(df["FocusedObject"] == "Demo Piece 3") & (df["Time"] >= demo_3_switch), "FocusedObject"] = "de Chirico"
+
+    df.loc[(df["FocusedObject"] == "Demo Piece 2") & (df["Time"] < demo_2_switch), "FocusedObject"] = "Braque"
+    df.loc[(df["FocusedObject"] == "Demo Piece 2") & (df["Time"] >= demo_2_switch), "FocusedObject"] = "Picasso"
+    return df, participant_id
+
+# ========== EMOTIONS - FIRST IMPRESSION ========== #
+
+
+def compute_weighted_emotion(df, weights_dict):
+    return sum(df[au].max() * w for au, w in weights_dict.items() if au in df.columns)
+
+def compute_fi_from_segment(segment):
+    emotion_weights = {
+        "joy": {'CheekRaiserL': 2.0, 'CheekRaiserR': 2.0, 'LipCornerPullerL': 2.5, 'LipCornerPullerR': 2.5},
+        "sadness": {'InnerBrowRaiserL': 1.2, 'InnerBrowRaiserR': 1.2, 'BrowLowererL': 0.5, 'BrowLowererR': 0.5,
+                    'LipCornerDepressorL': 3.0, 'LipCornerDepressorR': 3.0},
+        "anger": {'BrowLowererL': 1.5, 'BrowLowererR': 1.5, 'LidTightenerL': 1.8, 'LidTightenerR': 1.8},
+        "disgust": {'NoseWrinklerL': 2.0, 'NoseWrinklerR': 2.0, 'LipCornerDepressorL': 1.0, 'LipCornerDepressorR': 1.0},
+        "surprise": {'JawDrop': 3.0, 'UpperLidRaiserL': 2.0, 'UpperLidRaiserR': 2.0, 'InnerBrowRaiserL': 1.2, 'InnerBrowRaiserR': 1.2}
+    }
+    joy = compute_weighted_emotion(segment, emotion_weights["joy"])
+    surprise = compute_weighted_emotion(segment, emotion_weights["surprise"])
+    sadness = compute_weighted_emotion(segment, emotion_weights["sadness"])
+    anger = compute_weighted_emotion(segment, emotion_weights["anger"])
+    disgust = compute_weighted_emotion(segment, emotion_weights["disgust"])
+    
+    pos = joy + surprise
+    neg = sadness + anger + disgust
+    fi = round(((pos - neg) / (pos + neg + 1e-6)) * 50, 2)
+    return np.clip(fi, -50, 50)
+
+def extract_valid_face_segment(face_df, cont_df, painting, sampling_rate, window_sec):
+    cont_df = cont_df[cont_df["FocusedObject"] == painting].sort_values("Time").reset_index(drop=True)
+    required_len = int(window_sec * sampling_rate)
+
+    for start_idx in range(len(cont_df) - required_len + 1):
+        segment = cont_df.iloc[start_idx:start_idx + required_len]
+        if segment["Time"].iloc[-1] - segment["Time"].iloc[0] >= window_sec - (1 / sampling_rate):
+            start_time = segment["Time"].iloc[0]
+            end_time = start_time + window_sec
+            face_segment = face_df[(face_df["Time"] >= start_time) & (face_df["Time"] <= end_time)]
+            if not face_segment.empty:
+                return face_segment
+    return None
 
 def rm_columns(df):
     return df.drop(columns=["Unnamed: 0"], errors="ignore")
@@ -26,6 +137,9 @@ def add_logs_col(df, subject_id, logs_path):
     df["Time"] = df["Time"].astype(float)
     df = pd.merge_asof(df.sort_values("Time"), logs_df.sort_values("LogTime"), left_on="Time", right_on="LogTime", direction="backward")
     return df
+
+# ========== SACCADE RATE ========== #
+
 
 def interpret_engagement(saccade_rate):
     if saccade_rate <= 0.5:
@@ -43,46 +157,13 @@ def calculate_saccades(gaze_data, sampling_rate):
     total_time = len(gaze_data) * (1 / sampling_rate)
     return round(saccade_count / total_time, 2) if total_time > 0 else 0.0
 
-"""
-def analyze_valence_by_tile(participant_id):
-    face_path = f"/Users/yanasklar/Documents/TAU/Data_old/FaceExpression/_FaceExpressionData_{participant_id}.csv"
-    cont_path = f"/Users/yanasklar/Documents/TAU/Data_old/Trajectory/{participant_id}_processed.csv"
-    if not os.path.exists(face_path) or not os.path.exists(cont_path):
-        print(f"Missing data for participant {participant_id}.")
-        return {}
+# ========== EMOTIONS ========== #
 
-    face_df = pd.read_csv(face_path, engine="python", on_bad_lines='skip')
-    cont_df = pd.read_csv(cont_path)
-    face_df["Time"] = face_df["TimeFromStart"].astype(float)
-    cont_df["Time"] = cont_df["Time"].astype(float)
-
-    # Compute joy and surprise intensities
-    face_df["joy"] = face_df[["CheekRaiserL", "CheekRaiserR", "LipCornerPullerL", "LipCornerPullerR"]].sum(axis=1)
-    face_df["surprise"] = face_df[["InnerBrowRaiserL", "InnerBrowRaiserR", "OuterBrowRaiserL", "OuterBrowRaiserR", "JawDrop"]].sum(axis=1)
-
-    # Compute valence based on joy
-    face_df["valence"] = face_df["joy"].apply(lambda x: round(50 + (x / 100) * 50, 2))
-
-    merged = pd.merge_asof(face_df.sort_values("Time"), cont_df.sort_values("Time"), on="Time", direction="backward")
-    merged = merged[merged["tile_label"] != "None"]
-
-    tiles = merged["tile_label"].unique()
-    tiles = [t for t in merged["tile_label"].unique() if pd.notna(t)]
-    output = {"ID": int(participant_id)}
-
-    for tile in tiles:
-        tile_df = merged[merged["tile_label"] == tile]
-        output[f"{tile} - joy"] = round(tile_df["joy"].mean(), 2)
-        output[f"{tile} - surprise"] = round(tile_df["surprise"].mean(), 2)
-        output[f"{tile} - valence"] = round(tile_df["valence"].mean(), 2)
-
-    return output
-"""
 
 def analyze_dominant_emotions_by_tile(participant_id, sampling_rate=60, segment_duration=2):
     # Load data
     face_path = os.path.join(face_expression_folder, f"_FaceExpressionData_{participant_id}.csv")
-    cont_path = f"/Users/yanasklar/Documents/TAU/Data_old/Trajectory/{participant_id}_processed.csv"
+    cont_path = f"/Users/yanasklar/Documents/TAU/Data/Trajectory/{participant_id}_processed.csv"
     if not os.path.exists(face_path) or not os.path.exists(cont_path):
         print(f"Missing data for participant {participant_id}.")
         return {}
@@ -138,7 +219,7 @@ def analyze_dominant_emotions_by_tile(participant_id, sampling_rate=60, segment_
 
 def process_subject(df, participant_id, image_path, pixel_size, rect_w, rect_h, sampling_rate):
     df = rm_columns(df)
-    df = add_logs_col(df, participant_id, "/Users/yanasklar/Documents/TAU/Data_old/Logs/")
+    df = add_logs_col(df, participant_id, "/Users/yanasklar/Documents/TAU/Data/Logs/")
     df = add_pixels(df, pixel_size)
     df = assign_tiles(df)
 
@@ -289,86 +370,3 @@ def plot_trajectory_with_tiles_and_speed(df, image_path, save_path, id, emotion_
     plt.savefig(output_file, bbox_inches='tight')
     plt.close()
     print(f"Saved full plot for subject {id}")
-
-# ========== MAIN SCRIPT ========== #
-
-continuous_data_folder = '/Users/yanasklar/Documents/TAU/Data_old/Continuous/'
-face_expression_folder = '/Users/yanasklar/Documents/TAU/Data_old/FaceExpression/'
-logs_data_folder = "/Users/yanasklar/Documents/TAU/Data_old/Logs/"
-save_path = '/Users/yanasklar/Documents/TAU/Data_old/Trajectory/'
-image_path = 'top_view.png'
-emotions = 'emotion_analysis_valence.csv'
-pixel_size = 0.008660925 / 2.5
-rectangle_width = 70
-rectangle_height = 70.5
-sampling_rate = 60
-
-file_list = glob.glob(os.path.join(continuous_data_folder, '*.csv'))
-file_list.sort()
-
-all_metrics = []
-
-audio_durations = {
-    "Klimt": 87, "van Dongen": 81, "Braque": 75,
-    "Pollock": 87, "de Chirico": 48, "Janco": 65, "Picasso": 60
-}
-
-fi_df = pd.read_csv("emotion_analysis_valence.csv") # to get first impression 
-
-for file_path in file_list:
-    try:
-        df, participant_id = deal_with_demo(file_path)
-        df, start_time, end_time, metrics, emotion_summary = process_subject(
-            df, participant_id, image_path, pixel_size,
-            rectangle_width, rectangle_height, sampling_rate
-        )
-        plot_trajectory_with_tiles_and_speed(df, image_path, save_path, id=participant_id, emotion_summary=emotion_summary)
-        metrics["ID"] = participant_id
-        for tile in audio_durations.keys():
-            presence = metrics.get(f"{tile}_presence", 0.0)
-            gaze = metrics.get(f"{tile}_gaze", 0.0)
-            presence_audio = (presence / audio_durations[tile]) * 100 if audio_durations[tile] else 0
-            gaze_percent = (gaze / presence) * 100 if presence else 0
-
-            participant_row = fi_df[fi_df["ID"].astype(str) == str(participant_id)]
-            if not participant_row.empty:
-                matching_cols = [col for col in participant_row.columns if tile in col and 'valence' in col.lower()]
-                if matching_cols:
-                    metrics[f"{tile}_valence"] = round(float(participant_row.iloc[0][matching_cols[0]]), 2)
-                else:
-                    metrics[f"{tile}_valence"] = None
-            else:
-                metrics[f"{tile}_valence"] = None
-            
-            metrics[f"{tile}_emotions"] = ",".join(emotion_summary.get(tile, []))
-            metrics[f"{tile}_presence_audio"] = round(presence_audio, 2)
-            metrics[f"{tile}_gaze_percent"] = round(gaze_percent, 2)
-
-        all_metrics.append(metrics)
-        print(f"Participant {participant_id} processed successfully.")
-
-    except Exception as e:
-        print(f"Error processing participant {participant_id}: {e}")
-
-tiles_order = ["Klimt", "van Dongen", "Braque", "Pollock", "de Chirico", "Janco", "Picasso"]
-column_suffixes = [
-    "presence", "presence_audio", "gaze", "gaze_percent",
-    "saccade_rate", "engagement", "valence", "emotions"
-]
-final_column_order = ["ID"]
-for tile in tiles_order:
-    for suffix in column_suffixes:
-        final_column_order.append(f"{tile}_{suffix}")
-
-# Create and save DataFrame
-summary_df = pd.DataFrame(all_metrics)
-
-# Add missing columns if any were skipped
-for col in final_column_order:
-    if col not in summary_df.columns:
-        summary_df[col] = None
-
-summary_df = summary_df[final_column_order]
-summary_df.to_csv(os.path.join(save_path, "Tile_Gaze_Engagement_Summary.csv"), index=False)
-summary_df.to_csv("Tile_Gaze_Engagement_Summary.csv", index=False)
-print("Saved summary CSV of gaze durations and engagement.")
