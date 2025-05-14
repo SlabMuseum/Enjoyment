@@ -20,6 +20,7 @@ def calculate_intensity_weighted(max_values: pd.Series, aus_weights: Dict[str, f
             weight_sum += weight
     return round((intensity_sum / weight_sum) * 100, 2) if weight_sum > 0 else 0
 
+# TODO: older implementation, review if needed -
 def calculate_emotion_intensities(face_df: pd.DataFrame, logs_df: pd.DataFrame) -> pd.DataFrame:
     zone_logs = logs_df[logs_df['LogText'].str.contains(
         r"^(?:Player entered the zone of|Player is inside the zone of)",
@@ -67,13 +68,12 @@ def calculate_emotion_intensities(face_df: pd.DataFrame, logs_df: pd.DataFrame) 
 
     return pd.DataFrame([aggregated_result])
 
-def claculate_emotion_intensities_for_2_seconds_after_time(face_df:pd.DataFrame, logs_df: pd.DataFrame, start_time: float) -> pd.DataFrame:
+def claculate_emotion_intensities_for_2_seconds_after_time(face_df:pd.DataFrame, start_time: float) -> pd.DataFrame:
     """
     Calculate emotion intensities for 2 seconds after a specific time from the logs.
     
     Args:
         face_df (pd.DataFrame): DataFrame containing facial data.
-        logs_df (pd.DataFrame): DataFrame containing log data.
         start_time (float): The time from which to calculate the 2-second window.
     
     Returns:
@@ -97,7 +97,7 @@ def claculate_emotion_intensities_for_2_seconds_after_time(face_df:pd.DataFrame,
         return return_df
         
     except Exception as e:
-            logging.error(f"Error processing data for {painting}: {e}")
+            logging.error(f"Error processing emotion intensities: {e}")
             raise e
     
 def get_dominant_emotion_after_time(face_df: pd.DataFrame, logs_df: pd.DataFrame, start_time: float, intensity_threshold=0.5) -> tuple[str, float]:
@@ -141,3 +141,14 @@ def get_valence_after_time(face_df: pd.DataFrame, logs_df: pd.DataFrame, start_t
     valence = max(min(valence, 50), -50)
     return valence
     
+def get_sequence_of_emotion_intensities(face_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Get the sequence of emotion intensities over a specified duration, separated to 2-second windows.
+    
+    Args:
+        face_df (pd.DataFrame): DataFrame containing facial data.
+    
+    Returns:
+        Dict[float, pd.DataFrame]: A dictionary where keys are the start times of each 2-second window and values are DataFrames with calculated emotion intensities.
+    """
+
