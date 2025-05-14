@@ -66,3 +66,78 @@ def calculate_emotion_intensities(face_df: pd.DataFrame, logs_df: pd.DataFrame) 
             raise e
 
     return pd.DataFrame([aggregated_result])
+
+def claculate_emotion_intensities_for_2_seconds_after_time(face_df:pd.DataFrame, logs_df: pd.DataFrame, start_time: float) -> pd.DataFrame:
+    """
+    Calculate emotion intensities for 2 seconds after a specific time from the logs.
+    
+    Args:
+        face_df (pd.DataFrame): DataFrame containing facial data.
+        logs_df (pd.DataFrame): DataFrame containing log data.
+        start_time (float): The time from which to calculate the 2-second window.
+    
+    Returns:
+        pd.DataFrame: DataFrame with calculated emotion intensities.
+    """
+
+    end = start_time + 2.0
+
+    try:
+        window = face_df[(face_df['Time'] >= start_time) & (face_df['Time'] <= end)].copy()
+
+        numeric_window = window.iloc[:, 1:].apply(pd.to_numeric, errors='coerce')
+        max_aus_per_window = numeric_window.max()
+
+        intensities = {}
+        for emotion_name, emotion_aus_weights in EMOTION_TO_AUS.items():
+            score = calculate_intensity_weighted(max_aus_per_window, emotion_aus_weights)
+            intensities[emotion_name] = score
+
+        return_df = pd.DataFrame([intensities])
+        return return_df
+        
+    except Exception as e:
+            logging.error(f"Error processing data for {painting}: {e}")
+            raise e
+    
+def get_dominant_emotion_after_time(face_df: pd.DataFrame, logs_df: pd.DataFrame, start_time: float, intensity_threshold=0.5) -> tuple[str, float]:
+        """
+        Get the dominant emotion after a specific time from the logs.
+        
+        Args:
+            face_df (pd.DataFrame): DataFrame containing facial data.
+            logs_df (pd.DataFrame): DataFrame containing log data.
+            start_time (float): The time from which to calculate the 2-second window.
+        
+        Returns:
+            str: The dominant emotion and its intensity.
+            if the max intensity is below the threshold, return "neutral" and 0.0
+        """
+        intensities = claculate_emotion_intensities_for_2_seconds_after_time(face_df, logs_df, start_time)
+        max_intensity = intensities.max(axis=1).values[0]
+        max_emotion = intensities.idxmax(axis=1).values[0]
+
+        if max_intensity < intensity_threshold:
+            return "neutral", 0.0
+
+        return max_emotion, max_intensity
+
+def get_valence_after_time(face_df: pd.DataFrame, logs_df: pd.DataFrame, start_time: float) -> float:
+    """
+    Get the valence after a specific time from the logs.
+    
+    Args:
+        face_df (pd.DataFrame): DataFrame containing facial data.
+        logs_df (pd.DataFrame): DataFrame containing log data.
+        start_time (float): The time from which to calculate the 2-second window.
+    
+    Returns:
+        float: The valence value.
+    """
+    intensities = claculate_emotion_intensities_for_2_seconds_after_time(face_df, logs_df, start_time)
+    pos = intensities['joy'] + intensities['surprise']
+    neg = intensities['sadness'] + intensities['anger'] + intensities['disgust']
+    valence = round(((pos - neg) / 100) * 50, 2)
+    valence = max(min(valence, 50), -50)
+    return valence
+    
