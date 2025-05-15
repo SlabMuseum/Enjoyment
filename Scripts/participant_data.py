@@ -114,8 +114,9 @@ class MuseumVRParticipantData(BaseParticipantData):
         # Load data and perform analysis
         self.load_data()
         self._offline_gaze_correction()  # Correct gaze data based on colliders positions
-        self.analyze_face_expressions() # TODO before the review
+        #self.analyze_face_expressions() # TODO before the review
         self.emotions_df = self.calculate_emotions_df()
+        self.first_impressions = self.calculate_first_impressions()
 
     # region ------- Data Loading -------
 
@@ -136,10 +137,11 @@ class MuseumVRParticipantData(BaseParticipantData):
         Returns:
             Dictionary mapping file names to DataFrames
         """
-        if usePkl:
-            # Path to the pickle file where dataframes will be saved/loaded
-            pickle_path = os.path.join(self.data_path, 'dataframes.pkl')
+        # Path to the pickle file where dataframes will be saved/loaded
+        pickle_path = os.path.join(self.data_path, 'dataframes.pkl')
             
+        if usePkl:
+           
             if os.path.exists(pickle_path):
                 logging.info(f"Loading dataframes from pickle: {pickle_path}")
                 try:
@@ -372,8 +374,9 @@ class MuseumVRParticipantData(BaseParticipantData):
                         trial["StartTime"] = current_start_time
                         audio_finish_time = self._find_audio_finish(piece)
                         trial["EndTime"] = audio_finish_time
-                        feature_row = self._find_next_feature_question_answer(after_time=audio_finish_time)
-                        current_start_time = feature_row['Time']
+                        if piece != "Picasso": # if its not the last question, then:
+                            feature_row = self._find_next_feature_question_answer(after_time=audio_finish_time)
+                            current_start_time = feature_row['Time']
 
                 elif self.tour_type == 2:  # Semi-Active
                     if piece in ["Klimt", "Pollock", "van Dongen"]:
@@ -653,8 +656,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         face_df = self.dataframes.get('FaceExpressionData')
         
         # Initialize an empty dataframes to store results
-        results = pd.DataFrame()
-        window_results = pd.DataFrame()
+        results = []
 
         start = face_df['Time'].min()
         end = face_df['Time'].max()
@@ -663,25 +665,40 @@ class MuseumVRParticipantData(BaseParticipantData):
         for start_time in np.arange(start, end, 2.0):
             # Calculate the end time for the current window
             end_time = start_time + 2.0
-            window_results['Time'] = start_time
-            window_results['EndTime'] = end_time
+            
             intensities = claculate_emotion_intensities_for_2_seconds_after_time(face_df, start_time)
+            
             # calculate valence
-            valence = get_valence_after_time(face_df, start_time)
+            valence = get_valence_from_emotion_intensities(intensities)
+            
             # Store results
-            window_results['joy'] = intensities['joy']
-            window_results['sadness'] = intensities['sadness']
-            window_results['anger'] = intensities['anger']
-            window_results['fear'] = intensities['fear']
-            window_results['disgust'] = intensities['disgust']
-            window_results['surprise'] = intensities['surprise']
-            window_results['valence'] = valence
-            results = pd.concat([results, window_results], ignore_index=True)
-        return results
+            row = intensities.iloc[0]
+            results.append({
+                'Time': start_time,
+                'EndTime': end_time,
+                'joy': row['joy'],
+                'sadness': row['sadness'],
+                'anger': row['anger'],
+                'disgust': row['disgust'],
+                'surprise': row['surprise'],
+                'valence': valence
+            })
 
-    def calculate_first_impression(self, painting_name):
+        return pd.DataFrame(results)
+
+    def calculate_first_impressions(self) -> pd.DataFrame:
         face_df = self.dataframes.get('FaceExpressionData')
         continuous_df = self.dataframes.get('ContinuousData')
+
+        first_impressions = pd.DataFrame(columns=['PaintingName', 'MaxEmotion', 'MaxIntensity', 'Valence'])
+        # Iterate over the trials
+        for index, trial in self.trials_data.iterrows():
+            painting_name = trial['TrialName']
+
+            # Get the first impression emotions for the painting
+            first_impression_emotion = self.get_first_impression_emotions(painting_name)
+            first_impressions = pd.concat([first_impressions, first_impression_emotion], ignore_index=True)
+        return first_impressions
 
     def get_first_impression_window(self, painting_name: str) -> pd.DataFrame:
 
@@ -702,15 +719,19 @@ class MuseumVRParticipantData(BaseParticipantData):
             else:
                 if current_window:  # Save the current window if it's not empty
                     windows.append(current_window)
-                    current_window = []
                     
                     start_time = current_window[0]['Time']
                     end_time = current_window[-1]['Time']
                     
                     if end_time - start_time >= 2.0:
-                    # Create a DataFrame from the window
+                        # create a DataFrame for the current window and take only the first 2 seconds
+                        
                         window_df = pd.DataFrame(current_window)
+                        window_df = window_df[(window_df['Time'] >= start_time) & (window_df['Time'] <= start_time + 2.0)]
+
                         return window_df
+                    
+                    current_window = []  # Reset the current window
 
         return None
 
