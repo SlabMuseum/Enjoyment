@@ -114,7 +114,8 @@ class MuseumVRParticipantData(BaseParticipantData):
         # Load data and perform analysis
         self.load_data()
         self._offline_gaze_correction()  # Correct gaze data based on colliders positions
-        self.analyze_face_expressions()
+        self.analyze_face_expressions() # TODO before the review
+        self.emotions_df = self.calculate_emotions_df()
 
     # region ------- Data Loading -------
 
@@ -468,15 +469,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         else:
             logging.debug("Trial times validated successfully.")
     
-    def _filter_by_trial_time(self, df: pd.DataFrame, trial_name: str) -> pd.DataFrame:
-            """
-            Filters a dataframe to the timeframe of a given trial.
-            """
-            trial = self.trials_data[self.trials_data['TrialName'] == trial_name].iloc[0]
-            start_time = trial['StartTime']
-            end_time = trial['EndTime']
-
-            return df[(df['Time'] >= start_time) & (df['Time'] <= end_time)]
+    
     # endregion 
     # region ------- Gaze correction -------
     def _offline_gaze_correction(self):
@@ -629,10 +622,10 @@ class MuseumVRParticipantData(BaseParticipantData):
     # endregion
     # region ------- Face analysis -------
     
-    def analyze_face_expressions(self):  # this function is before our review
+    def analyze_face_expressions(self):  # TODO this function is before our review
         """
         Calculates emotion intensities and valence per artwork based on facial expression data.
-        Results are saved to self.emotions_df.
+        Results are saved to self.emotions_per_painting_df.
         """
     
 
@@ -642,17 +635,55 @@ class MuseumVRParticipantData(BaseParticipantData):
         if logs_df is None or face_df is None:
             raise ValueError("Missing required dataframes: TAUXR_logs or FaceExpressionData.")
         try:
-            self.emotions_df = calculate_emotion_intensities(face_df, logs_df)
+            self.emotions_per_painting_df = calculate_emotion_intensities(face_df, logs_df)
             logging.debug(f"Analized emotions for participant {self.participant_id}")
         except Exception as e:
             logging.error(f"Error analyzing face expressions for participant {self.participant_id}: {str(e)}")
             raise e
 
+    def calculate_emotions_df(self) -> pd.DataFrame:
+        """
+        separates face expression data to 2 seconds windows and calcultes
+        emotion intensities and valence for each window.
+
+        returns:
+            pd.DataFrame: DataFrame with columns ['Time', 'EndTime', 'joy', 'sadness', 'anger', 'fear', 'disgust', 'surprise', 'valence']
+
+        """
+        face_df = self.dataframes.get('FaceExpressionData')
+        
+        # Initialize an empty dataframes to store results
+        results = pd.DataFrame()
+        window_results = pd.DataFrame()
+
+        start = face_df['Time'].min()
+        end = face_df['Time'].max()
+
+        # Iterate over the DataFrame in 2-second intervals
+        for start_time in np.arange(start, end, 2.0):
+            # Calculate the end time for the current window
+            end_time = start_time + 2.0
+            window_results['Time'] = start_time
+            window_results['EndTime'] = end_time
+            intensities = claculate_emotion_intensities_for_2_seconds_after_time(face_df, start_time)
+            # calculate valence
+            valence = get_valence_after_time(face_df, start_time)
+            # Store results
+            window_results['joy'] = intensities['joy']
+            window_results['sadness'] = intensities['sadness']
+            window_results['anger'] = intensities['anger']
+            window_results['fear'] = intensities['fear']
+            window_results['disgust'] = intensities['disgust']
+            window_results['surprise'] = intensities['surprise']
+            window_results['valence'] = valence
+            results = pd.concat([results, window_results], ignore_index=True)
+        return results
+
     def calculate_first_impression(self, painting_name):
         face_df = self.dataframes.get('FaceExpressionData')
         continuous_df = self.dataframes.get('ContinuousData')
 
-    def get_first_imression_window(self, painting_name: str) -> pd.DataFrame:
+    def get_first_impression_window(self, painting_name: str) -> pd.DataFrame:
 
         """
         Get the first impression window for a specific painting.
@@ -691,7 +722,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         continuous_df = self.dataframes.get('ContinuousData')
 
         # Get the first impression window
-        first_impression_window = self.get_first_imression_window(painting_name)
+        first_impression_window = self.get_first_impression_window(painting_name)
 
         if first_impression_window is None:
             logging.warning(f"No first impression window found for {painting_name}.")
@@ -709,7 +740,19 @@ class MuseumVRParticipantData(BaseParticipantData):
         })
 
     # endregion
+    #region -------filtering -------
+    def _filter_by_trial_time(self, df: pd.DataFrame, trial_name: str) -> pd.DataFrame:
+            """
+            Filters a dataframe to the timeframe of a given trial.
+            """
+            trial = self.trials_data[self.trials_data['TrialName'] == trial_name].iloc[0]
+            start_time = trial['StartTime']
+            end_time = trial['EndTime']
 
+            return df[(df['Time'] >= start_time) & (df['Time'] <= end_time)]
+    
+    
+    # endregion
 #test:
 if __name__ == "__main__":
     # Example usage
