@@ -122,6 +122,24 @@ def get_dominant_emotion_after_time(face_df: pd.DataFrame, start_time: float, in
 
         return max_emotion, max_intensity
 
+def get_dominany_emotion_from_intensities(intensities: pd.DataFrame) -> tuple[str, float]:
+    """
+    Get the dominant emotion from the emotion intensities.
+    
+    Args:
+        intensities (pd.DataFrame): DataFrame containing emotion intensities.
+    
+    Returns:
+        str: The dominant emotion and its intensity.
+    """
+    max_intensity = intensities.max(axis=1).values[0]
+    max_emotion = intensities.idxmax(axis=1).values[0]
+
+    if max_intensity < 0.5:
+        return "neutral", 0.0
+
+    return max_emotion, max_intensity
+
 def get_valence_after_time(face_df: pd.DataFrame, start_time: float) -> float:
     """
     Get the valence after a specific time from the.

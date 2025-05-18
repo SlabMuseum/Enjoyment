@@ -1,0 +1,15 @@
+- participant_data: a new continuous data correction funtion, that only goes over demo pieces entries 
+  and checks if the hit point is inside the smaller piece rectange (in z,y axes)
+
+- trajectory: 
+    - whole tour trajectory (a list of points and time)
+
+- participant_data/utils: filter_by (trial. tile)
+
+- visualization: 
+    -Tile- 
+    presence (continuous_df)
+    gaze time (continuous_df)
+    emotion (emotions_df)
+    first impression (first_impression)
+    

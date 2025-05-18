@@ -686,19 +686,32 @@ class MuseumVRParticipantData(BaseParticipantData):
 
         return pd.DataFrame(results)
 
+    
     def calculate_first_impressions(self) -> pd.DataFrame:
-        face_df = self.dataframes.get('FaceExpressionData')
-        continuous_df = self.dataframes.get('ContinuousData')
+        # Prepare an empty list to collect rows
+        first_impressions_list = []
 
-        first_impressions = pd.DataFrame(columns=['PaintingName', 'MaxEmotion', 'MaxIntensity', 'Valence'])
         # Iterate over the trials
-        for index, trial in self.trials_data.iterrows():
+        for _, trial in self.trials_data.iterrows():
             painting_name = trial['TrialName']
-
+            
             # Get the first impression emotions for the painting
-            first_impression_emotion = self.get_first_impression_emotions(painting_name)
-            first_impressions = pd.concat([first_impressions, first_impression_emotion], ignore_index=True)
-        return first_impressions
+            first_impression_max_emotion = self.get_first_impression_max_emotion(painting_name)
+            
+            if first_impression_max_emotion is None:
+                logging.warning(f"No first impression data found for {painting_name} on participant {self.participant_id}.")
+                continue
+
+            # Add the current impression to the list
+            first_impressions_list.append({
+                'PaintingName': painting_name,
+                'MaxEmotion': first_impression_max_emotion['MaxEmotion'],
+                'MaxIntensity': first_impression_max_emotion['MaxIntensity'],
+                'Valence': first_impression_max_emotion['Valence']
+            })
+
+        # Create a DataFrame from the list
+        return pd.DataFrame(first_impressions_list, columns=['PaintingName', 'MaxEmotion', 'MaxIntensity', 'Valence'])
 
     def get_first_impression_window(self, painting_name: str) -> pd.DataFrame:
 
@@ -707,7 +720,6 @@ class MuseumVRParticipantData(BaseParticipantData):
         first impression is defined as the first full 2 seconds the participant was looking at the painting (regardless of the trial they're at).
         """
         continuous_df = self.dataframes.get('ContinuousData')
-
 
         # Finding windows of consecutive rows where CorrectedFocusedObject == painting_name
         windows = []
@@ -735,12 +747,11 @@ class MuseumVRParticipantData(BaseParticipantData):
 
         return None
 
-    def get_first_impression_emotions(self, painting_name: str) -> pd.DataFrame:
+    def get_first_impression_max_emotion(self, painting_name: str) -> pd.DataFrame:
         """
-        Get the first impression emotions for a specific painting.
+        Get the first impression max emotion for a specific painting.
         """
         face_df = self.dataframes.get('FaceExpressionData')
-        continuous_df = self.dataframes.get('ContinuousData')
 
         # Get the first impression window
         first_impression_window = self.get_first_impression_window(painting_name)
@@ -751,8 +762,10 @@ class MuseumVRParticipantData(BaseParticipantData):
 
         window_start_time = first_impression_window.iloc[0]['Time']
 
-        max_emotion, max_intensity = get_dominant_emotion_after_time(face_df, continuous_df, window_start_time)
-        valence = get_valence_after_time(face_df, continuous_df, window_start_time)
+        intensities = claculate_emotion_intensities_for_2_seconds_after_time(face_df, window_start_time)
+        max_emotion, max_intensity = get_dominany_emotion_from_intensities(intensities)
+        valence = get_valence_from_emotion_intensities(intensities)
+
         return pd.DataFrame({
             'PaintingName': [painting_name],
             'MaxEmotion': [max_emotion],

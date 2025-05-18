@@ -12,8 +12,6 @@ def calculate_isometric_projection_ratio(img_origin, img_corner):
 
     Returns:
     - scale_per_unit: pixels per Unity unit (Euclidean length ratio)
-    - pixel_vector: projected 2D pixel vector
-    - unity_vector: corresponding 2D Unity vector (x, z)
     """
 
     unity_origin = (0, 0)

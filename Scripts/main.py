@@ -53,6 +53,7 @@ def load_all_participants(datapath: str) -> Dict[int, MuseumVRParticipantData]:
         folder = folder.strip()
         folder_path = os.path.join(datapath, folder)
 
+
         if not os.path.isdir(folder_path):
             continue
 
