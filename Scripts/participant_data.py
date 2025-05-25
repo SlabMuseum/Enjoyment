@@ -475,6 +475,47 @@ class MuseumVRParticipantData(BaseParticipantData):
     
     # endregion 
     # region ------- Gaze correction -------
+
+    def fix_focus_object_with_colliders(self):
+
+        colliders = 'ArtPieceColliders.csv'
+
+        # Create bounding boxes for real paintings
+        painting_bounds = {}
+        for _, row in colliders.iterrows():
+            name = row['name']
+            min_x = row['bounds_x'] - row['bounds_size_x'] / 2
+            max_x = row['bounds_x'] + row['bounds_size_x'] / 2
+            min_y = row['bounds_y'] - row['bounds_size_y'] / 2
+            max_y = row['bounds_y'] + row['bounds_size_y'] / 2
+            min_z = row['bounds_z'] - row['bounds_size_z'] / 2
+            max_z = row['bounds_z'] + row['bounds_size_z'] / 2
+            painting_bounds[name] = ((min_x, max_x), (min_y, max_y), (min_z, max_z))
+
+        # Mapping of demo pieces to paintings
+        demo_map = {
+            "Demo Piece 1": ["Klimt"],
+            "Demo Piece 2": ["Picasso", "Braque"],
+            "Demo Piece 3": ["van Dongen", "de Chirico"],
+            "Demo Piece 4": ["Janco"]
+        }
+
+        df = self.dataframes["ContinuousData"]
+
+        def check_and_fix(row):
+            focus = row["FocusedObject"]
+            x, y, z = row["EyeGazeHitPosition_X"], row["EyeGazeHitPosition_Y"], row["EyeGazeHitPosition_Z"]
+            if focus in demo_map and x != -1.0 and y != -1.0 and z != -1.0:
+                for candidate in demo_map[focus]:
+                    (min_x, max_x), (min_y, max_y), (min_z, max_z) = painting_bounds.get(candidate, ((0,0),(0,0),(0,0)))
+                    if min_x <= x <= max_x and min_y <= y <= max_y and min_z <= z <= max_z:
+                        return candidate
+            return focus
+
+        df["FixedFocusObject"] = df.apply(check_and_fix, axis=1)
+        self.dataframes["ContinuousData"] = df
+
+
     def _offline_gaze_correction(self):
         """
         Recalculates the gaze raycast from headset position and gaze direction to correct
