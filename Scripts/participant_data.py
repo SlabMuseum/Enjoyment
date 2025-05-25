@@ -113,8 +113,9 @@ class MuseumVRParticipantData(BaseParticipantData):
         
         # Load data and perform analysis
         self.load_data()
-        self._offline_gaze_correction()  # Correct gaze data based on colliders positions
+        #self._offline_gaze_correction()  # Correct gaze data based on colliders positions
         #self.analyze_face_expressions() # TODO before the review
+        self.fix_focus_object_with_colliders()
         self.emotions_df = self.calculate_emotions_df()
         self.first_impressions = self.calculate_first_impressions()
 
