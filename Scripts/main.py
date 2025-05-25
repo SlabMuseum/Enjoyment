@@ -1,4 +1,3 @@
-
 import logging
 import os
 import pickle
@@ -7,6 +6,7 @@ from typing import Dict, Any
 from logger_config import configure_logging
 from participant_data import *
 from questionnaire_loader import load_questionnaire_data
+from visualizations import plot_trajectory_over_image
 
 # ---------------------configuration-------------------
 
@@ -14,7 +14,7 @@ from questionnaire_loader import load_questionnaire_data
 logging_level = logging.INFO  # Set to DEBUG to see all messages, or INFO for less verbosity
 
 # path configs - change accordingly                         # TODO set to relaive paths with known structure
-root_data_path = r"D:\Yana-Analisys\Yanas-Museum-Data\Data" 
+root_data_path = r"D:\Yana-Analisys\Yanas-Museum-Data\TestData" 
 questionnaire_csv_path = r"D:\Yana-Analisys\Enjoyment\res.csv" 
 
 # ----------- main function - entry point --------------
@@ -30,8 +30,13 @@ def main() -> None:
     add_questionnaire_data_to_each_participant(participants, questionnaire_df)
     logging.info("Added questionnaire data to participants.")
 
-    
-    
+    # ---- visualizations ----
+    for participant_id, participant_data in participants.items():
+        logging.info(f"Visualizing participant {participant_id}...")
+
+        plot_trajectory_over_image(participant_data, r"Top views\museum_top_iso_grid.png")
+        logging.info(f"Visualization for participant {participant_id} completed.")
+
 
 # ----------------- helper functions -------------------
 
@@ -71,6 +76,7 @@ def load_all_participants(datapath: str) -> Dict[int, MuseumVRParticipantData]:
             participants[participant_id] = data
         except Exception as e:
             logging.error(f"Failed to load participant {participant_id}: {str(e)}")
+            raise e
 
     return participants
 

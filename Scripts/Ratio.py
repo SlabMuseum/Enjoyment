@@ -1,5 +1,8 @@
 import numpy as np
 
+
+
+
 def calculate_isometric_projection_ratio(img_origin, img_corner):
     """
     Calculates the pixel-per-Unity-unit scale along the isometric projection directions.

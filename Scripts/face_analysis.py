@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np
 from typing import Dict
 import logging
+# region ---- Constants ----
+emotion_threshold = 0.2
+
+emotion_window_duration = 1.0  # seconds
 
 # Emotion-to-AU mapping with weights
 EMOTION_TO_AUS = {
@@ -11,8 +15,8 @@ EMOTION_TO_AUS = {
     "disgust": {'NoseWrinklerL': 2.0, 'NoseWrinklerR': 2.0, 'LipCornerDepressorL': 1.0, 'LipCornerDepressorR': 1.0},
     "surprise": {'JawDrop': 3.0, 'UpperLidRaiserL': 2.0, 'UpperLidRaiserR': 2.0, 'InnerBrowRaiserL': 1.2, 'InnerBrowRaiserR': 1.2}
 }
-
-def calculate_intensity_weighted(max_values: pd.Series, aus_weights: Dict[str, float], min_threshold: float = 0.1) -> float:
+# endregion
+def calculate_intensity_weighted(max_values: pd.Series, aus_weights: Dict[str, float], min_threshold: float = emotion_threshold) -> float:
     intensity_sum = 0
     weight_sum = 0
     for au, weight in aus_weights.items():
@@ -39,7 +43,7 @@ def calculate_emotion_intensities(face_df: pd.DataFrame, logs_df: pd.DataFrame) 
     for _, row in first_entry.iterrows():
         painting = row['Painter']
         start = row['Time']
-        end = start + 2.0
+        end = start + emotion_window_duration
 
         try:
             window = face_df[(face_df['Time'] >= start) & (face_df['Time'] <= end)].copy()
@@ -69,19 +73,19 @@ def calculate_emotion_intensities(face_df: pd.DataFrame, logs_df: pd.DataFrame) 
 
     return pd.DataFrame([aggregated_result])
 
-def claculate_emotion_intensities_for_2_seconds_after_time(face_df:pd.DataFrame, start_time: float) -> pd.DataFrame:
+def claculate_emotion_intensities_for_x_seconds_after_time(face_df:pd.DataFrame, start_time: float, x=emotion_window_duration) -> pd.DataFrame:
     """
-    Calculate emotion intensities for 2 seconds after a specific time from the logs.
+    Calculate emotion intensities for x seconds after a specific time from the logs.
     
     Args:
         face_df (pd.DataFrame): DataFrame containing facial data.
-        start_time (float): The time from which to calculate the 2-second window.
+        start_time (float): The time from which to calculate the x-second window.
     
     Returns:
         pd.DataFrame: DataFrame with calculated emotion intensities.
     """
 
-    end = start_time + 2.0
+    end = start_time + x
 
     try:
         window = face_df[(face_df['Time'] >= start_time) & (face_df['Time'] <= end)].copy()
@@ -101,19 +105,19 @@ def claculate_emotion_intensities_for_2_seconds_after_time(face_df:pd.DataFrame,
             logging.error(f"Error processing emotion intensities: {e}")
             raise e
     
-def get_dominant_emotion_after_time(face_df: pd.DataFrame, start_time: float, intensity_threshold=0.5) -> tuple[str, float]:
+def get_dominant_emotion_after_time(face_df: pd.DataFrame, start_time: float, intensity_threshold=emotion_threshold) -> tuple[str, float]:
         """
         Get the dominant emotion after a specific time.
         
         Args:
             face_df (pd.DataFrame): DataFrame containing facial data.
-            start_time (float): The time from which to calculate the 2-second window.
+            start_time (float): The time from which to calculate the x-second window.
         
         Returns:
             str: The dominant emotion and its intensity.
             if the max intensity is below the threshold, return "neutral" and 0.0
         """
-        intensities = claculate_emotion_intensities_for_2_seconds_after_time(face_df, start_time)
+        intensities = claculate_emotion_intensities_for_x_seconds_after_time(face_df, start_time)
         max_intensity = intensities.max(axis=1).values[0]
         max_emotion = intensities.idxmax(axis=1).values[0]
 
@@ -122,7 +126,7 @@ def get_dominant_emotion_after_time(face_df: pd.DataFrame, start_time: float, in
 
         return max_emotion, max_intensity
 
-def get_dominany_emotion_from_intensities(intensities: pd.DataFrame) -> tuple[str, float]:
+def get_dominant_emotion_from_intensities(intensities: pd.DataFrame) -> tuple[str, float]:
     """
     Get the dominant emotion from the emotion intensities.
     
@@ -135,23 +139,23 @@ def get_dominany_emotion_from_intensities(intensities: pd.DataFrame) -> tuple[st
     max_intensity = intensities.max(axis=1).values[0]
     max_emotion = intensities.idxmax(axis=1).values[0]
 
-    if max_intensity < 0.5:
+    if max_intensity < emotion_threshold:
         return "neutral", 0.0
 
     return max_emotion, max_intensity
 
-def get_valence_after_time(face_df: pd.DataFrame, start_time: float) -> float:
+def get_valence_after_time(face_df: pd.DataFrame, start_time: float, x=emotion_window_duration) -> float:
     """
-    Get the valence after a specific time from the.
+    Get the valence after a specific time from the logs.
     
     Args:
         face_df (pd.DataFrame): DataFrame containing facial data.
-        start_time (float): The time from which to calculate the 2-second window.
+        start_time (float): The time from which to calculate the x-second window.
     
     Returns:
         float: The valence value.
     """
-    intensities = claculate_emotion_intensities_for_2_seconds_after_time(face_df, start_time)
+    intensities = claculate_emotion_intensities_for_x_seconds_after_time(face_df, start_time, x)
     return get_valence_from_emotion_intensities(intensities)
 
 def get_valence_from_emotion_intensities(intensities: pd.DataFrame) -> float:
@@ -170,15 +174,15 @@ def get_valence_from_emotion_intensities(intensities: pd.DataFrame) -> float:
     # valence = max(min(valence, 50), -50)
     return valence
     
-def get_sequence_of_emotion_intensities(face_df: pd.DataFrame) -> pd.DataFrame:
+def get_sequence_of_emotion_intensities(face_df: pd.DataFrame, duration=emotion_window_duration) -> pd.DataFrame:
     """
-    Get the sequence of emotion intensities over a specified duration, separated to 2-second windows.
+    Get the sequence of emotion intensities over a specified duration, separated to x-second windows.
     
     Args:
         face_df (pd.DataFrame): DataFrame containing facial data.
     
     Returns:
-        Dict[float, pd.DataFrame]: A dictionary where keys are the start times of each 2-second window and values are DataFrames with calculated emotion intensities.
+        Dict[float, pd.DataFrame]: A dictionary where keys are the start times of each x-second window and values are DataFrames with calculated emotion intensities.
     """
 
     # Initialize an empty dictionary to store results
@@ -187,24 +191,24 @@ def get_sequence_of_emotion_intensities(face_df: pd.DataFrame) -> pd.DataFrame:
     start = face_df['Time'].min()
     end = face_df['Time'].max()
 
-    # Iterate over the DataFrame in 2-second intervals
-    for start_time in np.arange(start, end, 2.0):
-        intensities = claculate_emotion_intensities_for_2_seconds_after_time(face_df, start_time)
+    # Iterate over the DataFrame in x-second intervals
+    for start_time in np.arange(start, end, duration):
+        intensities = claculate_emotion_intensities_for_x_seconds_after_time(face_df, start_time, duration)
         # Store results
         results[start_time] = pd.DataFrame([intensities])
         
     return results
 
-def get_sequence_of_dominant_emotions(face_df: pd.DataFrame) -> pd.DataFrame:
+def get_sequence_of_dominant_emotions(face_df: pd.DataFrame, duration=emotion_window_duration) -> pd.DataFrame:
     """
-    Get the sequence of dominant emotions over a specified duration, separated to 2-second windows.
+    Get the sequence of dominant emotions over a specified duration, separated to x-second windows.
     
     Args:
         face_df (pd.DataFrame): DataFrame containing facial data.
         logs_df (pd.DataFrame): DataFrame containing log data.
     
     Returns:
-        Dict[float, tuple[str, float]]: A dictionary where keys are the start times of each 2-second window and values are tuples with the dominant emotion and its intensity.
+        Dict[float, tuple[str, float]]: A dictionary where keys are the start times of each x-second window and values are tuples with the dominant emotion and its intensity.
     """
 
     # Initialize an empty dictionary to store results
@@ -213,9 +217,9 @@ def get_sequence_of_dominant_emotions(face_df: pd.DataFrame) -> pd.DataFrame:
     start = face_df['Time'].min()
     end = face_df['Time'].max()
 
-    # Iterate over the DataFrame in 2-second intervals
-    for start_time in np.arange(start, end, 2.0):
-        max_emotion, max_intensity = get_dominant_emotion_after_time(face_df, start_time)
+    # Iterate over the DataFrame in x-second intervals
+    for start_time in np.arange(start, end, duration):
+        max_emotion, max_intensity = get_dominant_emotion_after_time(face_df, start_time, emotion_threshold)
         # Store results
         results[start_time] = (max_emotion, max_intensity)
         

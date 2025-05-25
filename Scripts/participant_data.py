@@ -26,9 +26,21 @@ de Chirico,0.099,1.566,-1.51175,0,270,0,0.1,1.565238,-1.509465,0.01000005,0.5423
 Janco,-2.031,1.718,0.961,0,270,0,-2.031,1.720237,0.9580168,0.000295639,0.9234918,0.9535842
 Picasso,-0.106,1.607499,-1.506,0,270,0,-0.106,1.607499,-1.506,0.001000062,0.5955708,0.4894981
 """
-
 default_art_piece_colliders = pd.read_csv(StringIO(DEFAULT_COLLIDER_CSV))
 
+DEFAULT_TILE_POSITIONS_CSV = """name,bottom-left_x,bottom-left_z,top-left_x,top-left_z,top-right_x,top-right_z,bottom-right_x,bottom-right_z
+Pollock,-0.05399996,-5.568,-0.05399996,-4.268,1.246,-4.268,1.246,-5.568
+Plane,-42597.8,-42603.32,-42597.8,42593.49,42599,42593.49,42599,-42603.32
+Braque,-1.096,-2.942,-1.096,-1.942,-0.09600002,-1.942,-0.09600002,-2.942
+Picasso,-1.096,-1.95,-1.096,-0.9499998,-0.09600002,-0.9499998,-0.09600002,-1.95
+de Chirico,0.09799999,-1.954,0.09799999,-0.9540002,1.098,-0.9540002,1.098,-1.954
+van Dongen,0.097,-2.947,0.097,-1.947,1.097,-1.947,1.097,-2.947
+Janco,-2.028,0.189,-2.028,1.489,-0.728,1.489,-0.728,0.189
+Klimt,-0.004000008,0.199,-0.004000008,2.199,1.996,2.199,1.996,0.199
+"""
+default_tile_positions = pd.read_csv(StringIO(DEFAULT_TILE_POSITIONS_CSV))
+
+FIRST_IMPRESSION_WINDOW_DURATION = 1.0  # seconds
 # endregion
 
 # ---------- Base class for participant data ----------
@@ -118,7 +130,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         self.fix_focus_object_with_colliders()
         self.emotions_df = self.calculate_emotions_df()
         self.first_impressions = self.calculate_first_impressions()
-
+        
     # region ------- Data Loading -------
 
     def load_data(self) -> None:
@@ -479,8 +491,9 @@ class MuseumVRParticipantData(BaseParticipantData):
 
     def fix_focus_object_with_colliders(self):
 
-        colliders = 'ArtPieceColliders.csv'
-
+        colliders = self._get_art_piece_colliders()
+        
+       
         # Create bounding boxes for real paintings
         painting_bounds = {}
         for _, row in colliders.iterrows():
@@ -500,22 +513,31 @@ class MuseumVRParticipantData(BaseParticipantData):
             "Demo Piece 3": ["van Dongen", "de Chirico"],
             "Demo Piece 4": ["Janco"]
         }
+        
+         # Get start time of first real trial
+        first_trial_start = self.trials_data.iloc[0]['StartTime']
 
         df = self.dataframes["ContinuousData"]
+        #
 
         def check_and_fix(row):
-            focus = row["FocusedObject"]
+            focused_object = row["FocusedObject"]
             x, y, z = row["EyeGazeHitPosition_X"], row["EyeGazeHitPosition_Y"], row["EyeGazeHitPosition_Z"]
-            if focus in demo_map and x != -1.0 and y != -1.0 and z != -1.0:
-                for candidate in demo_map[focus]:
+            if row["Time"] < first_trial_start:
+                # Before first trial — keep original
+                return focused_object
+            
+            if focused_object in demo_map and x != -1.0 and y != -1.0 and z != -1.0:
+                for candidate in demo_map[focused_object]:
                     (min_x, max_x), (min_y, max_y), (min_z, max_z) = painting_bounds.get(candidate, ((0,0),(0,0),(0,0)))
-                    if min_x <= x <= max_x and min_y <= y <= max_y and min_z <= z <= max_z:
+                    if min_y <= y <= max_y and min_z <= z <= max_z: # Check if within bounds in the Y and Z axes 
                         return candidate
-            return focus
+            return focused_object
 
-        df["FixedFocusObject"] = df.apply(check_and_fix, axis=1)
+        df["CorrectedFocusedObject"] = df.apply(check_and_fix, axis=1)
+        # Update the DataFrame with the fixed FocusedObject
         self.dataframes["ContinuousData"] = df
-
+        
 
     def _offline_gaze_correction(self):
         """
@@ -708,7 +730,7 @@ class MuseumVRParticipantData(BaseParticipantData):
             # Calculate the end time for the current window
             end_time = start_time + 2.0
             
-            intensities = claculate_emotion_intensities_for_2_seconds_after_time(face_df, start_time)
+            intensities = claculate_emotion_intensities_for_x_seconds_after_time(face_df, start_time)
             
             # calculate valence
             valence = get_valence_from_emotion_intensities(intensities)
@@ -740,22 +762,27 @@ class MuseumVRParticipantData(BaseParticipantData):
             # Get the first impression emotions for the painting
             first_impression_max_emotion = self.get_first_impression_max_emotion(painting_name)
             
+            if first_impression_max_emotion is None or first_impression_max_emotion.empty:
+                logging.warning(f"No first impression max emotion data found for {painting_name} on participant {self.participant_id}.")
+                continue
+
+            first_impression_max_emotion = first_impression_max_emotion.squeeze()  # Convert to Series if it's a single row
             if first_impression_max_emotion is None:
                 logging.warning(f"No first impression data found for {painting_name} on participant {self.participant_id}.")
                 continue
 
             # Add the current impression to the list
             first_impressions_list.append({
-                'PaintingName': painting_name,
-                'MaxEmotion': first_impression_max_emotion['MaxEmotion'],
-                'MaxIntensity': first_impression_max_emotion['MaxIntensity'],
-                'Valence': first_impression_max_emotion['Valence']
+            'PaintingName': painting_name,
+            'MaxEmotion': str(first_impression_max_emotion['MaxEmotion']),
+            'MaxIntensity': float(first_impression_max_emotion['MaxIntensity']),
+            'Valence': float(first_impression_max_emotion['Valence'])
             })
 
         # Create a DataFrame from the list
         return pd.DataFrame(first_impressions_list, columns=['PaintingName', 'MaxEmotion', 'MaxIntensity', 'Valence'])
 
-    def get_first_impression_window(self, painting_name: str) -> pd.DataFrame:
+    def get_first_impression_window(self, painting_name: str, first_impression_window_duration=FIRST_IMPRESSION_WINDOW_DURATION) -> pd.DataFrame:
 
         """
         Get the first impression window for a specific painting.
@@ -777,11 +804,11 @@ class MuseumVRParticipantData(BaseParticipantData):
                     start_time = current_window[0]['Time']
                     end_time = current_window[-1]['Time']
                     
-                    if end_time - start_time >= 2.0:
+                    if end_time - start_time >= first_impression_window_duration:
                         # create a DataFrame for the current window and take only the first 2 seconds
                         
                         window_df = pd.DataFrame(current_window)
-                        window_df = window_df[(window_df['Time'] >= start_time) & (window_df['Time'] <= start_time + 2.0)]
+                        window_df = window_df[(window_df['Time'] >= start_time) & (window_df['Time'] <= start_time + first_impression_window_duration)]
 
                         return window_df
                     
@@ -804,8 +831,8 @@ class MuseumVRParticipantData(BaseParticipantData):
 
         window_start_time = first_impression_window.iloc[0]['Time']
 
-        intensities = claculate_emotion_intensities_for_2_seconds_after_time(face_df, window_start_time)
-        max_emotion, max_intensity = get_dominany_emotion_from_intensities(intensities)
+        intensities = claculate_emotion_intensities_for_x_seconds_after_time(face_df, window_start_time)
+        max_emotion, max_intensity = get_dominant_emotion_from_intensities(intensities)
         valence = get_valence_from_emotion_intensities(intensities)
 
         return pd.DataFrame({
@@ -816,7 +843,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         })
 
     # endregion
-    #region -------filtering -------
+    # region ------- filtering -------
     def _filter_by_trial_time(self, df: pd.DataFrame, trial_name: str) -> pd.DataFrame:
             """
             Filters a dataframe to the timeframe of a given trial.
@@ -827,6 +854,33 @@ class MuseumVRParticipantData(BaseParticipantData):
 
             return df[(df['Time'] >= start_time) & (df['Time'] <= end_time)]
     
+    def _filter_by_tile_name(self, df: pd.DataFrame, tile_name: str) -> pd.DataFrame:
+        """
+        Filters a dataframe to only include rows where Head_Position_X, Head_Position_Z is within the bounds of a specific tile.
+
+        Args:
+            df (pd.DataFrame): DataFrame to filter.
+            tile_name (str): Name of the tile to filter by.
+        """
+        tiles = default_tile_positions.set_index('name')
+
+        if tile_name not in tiles.index:
+            raise ValueError(f"Tile '{tile_name}' not found in default tile positions.")
+
+        tile = tiles.loc[tile_name]
+
+        # Extract all X and Z coordinates
+        x_coords = [tile['bottom-left_x'], tile['top-left_x'], tile['top-right_x'], tile['bottom-right_x']]
+        z_coords = [tile['bottom-left_z'], tile['top-left_z'], tile['top-right_z'], tile['bottom-right_z']]
+
+        # Get bounding box
+        min_x, max_x = min(x_coords), max(x_coords)
+        min_z, max_z = min(z_coords), max(z_coords)
+
+        return df[
+            (df['Head_Position_x'] >= min_x) & (df['Head_Position_x'] <= max_x) &
+            (df['Head_Position_Z'] >= min_z) & (df['Head_Position_Z'] <= max_z)
+        ]
     
     # endregion
 #test:
