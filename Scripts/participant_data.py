@@ -30,7 +30,6 @@ default_art_piece_colliders = pd.read_csv(StringIO(DEFAULT_COLLIDER_CSV))
 
 DEFAULT_TILE_POSITIONS_CSV = """name,bottom-left_x,bottom-left_z,top-left_x,top-left_z,top-right_x,top-right_z,bottom-right_x,bottom-right_z
 Pollock,-0.05399996,-5.568,-0.05399996,-4.268,1.246,-4.268,1.246,-5.568
-Plane,-42597.8,-42603.32,-42597.8,42593.49,42599,42593.49,42599,-42603.32
 Braque,-1.096,-2.942,-1.096,-1.942,-0.09600002,-1.942,-0.09600002,-2.942
 Picasso,-1.096,-1.95,-1.096,-0.9499998,-0.09600002,-0.9499998,-0.09600002,-1.95
 de Chirico,0.09799999,-1.954,0.09799999,-0.9540002,1.098,-0.9540002,1.098,-1.954
@@ -115,7 +114,7 @@ class BaseParticipantData(ABC):
 # ------- Experiment specific participant data -------
 
 class MuseumVRParticipantData(BaseParticipantData):
-    def __init__(self, participant_id: str, data_path: str):
+    def __init__(self, participant_id: str, data_path: str, use_pkl: bool = True):
         super().__init__(participant_id, data_path) # initialize the base class
         
         # Initialize experiment specific attributes
@@ -124,7 +123,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         self.tour_type = None
         
         # Load data and perform analysis
-        self.load_data()
+        self.load_data(use_pkl)
         #self._offline_gaze_correction()  # Correct gaze data based on colliders positions
         #self.analyze_face_expressions() # TODO before the review
         self.fix_focus_object_with_colliders()
@@ -133,16 +132,16 @@ class MuseumVRParticipantData(BaseParticipantData):
         
     # region ------- Data Loading -------
 
-    def load_data(self) -> None:
+    def load_data(self, use_pkl:bool) -> None:
         """
         This method is called from the constructor to load and process raw data into DataFrames.
         """
-        self.dataframes = self._load_dataframes(False)
+        self.dataframes = self._load_dataframes(use_pkl)
         self.dataframes['QuestionsData'] = self._clean_questions_data(self.dataframes['QuestionsData'])
         self.tour_type = self._determine_tour_type()
         self.trials_data = self._extract_trials_data()
 
-    def _load_dataframes(self, usePkl=True) -> Dict[str, pd.DataFrame]:
+    def _load_dataframes(self, usePkl: bool) -> Dict[str, pd.DataFrame]:
         """
         A suggested implementaion to load all CSV files for this participant into DataFrames.
         Uses pickle caching for faster loading on subsequent runs.
@@ -717,6 +716,16 @@ class MuseumVRParticipantData(BaseParticipantData):
             pd.DataFrame: DataFrame with columns ['Time', 'EndTime', 'joy', 'sadness', 'anger', 'fear', 'disgust', 'surprise', 'valence']
 
         """
+        #if theres a pickle file with emotions_df, load it
+        emotions_df_path = os.path.join(self.data_path, f"emotions_df.pkl")
+        if os.path.exists(emotions_df_path):
+            logging.info(f"Loading emotions_df from pickle: {emotions_df_path} for participant {self.participant_id}")
+            try:
+                return pd.read_pickle(emotions_df_path)
+            except Exception as e:
+                logging.error(f"Error loading emotions_df pickle file: {str(e)}")
+            
+
         face_df = self.dataframes.get('FaceExpressionData')
         
         # Initialize an empty dataframes to store results
@@ -748,7 +757,17 @@ class MuseumVRParticipantData(BaseParticipantData):
                 'valence': valence
             })
 
-        return pd.DataFrame(results)
+        emotions_df = pd.DataFrame(results)
+
+        # save the df as a pickle file for faster loading next time
+        emotions_df_path = os.path.join(self.data_path, f"emotions_df.pkl")
+        try:
+            emotions_df.to_pickle(emotions_df_path)
+            logging.debug(f"Saved emotions_df to pickle: {emotions_df_path} for participant {self.participant_id}")
+        except Exception as e:
+            logging.error(f"Error saving emotions_df pickle file: {str(e)}")
+            
+        return emotions_df
 
     
     def calculate_first_impressions(self) -> pd.DataFrame:

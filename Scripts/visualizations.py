@@ -1,6 +1,7 @@
+import logging
 import numpy as np
 from participant_data import MuseumVRParticipantData as participantData
-
+from participant_data import default_tile_positions 
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib.colors import Normalize
@@ -84,6 +85,10 @@ def plot_trajectory_over_image(participant_data : participantData, image_path, s
     background = Image.open(image_path)
 
     df = participant_data.dataframes["ContinuousData"]
+    # filter out the demo
+    exp_start_time = participant_data.trials_data.iloc[0]["StartTime"]
+    df = df[df['Time'] >= exp_start_time]
+    
     coords = df[['Head_Position_x', 'Head_Position_Z']].values
 
 
@@ -115,7 +120,7 @@ def plot_trajectory_over_image(participant_data : participantData, image_path, s
     cbar = plt.colorbar(sm, ax=ax, orientation="vertical", shrink=0.8)
     cbar.set_label("Speed (px/sec)")
 
-    ax.set_title("Trajectory Colored by Smoothed Speed")
+    ax.set_title("Trajectory Colored by Smoothed Speed, participant: " + str(participant_data.participant_id))
     ax.axis("off")
     ax.legend(loc="upper right")
 
@@ -123,14 +128,107 @@ def plot_trajectory_over_image(participant_data : participantData, image_path, s
         filename = f"{participant_data.participant_id}_speed_trajectory.png"
         path = os.path.join(EXPORTS_FOLDER, filename)
         plt.savefig(path, bbox_inches='tight')
-        print(f"Saved to {path}")
+        logging.info(f"Saved to {path}")
     else:
         plt.show()
     if close_plot:
         plt.close()
 
 
+def plot_trajectory_over_image_dual_view(participant_data: participantData, image_path, save_file=True, sampling_rate=60, window_size=5, close_plot=True):
+    """
+    Plot participant's trajectory in both Unity units and image pixel coordinates.
+    - Left: Unity space with tile overlays
+    - Right: Image with pixel-transformed trajectory colored by smoothed speed
+    """
+    if image_path not in image_dict:
+        raise ValueError(f"Image path '{image_path}' not found in image_dict. Available images: {list(image_dict.keys())}")
+
+    image_metadata = image_dict[image_path]
+    background = Image.open(image_path)
+
+    df = participant_data.dataframes["ContinuousData"]
+    
+    # filter out the demo
+    exp_start_time = participant_data.trials_data.iloc[0]["StartTime"]
+    df = df[df['Time'] >= exp_start_time]
+    
+    coords = df[['Head_Position_x', 'Head_Position_Z']].values
+
+    # --- Unity space trajectory ---
+    unity_x, unity_z = coords[:, 0], coords[:, 1]
+
+    # --- Image space trajectory ---
+    pixel_points = np.array([convert_unity_units_to_image_px(x, z, image_metadata) for x, z in coords])
+    px, py = pixel_points[:, 0], pixel_points[:, 1]
+
+    # --- Speed computation ---
+    dx, dy = np.diff(px), np.diff(py)
+    distances = np.sqrt(dx**2 + dy**2)
+    speed = distances * sampling_rate
+    smoothed_speed = convolve1d(speed, np.ones(window_size) / window_size, mode='reflect')
+
+    points = np.array([px, py]).T.reshape(-1, 1, 2)
+    segments = np.concatenate([points[:-1], points[1:]], axis=1)
+
+    norm = Normalize(vmin=np.percentile(smoothed_speed, 2), vmax=np.percentile(smoothed_speed, 98))
+    cmap = plt.get_cmap('plasma')
+    colors = cmap(norm(smoothed_speed))
+
+    # --- Plotting ---
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 8))
+
+    # -- Unity coordinate plot --
+    ax1.plot(unity_x, unity_z, color='black', linewidth=1, alpha=0.4, label='Trajectory')
+    ax1.scatter(unity_x[0], unity_z[0], color="green", label="Start", zorder=5)
+    ax1.scatter(unity_x[-1], unity_z[-1], color="blue", label="End", zorder=5)
+
+    # Add tiles as rectangles
+    for _, row in default_tile_positions.iterrows():
+        xs = [row['bottom-left_x'], row['top-left_x'], row['top-right_x'], row['bottom-right_x'], row['bottom-left_x']]
+        zs = [row['bottom-left_z'], row['top-left_z'], row['top-right_z'], row['bottom-right_z'], row['bottom-left_z']]
+        ax1.plot(xs, zs, 'gray', linewidth=1.5)
+        cx = np.mean(xs[:-1])
+        cz = np.mean(zs[:-1])
+        ax1.text(cx, cz, row['name'], ha='center', va='center', fontsize=9, color='dimgray')
+
+    ax1.set_title("Trajectory in Unity Units")
+    ax1.set_xlabel("Unity X")
+    ax1.set_ylabel("Unity Z")
+    ax1.axis("equal")
+    ax1.grid(True)
+    ax1.legend()
+
+    # -- Image coordinate plot --
+    ax2.imshow(background)
+    ax2.add_collection(LineCollection(segments, colors=colors, linewidth=2))
+    ax2.scatter(px[0], py[0], color="green", label="Start", zorder=5)
+    ax2.scatter(px[-1], py[-1], color="blue", label="End", zorder=5)
+
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm, ax=ax2, orientation="vertical", shrink=0.8)
+    cbar.set_label("Speed (px/sec)")
+
+    ax2.set_title("Trajectory on Image (Pixels)")
+    ax2.axis("off")
+    ax2.legend(loc="upper right")
+
+    fig.suptitle(f"Participant: {participant_data.participant_id}", fontsize=14)
+
+    if save_file:
+        filename = f"{participant_data.participant_id}_trajectory_dual_view.png"
+        path = os.path.join(EXPORTS_FOLDER, filename)
+        plt.savefig(path, bbox_inches='tight')
+        logging.info(f"Saved to {path}")
+    else:
+        plt.show()
+
+    if close_plot:
+        plt.close()
+
 # region ---- helpers ----
+
 def convert_unity_units_to_image_px(x: float, z: float, image_reference_points: dict) -> tuple[float, float]:
     """
     Convert Unity coordinates (x, z) to pixel coordinates (x_px, y_px) in the image with affine transformation.
@@ -234,4 +332,4 @@ def debug_plot_unity_to_image_point_dual(x: float, z: float, image_path: str):
 
 #---test---
 
-debug_plot_unity_to_image_point_dual(0.5, 1.0, r"Top views\museum_top_iso_grid.png")
+#debug_plot_unity_to_image_point_dual(0.5, 1.0, r"Top views\museum_top_iso_grid.png")

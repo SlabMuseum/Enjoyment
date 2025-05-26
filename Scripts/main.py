@@ -6,7 +6,7 @@ from typing import Dict, Any
 from logger_config import configure_logging
 from participant_data import *
 from questionnaire_loader import load_questionnaire_data
-from visualizations import plot_trajectory_over_image
+from visualizations import *
 
 # ---------------------configuration-------------------
 
@@ -23,7 +23,7 @@ def main() -> None:
     
     configure_logging(logging_level)
 
-    participants = load_all_participants(root_data_path)
+    participants = load_all_participants(root_data_path,  use_pkl=True)
     logging.info(f"Loaded {len(participants)} participants successfully.")
 
     questionnaire_df = load_questionnaire_data(questionnaire_csv_path)
@@ -34,14 +34,14 @@ def main() -> None:
     for participant_id, participant_data in participants.items():
         logging.info(f"Visualizing participant {participant_id}...")
 
-        plot_trajectory_over_image(participant_data, r"Top views\museum_top_iso_grid.png", save_file=True
+        plot_trajectory_over_image_dual_view(participant_data, r"Top views\museum_top_iso_grid.png", save_file=True
                                    ,sampling_rate=60, window_size=5, close_plot=False)
         logging.info(f"Visualization for participant {participant_id} completed.")
 
 
 # ----------------- helper functions -------------------
 
-def load_all_participants(datapath: str) -> Dict[int, MuseumVRParticipantData]:
+def load_all_participants(datapath: str, use_pkl = True) -> Dict[int, MuseumVRParticipantData]:
     """
     Load all participant data from the specified directory.
     
@@ -73,7 +73,7 @@ def load_all_participants(datapath: str) -> Dict[int, MuseumVRParticipantData]:
         # === Step 2: Try loading participant data ===
         try:
             logging.info(f"Loading participant {participant_id}...")
-            data = MuseumVRParticipantData(participant_id=str(participant_id), data_path=folder_path)
+            data = MuseumVRParticipantData(participant_id=str(participant_id), data_path=folder_path, use_pkl=use_pkl)
             participants[participant_id] = data
         except Exception as e:
             logging.error(f"Failed to load participant {participant_id}: {str(e)}")
