@@ -36,6 +36,8 @@ def main() -> None:
 
         plot_trajectory_over_image_dual_view(participant_data, r"Top views\museum_top_iso_grid.png", save_file=True
                                    ,sampling_rate=60, window_size=5, close_plot=False)
+        plot_trajectory_over_image(participant_data, r"Top views\museum_top_iso_grid.png", save_file=True
+                                   ,sampling_rate=60, window_size=5, close_plot=False)
         logging.info(f"Visualization for participant {participant_id} completed.")
 
 

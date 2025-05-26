@@ -763,10 +763,10 @@ class MuseumVRParticipantData(BaseParticipantData):
         emotions_df_path = os.path.join(self.data_path, f"emotions_df.pkl")
         try:
             emotions_df.to_pickle(emotions_df_path)
-            logging.debug(f"Saved emotions_df to pickle: {emotions_df_path} for participant {self.participant_id}")
+            logging.debug(f"Saved emotions_df to pickle: {emotions_df_path}")
         except Exception as e:
             logging.error(f"Error saving emotions_df pickle file: {str(e)}")
-            
+
         return emotions_df
 
     
