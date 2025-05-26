@@ -6,35 +6,58 @@ from matplotlib.collections import LineCollection
 from matplotlib.colors import Normalize
 from scipy.ndimage import convolve1d
 from PIL import Image
+import cv2
 
 import os
 #region ---- Constants ----
+
+# 3 points to convert Unity coordinates to pixel coordinates with affine transformation
+# img_origin: unity zero point in image coordinates (player positioner - spawn point)
+# bottom_left_barrier: reference point in image coordinates --- (seahorse statue corner barrier)
+# top_right_barrier: reference point in image coordinates --- (Klimt corner barrier)
 
 image_dict = {
     r"Top views\museum_top_iso_grid.png": {
         "img_origin": (224, 113),
         "bottom_left_barrier": (44, 720),
+        "top_right_barrier": (331, 32),
     }
     , r"Top views\museum_top_iso.png": {
         "img_origin": (226, 107),
         "bottom_left_barrier": (46, 712),
+        "top_right_barrier": (334, 26),
     }
     , r"Top views\museum_top_perspective_grid.png": {
-        "img_origin": (288, 133),
-        "bottom_left_barrier": (116, 712),
+        "img_origin": (286, 133),
+        "bottom_left_barrier": (113, 715),
+        "top_right_barrier": (391, 55),
     }
     , r"Top views\museum_top_perspective.png": {
-        "img_origin": (308, 138),
-        "bottom_left_barrier": (136, 720),
+        "img_origin": (306, 138),
+        "bottom_left_barrier": (133, 720),
+        "top_right_barrier": (411, 60),
     }
-    , r"sanity.png": {
+    , r"sanity": {
         "img_origin": (0,0),
-        "bottom_left_barrier": (-2.3101, -2.4648),
+        "bottom_left_barrier": (-2.3101, -2.4648), 
+        "top_right_barrier": (0.9805, 5.351),
+    }
+    , r"Top views\top_view.png": {
+        "img_origin": (753,1976),
+        "bottom_left_barrier": (1215,409),
+        "top_right_barrier": (476,2185),
     }
 }
 
-UNITY_ORIGIN = (0, 0)  # Unity coordinates of origin
-UNITY_BOTTOM_LEFT_BARRIER = (-2.3101, -2.4648)  # Unity coordinates of reference point
+UNITY_ORIGIN = (0, 1.6758) # fixed that! the z ia actually not zero. the zero is the placement of the instructions...
+UNITY_BOTTOM_LEFT_BARRIER = (-2.0462, -5.2143) 
+UNITY_TOP_RIGHT_BARRIER = (1.2454, 2.6032)
+
+# conver to numpy arrays (vectors) for easier manipulation:
+unity_origin = np.array(UNITY_ORIGIN)
+unity_bottom_left_barrier = np.array(UNITY_BOTTOM_LEFT_BARRIER)
+unity_top_right_barrier = np.array(UNITY_TOP_RIGHT_BARRIER)
+
 
 EXPORTS_FOLDER = "Plots"  # Folder to save plots
 
@@ -108,74 +131,107 @@ def plot_trajectory_over_image(participant_data : participantData, image_path, s
 
 
 # region ---- helpers ----
-def calculate_isometric_projection_ratio(img_origin, bottom_left_barrier, unity_origin=UNITY_ORIGIN, unity_corner=UNITY_BOTTOM_LEFT_BARRIER): 
+def convert_unity_units_to_image_px(x: float, z: float, image_reference_points: dict) -> tuple[float, float]:
     """
-    Calculates the pixel-per-Unity-unit scale along the isometric projection directions.
+    Convert Unity coordinates (x, z) to pixel coordinates (x_px, y_px) in the image with affine transformation.
 
-    Parameters:
-    - unity_origin: (x, z) Unity coordinates of origin
-    - unity_corner: (x, z) Unity coordinates of reference point
-    - img_origin: (x, y) pixel coordinates of origin in screenshot
-    - bottom_left_barrier: (x, y) pixel coordinates of reference point in screenshot
+    Args:
+        x (float): Unity x-coordinate
+        z (float): Unity z-coordinate
+        image_reference_points (dict): Contains:
+            - 'img_origin': (x_px, y_px)
+            - 'bottom_left_barrier': (x_px, y_px)
+            - 'top_right_barrier': (x_px, y_px)
 
     Returns:
-    - scale_per_unit: pixels per Unity unit (Euclidean length ratio)
+        tuple: Pixel coordinates (x_px, y_px)
     """
+    
+    # ---- full 3 reference points for affine transformation ----
+    # Image pixel reference points
+    img_origin = np.array(image_reference_points["img_origin"])
+    img_bottom_left_barrier = np.array(image_reference_points["bottom_left_barrier"])
+    img_top_right_barrier = np.array(image_reference_points["top_right_barrier"])
+
+    # Unity world-space reference points
+    src_points = np.array([unity_origin, unity_bottom_left_barrier, unity_top_right_barrier], dtype=np.float32)
+    dst_points = np.array([img_origin, img_bottom_left_barrier, img_top_right_barrier], dtype=np.float32)
+
+    # Compute affine transform: Unity → Image
+    affine_transformation_matrix = cv2.getAffineTransform(src_points, dst_points)
+    
+    # Apply to input point (x, z)
+    point = np.array([[x, z]], dtype=np.float32)
+    transformed = cv2.transform(np.array([point]), affine_transformation_matrix)[0][0]
+
+    return float(transformed[0]), float(transformed[1])
 
 
 
-    # Vector in Unity world (XZ plane)
-    unity_vec = np.array([unity_corner[0] - unity_origin[0],
-                          unity_corner[1] - unity_origin[1]])  # (x, z)
+def debug_plot_unity_to_image_point_dual(x: float, z: float, image_path: str):
+    """
+    Plot both Unity and image coordinate systems:
+    - Unity view: reference points and input point in Unity units
+    - Image view: reference points and projected points overlaid on image
 
-    # Vector in pixel space (image XY)
-    pixel_vec = np.array([bottom_left_barrier[0] - img_origin[0],
-                          bottom_left_barrier[1] - img_origin[1]])  # (x, y)
+    Args:
+        x (float): Unity x coordinate
+        z (float): Unity z coordinate
+        image_path (str): Path to the top-view image (must exist in image_dict)
+    """
+    if image_path not in image_dict:
+        raise ValueError(f"Image path '{image_path}' not found in image_dict.")
 
-    # Lengths of both vectors
-    pixel_len = np.linalg.norm(pixel_vec)
-    unity_len = np.linalg.norm(unity_vec)
+    image_reference_points = image_dict[image_path]
+    img = Image.open(image_path)
 
-    # Ratio: pixels per Unity unit
-    scale_ratio = pixel_len / unity_len
+    # Unity reference points
+    unity_refs = {
+        "unity_origin": UNITY_ORIGIN,
+        "bottom_left": UNITY_BOTTOM_LEFT_BARRIER,
+        "top_right": UNITY_TOP_RIGHT_BARRIER,
+        "input": (x, z)
+    }
 
-    return scale_ratio
+    # Project Unity points into image space
+    projected_refs = {
+        label: convert_unity_units_to_image_px(pt[0], pt[1], image_reference_points)
+        for label, pt in unity_refs.items()
+    }
 
-def convert_unity_units_to_image_px(x: float, z: float, image_metadata: dict) -> tuple[float, float]:
-    img_origin = np.array(image_metadata["img_origin"], dtype=np.float64)
-    img_ref = np.array(image_metadata["bottom_left_barrier"], dtype=np.float64)
+    # Plot both views
+    fig, axes = plt.subplots(1, 2, figsize=(16, 8))
 
-    unity_origin = np.array(UNITY_ORIGIN, dtype=np.float64)
-    unity_ref = np.array(UNITY_BOTTOM_LEFT_BARRIER, dtype=np.float64)
+    # --- Unity Space ---
+    ax1 = axes[0]
+    for label, (ux, uz) in unity_refs.items():
+        color = 'green' if label == 'input' else 'blue'
+        marker = '*' if label == 'input' else 'o'
+        ax1.scatter(ux, uz, color=color, s=100, marker=marker)
+        ax1.text(ux + 0.05, uz + 0.05, f"{label}\n({ux:.2f}, {uz:.2f})", color=color)
+    ax1.set_title("Unity Coordinate System")
+    ax1.set_xlabel("Unity X")
+    ax1.set_ylabel("Unity Z")
+    ax1.axis("equal")
+    ax1.grid(True)
 
-    # Direction vectors
-    unity_dir = unity_ref - unity_origin
-    image_dir = img_ref - img_origin
+    # --- Image Space ---
+    ax2 = axes[1]
+    ax2.imshow(img)
 
-    # Normalize
-    unity_dir /= np.linalg.norm(unity_dir)
-    image_dir /= np.linalg.norm(image_dir)
+    for label, (px, py) in projected_refs.items():
+        color = 'green' if label == 'input' else 'red'
+        marker = '*' if label == 'input' else 'o'
+        ax2.scatter(px, py, color=color, s=100, marker=marker)
+        ax2.text(px + 5, py, f"{label}\n({px:.1f}, {py:.1f})", color=color)
+    ax2.set_title("Image Coordinate System (Pixels)")
+    ax2.axis("off")
 
-    # Scale ratio (pixels per Unity unit)
-    scale_ratio = np.linalg.norm(img_ref - img_origin) / np.linalg.norm(unity_ref - unity_origin)
-
-    # Displacement from Unity origin to (x, z)
-    displacement = np.array([x, z]) - unity_origin
-
-    # Project Unity displacement onto Unity direction vector (scalar)
-    projected_length = np.dot(displacement, unity_dir)
-
-    # Map to image direction vector
-    pixel_offset = projected_length * scale_ratio * image_dir
-    pixel_point = img_origin + pixel_offset
-
-    return float(pixel_point[0]), float(pixel_point[1])
+    plt.tight_layout()
+    plt.show()
 
 
-# endregion
 
- # 45 ,711 bottom left barrier at Top views\museum_top_iso.png
- # -2.313, -2.469  bottom left barrier at Unity
+#---test---
 
-(x,y) = convert_unity_units_to_image_px(1.7761, 2.1231, image_dict[r"Top views\museum_top_iso.png"])
-print(f"Converted Unity (-2.313, -2.469) to pixel coordinates: ({x}, {y})")
+debug_plot_unity_to_image_point_dual(0.5, 1.0, r"Top views\museum_top_iso_grid.png")

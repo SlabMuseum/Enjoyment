@@ -34,7 +34,8 @@ def main() -> None:
     for participant_id, participant_data in participants.items():
         logging.info(f"Visualizing participant {participant_id}...")
 
-        plot_trajectory_over_image(participant_data, r"Top views\museum_top_iso_grid.png")
+        plot_trajectory_over_image(participant_data, r"Top views\museum_top_iso_grid.png", save_file=True
+                                   ,sampling_rate=60, window_size=5, close_plot=False)
         logging.info(f"Visualization for participant {participant_id} completed.")
 
 
