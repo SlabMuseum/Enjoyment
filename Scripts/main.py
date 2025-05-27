@@ -14,7 +14,8 @@ from visualizations import *
 logging_level = logging.INFO  # Set to DEBUG to see all messages, or INFO for less verbosity
 
 # path configs - change accordingly                         # TODO set to relaive paths with known structure
-root_data_path = r"D:\Yana-Analisys\Yanas-Museum-Data\TestData" 
+# root_data_path = r"D:\Yana-Analisys\Yanas-Museum-Data\Data" 
+root_data_path = r"D:\Yana-Analisys\Yanas-Museum-Data\TestData"  #3 participants
 questionnaire_csv_path = r"D:\Yana-Analisys\Enjoyment\res.csv" 
 
 # ----------- main function - entry point --------------
@@ -34,9 +35,9 @@ def main() -> None:
     for participant_id, participant_data in participants.items():
         logging.info(f"Visualizing participant {participant_id}...")
 
-        plot_trajectory_over_image_dual_view(participant_data, r"Top views\museum_top_iso_grid.png", save_file=True
-                                   ,sampling_rate=60, window_size=5, close_plot=False)
-        plot_trajectory_over_image(participant_data, r"Top views\museum_top_iso_grid.png", save_file=True
+        plot_trajectory_over_image_dual_view(participant_data, r"Top views\top_view_no_tiles_no_grid_isometric.png", save_file=True
+                                    ,sampling_rate=60, window_size=5, close_plot=False)
+        plot_trajectory_over_image(participant_data, r"Top views\top_view_no_tiles_no_grid_isometric.png", save_file=True
                                    ,sampling_rate=60, window_size=5, close_plot=False)
         logging.info(f"Visualization for participant {participant_id} completed.")
 

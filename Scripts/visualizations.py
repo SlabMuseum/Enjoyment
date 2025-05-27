@@ -9,6 +9,9 @@ from scipy.ndimage import convolve1d
 from PIL import Image
 import cv2
 
+import pandas as pd
+from io import StringIO
+
 import os
 #region ---- Constants ----
 
@@ -48,6 +51,26 @@ image_dict = {
         "bottom_left_barrier": (1215,409),
         "top_right_barrier": (476,2185),
     }
+    , r"Top views\top_view_no_tiles_grid_isometric.png": {
+        "img_origin": (266,109),
+        "bottom_left_barrier": (68,775),
+        "top_right_barrier": (386,20),
+    }
+        , r"Top views\top_view_no_tiles_no_grid_isometric.png": {
+        "img_origin": (254,117),
+        "bottom_left_barrier": (56,783),
+        "top_right_barrier": (374,27),
+    }
+        , r"Top views\top_view_no_grid_no_tiles_prespective.png": {
+        "img_origin": (283,141),
+        "bottom_left_barrier": (111,718),
+        "top_right_barrier": (387,63),
+    }
+        , r"Top views\top_view_grid_no_tiles_prespective_.png": {
+        "img_origin": (285,139),
+        "bottom_left_barrier": (113,716),
+        "top_right_barrier": (389,61),
+    }
 }
 
 UNITY_ORIGIN = (0, 1.6758) # fixed that! the z ia actually not zero. the zero is the placement of the instructions...
@@ -65,6 +88,7 @@ EXPORTS_FOLDER = "Plots"  # Folder to save plots
 
 #endregion
 
+# region ---- Plotting functions ----
 def plot_trajectory_over_image(participant_data : participantData, image_path, save_file=True, sampling_rate=60, window_size=5,close_plot=True):
     """
     Plot trajectory colored by smoothed speed over museum top-view image.
@@ -115,6 +139,32 @@ def plot_trajectory_over_image(participant_data : participantData, image_path, s
     ax.scatter(x[0], y[0], color="green", label="Start", zorder=5)
     ax.scatter(x[-1], y[-1], color="blue", label="End", zorder=5)
 
+    # Add tiles as rectangles in pixel coordinates
+    default_tile_positions_px = convert_tile_position_to_image_px(image_metadata)
+    for _, row in default_tile_positions_px.iterrows():
+        xs = [row['bottom-left_x'], row['top-left_x'], row['top-right_x'], row['bottom-right_x'], row['bottom-left_x']]
+        ys = [row['bottom-left_z'], row['top-left_z'], row['top-right_z'], row['bottom-right_z'], row['bottom-left_z']]
+
+        # Draw black tile outline
+        ax.plot(xs, ys, color='black', linewidth=1.5, zorder=1)
+
+        # Determine label placement side
+        side = get_tile_label_position(row['name'])
+
+        if side == "left":
+            label_x = row["top-left_x"] + 5
+            label_y = row["top-left_z"] + 5
+            ha = "left"
+        else:
+            label_x = row["top-right_x"] - 5
+            label_y = row["top-right_z"] + 5
+            ha = "right"
+
+        ax.text(label_x, label_y, row['name'],
+             ha=ha, va='top', rotation=90,
+             fontsize=8, color='black', zorder=2)
+
+
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
     cbar = plt.colorbar(sm, ax=ax, orientation="vertical", shrink=0.8)
@@ -129,11 +179,10 @@ def plot_trajectory_over_image(participant_data : participantData, image_path, s
         path = os.path.join(EXPORTS_FOLDER, filename)
         plt.savefig(path, bbox_inches='tight')
         logging.info(f"Saved to {path}")
-    else:
-        plt.show()
+    
+    plt.show()
     if close_plot:
         plt.close()
-
 
 def plot_trajectory_over_image_dual_view(participant_data: participantData, image_path, save_file=True, sampling_rate=60, window_size=5, close_plot=True):
     """
@@ -205,6 +254,43 @@ def plot_trajectory_over_image_dual_view(participant_data: participantData, imag
     ax2.scatter(px[0], py[0], color="green", label="Start", zorder=5)
     ax2.scatter(px[-1], py[-1], color="blue", label="End", zorder=5)
 
+    
+    # Add tiles as rectangles in pixel coordinates
+    default_tile_positions_px = convert_tile_position_to_image_px(image_metadata)
+    for _, row in default_tile_positions_px.iterrows():
+        xs = [row['bottom-left_x'], row['top-left_x'], row['top-right_x'], row['bottom-right_x'], row['bottom-left_x']]
+        ys = [row['bottom-left_z'], row['top-left_z'], row['top-right_z'], row['bottom-right_z'], row['bottom-left_z']]
+
+        # Draw black tile outline
+        ax2.plot(xs, ys, color='black', linewidth=1.5, zorder=1)
+
+        # Determine label placement side
+        side = get_tile_label_position(row['name'])
+
+        if side == "left":
+            label_x = row["top-left_x"] + 5
+            label_y = row["top-left_z"] + 5
+            ha = "left"
+        else:
+            label_x = row["top-right_x"] - 5
+            label_y = row["top-right_z"] + 5
+            ha = "right"
+
+        ax2.text(label_x, label_y, row['name'],
+             ha=ha, va='top', rotation=90,
+             fontsize=8, color='black', zorder=2)
+        
+    #add a legend with the gaze percentage for each painting 
+    legend_labels = gaze_percent_legend_labels(participant_data)
+    # Place legend labels between plots using figure coordinates
+    dy = 0.025  # reduced vertical gap
+    x_pos = 0.5  # horizontal placement between ax1 and ax2
+    y_start = 0.85
+
+    plt.gcf().text(x_pos, y_start + 1 * dy, "gaze percent within trial+tile:", fontsize=9, weight='bold', verticalalignment='top', ha='left')
+    for i, label in enumerate(legend_labels):
+        plt.gcf().text(x_pos, y_start - i * dy, label, fontsize=9, verticalalignment='top', ha='left')
+
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
     cbar = plt.colorbar(sm, ax=ax2, orientation="vertical", shrink=0.8)
@@ -221,13 +307,206 @@ def plot_trajectory_over_image_dual_view(participant_data: participantData, imag
         path = os.path.join(EXPORTS_FOLDER, filename)
         plt.savefig(path, bbox_inches='tight')
         logging.info(f"Saved to {path}")
-    else:
-        plt.show()
+    
+    plt.show()
 
     if close_plot:
         plt.close()
 
+#TODO: debug shoer versions of the above functions
+# def plot_trajectory_over_image_dual_view(participant_data, image_path, image_metadata, convert_func, tile_df, tile_df_px, save_file=True, sampling_rate=60, window_size=5, close_plot=True):
+#     """
+#     Plot trajectory in both Unity space and image pixel space with tile overlays.
+#     """
+#     background = Image.open(image_path)
+#     df = participant_data.dataframes["ContinuousData"]
+#     exp_start_time = participant_data.trials_data.iloc[0]["StartTime"]
+#     df = df[df['Time'] >= exp_start_time]
+
+#     unity_x, unity_z, px, py, segments, smoothed_speed = compute_trajectory_data(df, image_metadata, convert_func, sampling_rate, window_size)
+
+#     norm = Normalize(vmin=np.percentile(smoothed_speed, 2), vmax=np.percentile(smoothed_speed, 98))
+#     cmap = plt.get_cmap('plasma')
+#     colors = cmap(norm(smoothed_speed))
+
+#     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 8))
+
+#     # Unity space
+#     ax1.plot(unity_x, unity_z, color='black', linewidth=1, alpha=0.4, label='Trajectory')
+#     plot_start_end_markers(ax1, unity_x, unity_z)
+#     plot_tiles(ax1, tile_df)  # works because the structure is the same
+#     ax1.set_title("Trajectory in Unity Units")
+#     ax1.set_xlabel("Unity X")
+#     ax1.set_ylabel("Unity Z")
+#     ax1.axis("equal")
+#     ax1.grid(True)
+#     ax1.legend()
+
+#     # Image space
+#     ax2.imshow(background)
+#     ax2.add_collection(LineCollection(segments, colors=colors, linewidth=2))
+#     plot_start_end_markers(ax2, px, py)
+#     plot_tiles(ax2, tile_df_px)
+
+#     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+#     sm.set_array([])
+#     cbar = plt.colorbar(sm, ax=ax2, orientation="vertical", shrink=0.8)
+#     cbar.set_label("Speed (px/sec)")
+
+#     ax2.set_title("Trajectory on Image (Pixels)")
+#     ax2.axis("off")
+#     ax2.legend(loc="upper right")
+
+#     fig.suptitle(f"Participant: {participant_data.participant_id}", fontsize=14)
+
+#     if save_file:
+#         filename = f"{participant_data.participant_id}_trajectory_dual_view.png"
+#         path = os.path.join("Plots", filename)
+#         plt.savefig(path, bbox_inches='tight')
+#         print(f"Saved to {path}")
+
+#     plt.show()
+#     if close_plot:
+#         plt.close()
+
+# def plot_trajectory_over_image(participant_data, image_path, save_file=True, sampling_rate=60, window_size=5, close_plot=True):
+#     """
+#     Plot trajectory on the top-view image with tile overlays and smoothed speed coloring.
+#     """
+#     background = Image.open(image_path)
+#     df = participant_data.dataframes["ContinuousData"]
+#     exp_start_time = participant_data.trials_data.iloc[0]["StartTime"]
+#     df = df[df['Time'] >= exp_start_time]
+
+
+
+#     unity_x, unity_z, px, py, segments, smoothed_speed = compute_trajectory_data(df, image_metadata, convert_func, sampling_rate, window_size)
+
+#     norm = Normalize(vmin=np.percentile(smoothed_speed, 2), vmax=np.percentile(smoothed_speed, 98))
+#     cmap = plt.get_cmap('plasma')
+#     colors = cmap(norm(smoothed_speed))
+
+#     fig, ax = plt.subplots(figsize=(12, 8))
+#     ax.imshow(background)
+#     ax.add_collection(LineCollection(segments, colors=colors, linewidth=2))
+#     plot_start_end_markers(ax, px, py)
+#     plot_tiles(ax, tile_df_px)
+
+#     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+#     sm.set_array([])
+#     cbar = plt.colorbar(sm, ax=ax, orientation="vertical", shrink=0.8)
+#     cbar.set_label("Speed (px/sec)")
+
+#     ax.set_title(f"Trajectory Colored by Smoothed Speed, participant: {participant_data.participant_id}")
+#     ax.axis("off")
+#     ax.legend(loc="upper right")
+
+#     if save_file:
+#         filename = f"{participant_data.participant_id}_speed_trajectory.png"
+#         path = os.path.join("Plots", filename)
+#         plt.savefig(path, bbox_inches='tight')
+#         print(f"Saved to {path}")
+    
+#     plt.show()
+#     if close_plot:
+#         plt.close()
+
+#endregion
+
+
 # region ---- helpers ----
+
+def gaze_percent_legend_labels(participant_data: participantData)-> list[str]:
+    legend_labels = []
+
+    for _, row in default_tile_positions.iterrows():
+        painting_name = row['name']
+        df = participant_data.dataframes["ContinuousData"]
+        filtering_func = participant_data.filter_by_trial_and_tile
+        
+        gazed_time, gaze_percent = participant_data.calculate_gaze_time(piece_name=painting_name, fitering_function=filtering_func)
+        
+        label = f"{painting_name}: {gaze_percent:.1f}%"
+        legend_labels.append(label)
+    return legend_labels
+
+def compute_trajectory_data(df, image_metadata, sampling_rate=60, window_size=5):
+    coords = df[['Head_Position_x', 'Head_Position_Z']].values
+    unity_x, unity_z = coords[:, 0], coords[:, 1]
+
+    pixel_points = np.array([convert_unity_units_to_image_px(x, z, image_metadata) for x, z in coords])
+    px, py = pixel_points[:, 0], pixel_points[:, 1]
+
+    dx, dy = np.diff(px), np.diff(py)
+    distances = np.sqrt(dx**2 + dy**2)
+    speed = distances * sampling_rate
+    smoothed_speed = convolve1d(speed, np.ones(window_size) / window_size, mode='reflect')
+
+    points = np.array([px, py]).T.reshape(-1, 1, 2)
+    segments = np.concatenate([points[:-1], points[1:]], axis=1)
+
+    return unity_x, unity_z, px, py, segments, smoothed_speed
+
+def plot_start_end_markers(ax, x, y, start_color="green", end_color="blue"):
+    ax.scatter(x[0], y[0], color=start_color, label="Start", zorder=5)
+    ax.scatter(x[-1], y[-1], color=end_color, label="End", zorder=5)
+
+def plot_tiles(ax, tile_df_px, label_offset=5):
+    for _, row in tile_df_px.iterrows():
+        xs = [row['bottom-left_x'], row['top-left_x'], row['top-right_x'],
+              row['bottom-right_x'], row['bottom-left_x']]
+        ys = [row['bottom-left_z'], row['top-left_z'], row['top-right_z'],
+              row['bottom-right_z'], row['bottom-left_z']]
+        ax.plot(xs, ys, color='black', linewidth=1.5, zorder=1)
+
+        side = get_tile_label_position(row['name'])
+        if side == "left":
+            label_x = row["top-left_x"] + label_offset
+            label_y = row["top-left_z"] + label_offset
+            ha = "left"
+        else:
+            label_x = row["top-right_x"] - label_offset
+            label_y = row["top-right_z"] + label_offset
+            ha = "right"
+
+        ax.text(label_x, label_y, row['name'], ha=ha, va='top',
+                rotation=90, fontsize=8, color='black', zorder=2)
+
+def convert_tile_position_to_image_px(image_reference_points: dict):
+    """
+    Convert Unity tile positions to pixel coordinates using the affine transform.
+    
+    Args:
+        image_reference_points (dict): Contains 'img_origin', 'bottom_left_barrier', 'top_right_barrier'
+    
+    Returns:
+        pd.DataFrame: Tile positions in pixel coordinates, same structure as default_tile_positions
+    """
+    # Access the Unity tile positions
+    unity_df = default_tile_positions.copy()
+
+    # Columns to convert
+    coord_columns = [
+        'bottom-left_x', 'bottom-left_z',
+        'top-left_x', 'top-left_z',
+        'top-right_x', 'top-right_z',
+        'bottom-right_x', 'bottom-right_z'
+    ]
+
+    # Create a new dict to build the pixel DataFrame
+    pixel_rows = []
+
+    for _, row in unity_df.iterrows():
+        pixel_row = {'name': row['name']}
+        for prefix in ['bottom-left', 'top-left', 'top-right', 'bottom-right']:
+            x = row[f"{prefix}_x"]
+            z = row[f"{prefix}_z"]
+            px, py = convert_unity_units_to_image_px(x, z, image_reference_points)
+            pixel_row[f"{prefix}_x"] = px
+            pixel_row[f"{prefix}_z"] = py
+        pixel_rows.append(pixel_row)
+
+    return pd.DataFrame(pixel_rows)
 
 def convert_unity_units_to_image_px(x: float, z: float, image_reference_points: dict) -> tuple[float, float]:
     """
@@ -264,7 +543,14 @@ def convert_unity_units_to_image_px(x: float, z: float, image_reference_points: 
 
     return float(transformed[0]), float(transformed[1])
 
+def get_tile_label_position(name: str) -> str:
+    """Return 'left' or 'right' label position for a given tile name."""
+    left_labels = {"janco", "de chirico", "pollock", "van dongen"}
+    return "left" if name.lower() in left_labels else "right"
 
+# endregion
+
+# region ---- debug functions ----
 
 def debug_plot_unity_to_image_point_dual(x: float, z: float, image_path: str):
     """
@@ -328,8 +614,8 @@ def debug_plot_unity_to_image_point_dual(x: float, z: float, image_path: str):
     plt.tight_layout()
     plt.show()
 
-
+# endregion
 
 #---test---
 
-#debug_plot_unity_to_image_point_dual(0.5, 1.0, r"Top views\museum_top_iso_grid.png")
+#debug_plot_unity_to_image_point_dual(0.5, 0.5, r"Top views\museum_top_iso_grid.png")

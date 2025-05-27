@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Callable, Dict, List, Optional
 import pandas as pd
 import numpy as np
 import pickle
@@ -29,13 +29,13 @@ Picasso,-0.106,1.607499,-1.506,0,270,0,-0.106,1.607499,-1.506,0.001000062,0.5955
 default_art_piece_colliders = pd.read_csv(StringIO(DEFAULT_COLLIDER_CSV))
 
 DEFAULT_TILE_POSITIONS_CSV = """name,bottom-left_x,bottom-left_z,top-left_x,top-left_z,top-right_x,top-right_z,bottom-right_x,bottom-right_z
-Pollock,-0.05399996,-5.568,-0.05399996,-4.268,1.246,-4.268,1.246,-5.568
-Braque,-1.096,-2.942,-1.096,-1.942,-0.09600002,-1.942,-0.09600002,-2.942
-Picasso,-1.096,-1.95,-1.096,-0.9499998,-0.09600002,-0.9499998,-0.09600002,-1.95
-de Chirico,0.09799999,-1.954,0.09799999,-0.9540002,1.098,-0.9540002,1.098,-1.954
-van Dongen,0.097,-2.947,0.097,-1.947,1.097,-1.947,1.097,-2.947
-Janco,-2.028,0.189,-2.028,1.489,-0.728,1.489,-0.728,0.189
-Klimt,-0.004000008,0.199,-0.004000008,2.199,1.996,2.199,1.996,0.199
+Pollock,-0.05399996,-5.553,-0.05399996,-3.903,1.246,-3.903,1.246,-5.553
+Braque,-1.405,-2.942,-1.405,-1.942,-0.105,-1.942,-0.105,-2.942
+Picasso,-1.406,-1.95,-1.406,-0.9499998,-0.106,-0.9499998,-0.106,-1.95
+de Chirico,0.11,-1.954,0.11,-0.9540002,1.41,-0.9540002,1.41,-1.954
+van Dongen,0.109,-2.947,0.109,-1.947,1.409,-1.947,1.409,-2.947
+Janco,-1.983,0.189,-1.983,1.489,-0.383,1.489,-0.383,0.189
+Klimt,-0.32,0.199,-0.32,2.199,1.98,2.199,1.98,0.199
 """
 default_tile_positions = pd.read_csv(StringIO(DEFAULT_TILE_POSITIONS_CSV))
 
@@ -537,7 +537,6 @@ class MuseumVRParticipantData(BaseParticipantData):
         # Update the DataFrame with the fixed FocusedObject
         self.dataframes["ContinuousData"] = df
         
-
     def _offline_gaze_correction(self):
         """
         Recalculates the gaze raycast from headset position and gaze direction to correct
@@ -685,6 +684,7 @@ class MuseumVRParticipantData(BaseParticipantData):
     def _get_art_piece_colliders(self):
         #TODO  in next runs of the experiment replace with per run colliders csv, if not exist return the default one
         return default_art_piece_colliders
+    
     # endregion
     # region ------- Face analysis -------
     
@@ -719,7 +719,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         #if theres a pickle file with emotions_df, load it
         emotions_df_path = os.path.join(self.data_path, f"emotions_df.pkl")
         if os.path.exists(emotions_df_path):
-            logging.info(f"Loading emotions_df from pickle: {emotions_df_path} for participant {self.participant_id}")
+            logging.info(f"Loading emotions_df from pickle: {emotions_df_path}")
             try:
                 return pd.read_pickle(emotions_df_path)
             except Exception as e:
@@ -901,7 +901,58 @@ class MuseumVRParticipantData(BaseParticipantData):
             (df['Head_Position_Z'] >= min_z) & (df['Head_Position_Z'] <= max_z)
         ]
     
+    def filter_by_trial_and_tile(self, df: pd.DataFrame, piece_name: str) -> pd.DataFrame:
+        """
+        Filters a dataframe by both trial time and tile name.
+        
+        Args:
+            df (pd.DataFrame): DataFrame to filter.
+            trial_name (str): Name of the trial to filter by.
+            tile_name (str): Name of the tile to filter by.
+        
+        Returns:
+            pd.DataFrame: Filtered DataFrame.
+        """
+        df = self._filter_by_trial_time(df, piece_name)
+        df = self._filter_by_tile_name(df, piece_name)
+        return df
     # endregion
+    # region ------- Gaze analysis -------
+    
+    def calculate_gaze_time(self, piece_name:str, fitering_function: Callable = None, sample_rate = 0.02) -> tuple[float, float]:
+        """
+        Calculates the percentage of time the participant gazed at a specific piece during thr filtered time.
+        
+        Args:
+            piece_name (str): Name of the art piece to analyze.
+            fitering_function (Callable, optional): Function to filter the DataFrame before calculation (tile, trial, bot)
+        
+        Returns:
+            float: time gazed at the piece in seconds.
+            float: Percentage of time gazed at the piece.
+        """
+        if self.dataframes is None:
+            raise ValueError("Dataframes not loaded. Please load data first.")
+        
+        df = self.dataframes["ContinuousData"]
+
+        # Filter the DataFrame if a filtering function is provided
+        if fitering_function:
+            df = fitering_function(df, piece_name)
+
+        # Calculate total time in the filtered DataFrame
+        total_time = df['Time'].max() - df['Time'].min()
+
+        # Count the time gazed at the piece
+        gazed_time = df[df['CorrectedFocusedObject'] == piece_name]['Time'].count() * sample_rate  # Assuming each row represents 20 ms (0.02 seconds)
+        # Calculate the percentage
+        if total_time == 0:
+            return 0.0
+        gazed_percent = (gazed_time / total_time) * 100
+        return gazed_time, gazed_percent
+
+    # endregion
+
 #test:
 if __name__ == "__main__":
     # Example usage
