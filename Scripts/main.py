@@ -24,7 +24,7 @@ def main() -> None:
     
     configure_logging(logging_level)
 
-    participants = load_all_participants(root_data_path,  use_pkl=True)
+    participants = load_all_participants(root_data_path,  use_pkl=False)
     logging.info(f"Loaded {len(participants)} participants successfully.")
 
     questionnaire_df = load_questionnaire_data(questionnaire_csv_path)
@@ -36,9 +36,9 @@ def main() -> None:
         logging.info(f"Visualizing participant {participant_id}...")
 
         plot_trajectory_over_image_dual_view(participant_data, r"Top views\top_view_no_tiles_no_grid_isometric.png", save_file=True
-                                    ,sampling_rate=60, window_size=5, close_plot=False)
-        plot_trajectory_over_image(participant_data, r"Top views\top_view_no_tiles_no_grid_isometric.png", save_file=True
-                                   ,sampling_rate=60, window_size=5, close_plot=False)
+                                    ,sampling_rate=60, window_size=5, close_plot=True)
+        # plot_trajectory_over_image(participant_data, r"Top views\top_view_no_tiles_no_grid_isometric.png", save_file=True
+        #                            ,sampling_rate=60, window_size=5, close_plot=False)
         logging.info(f"Visualization for participant {participant_id} completed.")
 
 

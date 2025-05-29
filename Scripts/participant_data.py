@@ -40,6 +40,7 @@ Klimt,-0.32,0.199,-0.32,2.199,1.98,2.199,1.98,0.199
 default_tile_positions = pd.read_csv(StringIO(DEFAULT_TILE_POSITIONS_CSV))
 
 FIRST_IMPRESSION_WINDOW_DURATION = 1.0  # seconds
+
 # endregion
 
 # ---------- Base class for participant data ----------
@@ -116,7 +117,8 @@ class BaseParticipantData(ABC):
 class MuseumVRParticipantData(BaseParticipantData):
     def __init__(self, participant_id: str, data_path: str, use_pkl: bool = True):
         super().__init__(participant_id, data_path) # initialize the base class
-        
+        self.intermidiate_output_folder = os.path.join(data_path, f'intermediate_{participant_id}')
+
         # Initialize experiment specific attributes
         self.questionnaire_data = None
         self.emotions_df = None
@@ -124,10 +126,8 @@ class MuseumVRParticipantData(BaseParticipantData):
         
         # Load data and perform analysis
         self.load_data(use_pkl)
-        #self._offline_gaze_correction()  # Correct gaze data based on colliders positions
-        #self.analyze_face_expressions() # TODO before the review
         self.fix_focus_object_with_colliders()
-        self.emotions_df = self.calculate_emotions_df()
+        self.emotions_df = self.calculate_emotions_df(use_pkl)
         self.first_impressions = self.calculate_first_impressions()
         
     # region ------- Data Loading -------
@@ -488,7 +488,7 @@ class MuseumVRParticipantData(BaseParticipantData):
     # endregion 
     # region ------- Gaze correction -------
 
-    def fix_focus_object_with_colliders(self):
+    def fix_focus_object_with_colliders(self, saveToCSV: bool = True):
 
         colliders = self._get_art_piece_colliders()
         
@@ -517,7 +517,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         first_trial_start = self.trials_data.iloc[0]['StartTime']
 
         df = self.dataframes["ContinuousData"]
-        #
+        
 
         def check_and_fix(row):
             focused_object = row["FocusedObject"]
@@ -535,151 +535,11 @@ class MuseumVRParticipantData(BaseParticipantData):
 
         df["CorrectedFocusedObject"] = df.apply(check_and_fix, axis=1)
         # Update the DataFrame with the fixed FocusedObject
-        self.dataframes["ContinuousData"] = df
-        
-    def _offline_gaze_correction(self):
-        """
-        Recalculates the gaze raycast from headset position and gaze direction to correct
-        the 'FocusedObject' and 'EyeGazeHitPoint' values in the ContinuousData dataframe,
-        based on the actual colliders' positions of the art pieces (hidden by the invisible demo pieces colliders).
-
-        This replicates Unity’s logic:
-        - Ray is cast from between the two eyes (approximated here as Head_Position_x/y/z - which is basically centerEyeAnchor on unity).
-        - Direction is based on Gaze_Pitch and Gaze_Yaw.
-        - Intersects with bounding boxes representing the artwork colliders.
-        
-        Adds new columns:
-            - 'CorrectedFocusedObject': corrected name of the object intersected or original FocusedObject.
-            - 'CorrectedEyeGazeHitPoint_X/Y/Z': corrected hit point, or original if no correction needed.
-        """
-        if self.dataframes is None:
-            raise ValueError("Dataframes not loaded. Please load data first.")
-        if self.trials_data is None or self.trials_data.empty:
-            raise ValueError("No tour start time available for gaze correction.")
-        
-        df = self.dataframes["ContinuousData"]
-
-        # Use fallback collider data if file isn't present
-        colliders = self._get_art_piece_colliders()
-        
-        # Get start time of first real trial
-        first_trial_start = self.trials_data.iloc[0]['StartTime']
-
-
-        # Extract relevant columns
-        eye_pitch = df["Gaze_Pitch"]
-        eye_yaw = df["Gaze_Yaw"]
-        head_x = df["Head_Position_x"]
-        head_y = df["Head_Height"]
-        head_z = df["Head_Position_Z"]
-        time = df["Time"]
-
-        corrected_objects = []
-        corrected_hit_x = []
-        corrected_hit_y = []
-        corrected_hit_z = []
-
-        for i in range(len(df)):
-            if time.iloc[i] < first_trial_start:
-                # Before first trial — keep original
-                corrected_objects.append(df["FocusedObject"].iloc[i])
-                corrected_hit_x.append(df["EyeGazeHitPosition_X"].iloc[i])
-                corrected_hit_y.append(df["EyeGazeHitPosition_Y"].iloc[i])
-                corrected_hit_z.append(df["EyeGazeHitPosition_Z"].iloc[i])
-                continue
-
-            origin = np.array([head_x.iloc[i], head_y.iloc[i], head_z.iloc[i]])
-            forward = self._gaze_direction_from_yaw_pitch(eye_yaw.iloc[i], eye_pitch.iloc[i])
-
-            hit_obj, hit_point = self._intersect_ray_with_colliders(origin, forward, colliders)
-
-            if hit_obj is not None:
-                corrected_objects.append(hit_obj)
-                corrected_hit_x.append(hit_point[0])
-                corrected_hit_y.append(hit_point[1])
-                corrected_hit_z.append(hit_point[2])
-            else:
-                # No correction possible — keep original
-                corrected_objects.append(df["FocusedObject"].iloc[i])
-                corrected_hit_x.append(df["EyeGazeHitPosition_X"].iloc[i])
-                corrected_hit_y.append(df["EyeGazeHitPosition_Y"].iloc[i])
-                corrected_hit_z.append(df["EyeGazeHitPosition_Z"].iloc[i])
-
-        df["CorrectedFocusedObject"] = corrected_objects
-        df["CorrectedEyeGazeHitPoint_X"] = corrected_hit_x
-        df["CorrectedEyeGazeHitPoint_Y"] = corrected_hit_y
-        df["CorrectedEyeGazeHitPoint_Z"] = corrected_hit_z
+        if (saveToCSV):
+            self.save_to_intermediate_folder_as_csv(df, "ContinuousData_CorrectedFocusedObject")
 
         self.dataframes["ContinuousData"] = df
-
-    def _intersect_ray_box(self, origin, direction, bounds_center, bounds_size):
-        """
-        Calculates intersection of a ray with an axis-aligned bounding box using the slab method.
-        Returns the hit point if intersecting, otherwise None.
-        """
-        bounds_min = np.array(bounds_center) - np.array(bounds_size) / 2
-        bounds_max = np.array(bounds_center) + np.array(bounds_size) / 2
-
-        tmin = (bounds_min - origin) / direction
-        tmax = (bounds_max - origin) / direction
-
-        t1 = np.minimum(tmin, tmax)
-        t2 = np.maximum(tmin, tmax)
-
-        t_near = np.max(t1)
-        t_far = np.min(t2)
-
-        if t_near > t_far or t_far < 0:
-            return None  # no intersection
-
-        return origin + direction * t_near
     
-    def _intersect_ray_with_colliders(self, origin: np.ndarray, direction: np.ndarray, colliders_df: pd.DataFrame):
-        """
-        Iterates over all artwork colliders and checks for intersection with the given ray.
-        
-        Args:
-            origin (np.ndarray): The ray origin point (eye position).
-            direction (np.ndarray): The ray direction (gaze).
-            colliders_df (pd.DataFrame): DataFrame with collider info (center + size).
-        
-        Returns:
-            Tuple[str, np.ndarray] or (None, None): Name of hit object and hit point if found, else None.
-        """
-        for _, row in colliders_df.iterrows():
-            center = np.array([row['bounds_x'], row['bounds_y'], row['bounds_z']])
-            size = np.array([row['bounds_size_x'], row['bounds_size_y'], row['bounds_size_z']])
-            hit_point = self._intersect_ray_box(origin, direction, center, size)
-            if hit_point is not None:
-                return row['name'], hit_point
-
-        return None, None
-
-    def _gaze_direction_from_yaw_pitch(self, yaw_deg: float, pitch_deg: float) -> np.ndarray:
-        """
-        Converts gaze yaw and pitch angles (in degrees) into a 3D direction vector.
-
-        Unity's forward is (0, 0, 1), yaw rotates around Y (vertical), and pitch rotates around X (sideways).
-        So this mimics Unity's:
-            Quaternion.Euler(pitch, yaw, 0) * Vector3.forward
-
-        Parameters:
-        - yaw_deg (float): Horizontal rotation in degrees (around Y axis)
-        - pitch_deg (float): Vertical rotation in degrees (around X axis)
-
-        Returns:
-        - np.ndarray: Normalized 3D direction vector
-        """
-        yaw_rad = np.radians(yaw_deg)
-        pitch_rad = np.radians(pitch_deg)
-
-        # Calculate direction vector components
-        x = np.sin(yaw_rad) * np.cos(pitch_rad)
-        y = -np.sin(pitch_rad)
-        z = np.cos(yaw_rad) * np.cos(pitch_rad)
-
-        direction = np.array([x, y, z])
-        return direction / np.linalg.norm(direction)
 
     def _get_art_piece_colliders(self):
         #TODO  in next runs of the experiment replace with per run colliders csv, if not exist return the default one
@@ -688,26 +548,7 @@ class MuseumVRParticipantData(BaseParticipantData):
     # endregion
     # region ------- Face analysis -------
     
-    def analyze_face_expressions(self):  # TODO this function is before our review
-        """
-        Calculates emotion intensities and valence per artwork based on facial expression data.
-        Results are saved to self.emotions_per_painting_df.
-        """
-    
-
-        logs_df = self.dataframes.get('TAUXR_logs')
-        face_df = self.dataframes.get('FaceExpressionData')
-
-        if logs_df is None or face_df is None:
-            raise ValueError("Missing required dataframes: TAUXR_logs or FaceExpressionData.")
-        try:
-            self.emotions_per_painting_df = calculate_emotion_intensities(face_df, logs_df)
-            logging.debug(f"Analized emotions for participant {self.participant_id}")
-        except Exception as e:
-            logging.error(f"Error analyzing face expressions for participant {self.participant_id}: {str(e)}")
-            raise e
-
-    def calculate_emotions_df(self) -> pd.DataFrame:
+    def calculate_emotions_df(self,usePkl, saveToCSV: bool = True) -> pd.DataFrame:
         """
         separates face expression data to 2 seconds windows and calcultes
         emotion intensities and valence for each window.
@@ -716,14 +557,18 @@ class MuseumVRParticipantData(BaseParticipantData):
             pd.DataFrame: DataFrame with columns ['Time', 'EndTime', 'joy', 'sadness', 'anger', 'fear', 'disgust', 'surprise', 'valence']
 
         """
-        #if theres a pickle file with emotions_df, load it
-        emotions_df_path = os.path.join(self.data_path, f"emotions_df.pkl")
-        if os.path.exists(emotions_df_path):
-            logging.info(f"Loading emotions_df from pickle: {emotions_df_path}")
-            try:
-                return pd.read_pickle(emotions_df_path)
-            except Exception as e:
-                logging.error(f"Error loading emotions_df pickle file: {str(e)}")
+        if (usePkl):
+            #if theres a pickle file with emotions_df, load it
+            emotions_df_path = os.path.join(self.data_path, f"emotions_df.pkl")
+            if os.path.exists(emotions_df_path):
+                logging.info(f"Loading emotions_df from pickle: {emotions_df_path}")
+                try:
+                    emotions_df = pd.read_pickle(emotions_df_path)
+                    if (saveToCSV):
+                        self.save_to_intermediate_folder_as_csv(emotions_df, "EmotionsData")
+                    return emotions_df
+                except Exception as e:
+                    logging.error(f"Error loading emotions_df pickle file: {str(e)}")
             
 
         face_df = self.dataframes.get('FaceExpressionData')
@@ -735,9 +580,9 @@ class MuseumVRParticipantData(BaseParticipantData):
         end = face_df['Time'].max()
 
         # Iterate over the DataFrame in 2-second intervals
-        for start_time in np.arange(start, end, 2.0):
+        for start_time in np.arange(start, end, emotion_window_duration):
             # Calculate the end time for the current window
-            end_time = start_time + 2.0
+            end_time = start_time + emotion_window_duration
             
             intensities = claculate_emotion_intensities_for_x_seconds_after_time(face_df, start_time)
             
@@ -767,10 +612,12 @@ class MuseumVRParticipantData(BaseParticipantData):
         except Exception as e:
             logging.error(f"Error saving emotions_df pickle file: {str(e)}")
 
+        if saveToCSV:
+            self.save_to_intermediate_folder_as_csv(emotions_df, "EmotionsData")
+
         return emotions_df
 
-    
-    def calculate_first_impressions(self) -> pd.DataFrame:
+    def calculate_first_impressions(self, saveToCSV:bool = True) -> pd.DataFrame:
         # Prepare an empty list to collect rows
         first_impressions_list = []
 
@@ -795,11 +642,17 @@ class MuseumVRParticipantData(BaseParticipantData):
             'PaintingName': painting_name,
             'MaxEmotion': str(first_impression_max_emotion['MaxEmotion']),
             'MaxIntensity': float(first_impression_max_emotion['MaxIntensity']),
-            'Valence': float(first_impression_max_emotion['Valence'])
+            'Valence': float(first_impression_max_emotion['Valence']),
+            'windowStartTime': first_impression_max_emotion['windowStartTime'],
+            'windowLength': first_impression_max_emotion['windowLength']
             })
-
         # Create a DataFrame from the list
-        return pd.DataFrame(first_impressions_list, columns=['PaintingName', 'MaxEmotion', 'MaxIntensity', 'Valence'])
+        first_impressions_df = pd.DataFrame(first_impressions_list, columns=['PaintingName', 'MaxEmotion', 'MaxIntensity', 'Valence', 'windowStartTime', 'windowLength'])
+
+        if (saveToCSV):
+            self.save_to_intermediate_folder_as_csv(first_impressions_df, "FirstImpressionsData")
+
+        return first_impressions_df
 
     def get_first_impression_window(self, painting_name: str, first_impression_window_duration=FIRST_IMPRESSION_WINDOW_DURATION) -> pd.DataFrame:
 
@@ -849,6 +702,7 @@ class MuseumVRParticipantData(BaseParticipantData):
             return None
 
         window_start_time = first_impression_window.iloc[0]['Time']
+        window_length = first_impression_window.iloc[-1]['Time'] - window_start_time
 
         intensities = claculate_emotion_intensities_for_x_seconds_after_time(face_df, window_start_time)
         max_emotion, max_intensity = get_dominant_emotion_from_intensities(intensities)
@@ -858,7 +712,9 @@ class MuseumVRParticipantData(BaseParticipantData):
             'PaintingName': [painting_name],
             'MaxEmotion': [max_emotion],
             'MaxIntensity': [max_intensity],
-            'Valence': [valence]
+            'Valence': [valence],
+            'windowStartTime': [window_start_time],
+            'windowLength': [window_length]
         })
 
     # endregion
@@ -895,13 +751,37 @@ class MuseumVRParticipantData(BaseParticipantData):
         # Get bounding box
         min_x, max_x = min(x_coords), max(x_coords)
         min_z, max_z = min(z_coords), max(z_coords)
+        continuous_df = self.dataframes['ContinuousData']
+        filtered_continuous = continuous_df[
+            (continuous_df['Head_Position_x'] >= min_x) & (continuous_df['Head_Position_x'] <= max_x) &
+            (continuous_df['Head_Position_Z'] >= min_z) & (continuous_df['Head_Position_Z'] <= max_z)
+            ]
+            
+        
+        # Check if times align directly
+        if df['Time'].isin(continuous_df['Time']).all():
+            # Fast path: match directly
+            filtered_df = df[df['Time'].isin(filtered_continuous['Time'])]
+        else:
+            # Slow path: match each row to nearest ContinuousData time
+            # Create a map from ContinuousData time to tile-inclusion flag
+            in_tile_times = set(filtered_continuous['Time'])
 
-        return df[
-            (df['Head_Position_x'] >= min_x) & (df['Head_Position_x'] <= max_x) &
-            (df['Head_Position_Z'] >= min_z) & (df['Head_Position_Z'] <= max_z)
-        ]
+            # For each time in df, find closest in continuous_df, then check if it’s in tile
+            continuous_times = continuous_df['Time'].values
+            def is_in_tile(t):
+                idx = np.argmin(np.abs(continuous_times - t))
+                nearest_time = continuous_times[idx]
+                return nearest_time in in_tile_times
+
+            mask = df['Time'].apply(is_in_tile)
+            filtered_df = df[mask]
+
+        return filtered_df
+        
+
     
-    def filter_by_trial_and_tile(self, df: pd.DataFrame, piece_name: str) -> pd.DataFrame:
+    def _filter_by_trial_and_tile(self, df: pd.DataFrame, piece_name: str) -> pd.DataFrame:
         """
         Filters a dataframe by both trial time and tile name.
         
@@ -916,6 +796,32 @@ class MuseumVRParticipantData(BaseParticipantData):
         df = self._filter_by_trial_time(df, piece_name)
         df = self._filter_by_tile_name(df, piece_name)
         return df
+    
+    def _filter_by_audio_guide_time(self, df: pd.DataFrame, piece_name: str) -> pd.DataFrame:
+        audio_df = self.dataframes.get('AudioGuideTiming')
+        if audio_df is None:
+            raise ValueError("AudioGuideTiming data not loaded.")
+        
+        # Define tour order
+        tour_order = ["Klimt", "Pollock", "van Dongen", "Braque", "de Chirico", "Janco", "Picasso"]
+        if piece_name not in tour_order:
+            raise ValueError(f"Piece '{piece_name}' not found in tour order: {tour_order}")
+        
+        # Get the audio guide timing for the specific piece
+        # Find the audio guide start time for the piece find the two rows where AudioGuideName contains the piece name
+        audio_start = audio_df[audio_df['AudioGuideName'].str.contains(piece_name, na=False) & (audio_df['State'] == "Started")]
+        audio_end = audio_df[audio_df['AudioGuideName'].str.contains(piece_name, na=False) & (audio_df['State'] == "Finished")]
+
+        if audio_start.empty or audio_end.empty:
+            raise ValueError(f"Audio guide timing for piece '{piece_name}' not found in AudioGuideTiming data.")
+        
+        start_time = audio_start.iloc[0]['Time']
+        end_time = audio_end.iloc[0]['Time']
+
+        # Filter the DataFrame by the audio guide timing
+        filtered_df = df[(df['Time'] >= start_time) & (df['Time'] <= end_time)]
+        return filtered_df
+    
     # endregion
     # region ------- Gaze analysis -------
     
@@ -952,6 +858,22 @@ class MuseumVRParticipantData(BaseParticipantData):
         return gazed_time, gazed_percent
 
     # endregion
+
+    def save_to_intermediate_folder_as_csv(self, df: pd.DataFrame, filename: str):
+        """
+        Saves a DataFrame to the participant's intermediate output folder.
+        
+        Args:
+            filename (str): Name of the file to save.
+            df (pd.DataFrame): DataFrame to save.
+        """
+        if not os.path.exists(self.intermidiate_output_folder):
+            os.makedirs(self.intermidiate_output_folder)
+        
+        filename = f"{self.participant_id}_{filename}.csv"
+        output_path = os.path.join(self.intermidiate_output_folder, filename)
+        df.to_csv(output_path, index=False)
+        logging.info(f"Data saved to {output_path}")
 
 #test:
 if __name__ == "__main__":
