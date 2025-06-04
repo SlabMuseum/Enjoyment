@@ -24,9 +24,11 @@ def main() -> None:
     
     configure_logging(logging_level)
 
+    #-- load participant data ----
     participants = load_all_participants(root_data_path,  use_pkl=False)
     logging.info(f"Loaded {len(participants)} participants successfully.")
 
+    #-- load questionnaire data ----
     questionnaire_df = load_questionnaire_data(questionnaire_csv_path)
     add_questionnaire_data_to_each_participant(participants, questionnaire_df)
     logging.info("Added questionnaire data to participants.")
