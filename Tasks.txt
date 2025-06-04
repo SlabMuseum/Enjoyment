@@ -1,9 +1,16 @@
 
+- filter-by_trial_and_tile
+- calculate gaze time
+
+in the plot:
+- add the emotions bar throughout the tile+trial
+- first impression
+- gaze time in percent relative to the presence in the tile+trial 
 
 
 - visualization: 
     -Tile- 
-    presence (continuous_df)
+    presence (continuous_df) - V
     gaze time (continuous_df)
     emotion (emotions_df)
     first impression (first_impression)

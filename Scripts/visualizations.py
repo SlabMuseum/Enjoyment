@@ -8,6 +8,8 @@ from matplotlib.colors import Normalize
 from scipy.ndimage import convolve1d
 from PIL import Image
 import cv2
+import matplotlib.patches as patches
+from matplotlib.cm import get_cmap
 
 import pandas as pd
 from io import StringIO
@@ -254,6 +256,11 @@ def plot_trajectory_over_image_dual_view(participant_data: participantData, imag
     ax2.scatter(px[0], py[0], color="green", label="Start", zorder=5)
     ax2.scatter(px[-1], py[-1], color="blue", label="End", zorder=5)
 
+    # ---- bar plot for valence properties ----
+    valence_cmap = get_cmap("RdYlGn")
+    valence_norm = Normalize(vmin=-50, vmax=50)
+    bar_height = 5
+    segment_gap = 0.0
     
     # Add tiles as rectangles in pixel coordinates
     default_tile_positions_px = convert_tile_position_to_image_px(image_metadata)
@@ -279,6 +286,39 @@ def plot_trajectory_over_image_dual_view(participant_data: participantData, imag
         ax2.text(label_x, label_y, row['name'],
              ha=ha, va='top', rotation=90,
              fontsize=8, color='black', zorder=2)
+        
+        name = row['name']
+
+        # -------- valence bar ----------
+        # Get all 1-second valence rows for this tile
+        tile_emotions = participant_data._filter_by_audio_guide_time(participant_data.emotions_df, name)
+        if tile_emotions.empty:
+            continue
+
+        # Compute bar position: centered horizontally under the tile
+        # Define gap above the tile (in pixels)
+        gap = 8
+
+        # Compute bar position: centered horizontally above the tile
+        center_x = (row['top-left_x'] + row['top-right_x']) / 2
+        top_y = min(row['top-left_z'], row['top-right_z'])  # smaller y = higher on image
+
+        bar_y = top_y - gap  # move bar upward
+
+        total_width = row['top-right_x'] - row['top-left_x']  # Width of the tile in pixel coordinates
+        segment_width = total_width/ len(tile_emotions)
+       
+        start_x = center_x - total_width / 2
+
+        # Draw one colored segment per second
+        for i, (_, emo_row) in enumerate(tile_emotions.iterrows()):
+            valence = emo_row['valence']
+            color = valence_cmap(valence_norm(valence))
+
+            x = start_x + i * (segment_width + segment_gap)
+            rect = patches.Rectangle((x, bar_y), segment_width, bar_height,
+                                    color=color, linewidth=0, zorder=3)
+            ax2.add_patch(rect)
         
     #add a legend with the gaze percentage for each painting 
     legend_labels = gaze_percent_legend_labels(participant_data)
@@ -313,105 +353,11 @@ def plot_trajectory_over_image_dual_view(participant_data: participantData, imag
     if close_plot:
         plt.close()
 
-#TODO: debug shoer versions of the above functions
-# def plot_trajectory_over_image_dual_view(participant_data, image_path, image_metadata, convert_func, tile_df, tile_df_px, save_file=True, sampling_rate=60, window_size=5, close_plot=True):
-#     """
-#     Plot trajectory in both Unity space and image pixel space with tile overlays.
-#     """
-#     background = Image.open(image_path)
-#     df = participant_data.dataframes["ContinuousData"]
-#     exp_start_time = participant_data.trials_data.iloc[0]["StartTime"]
-#     df = df[df['Time'] >= exp_start_time]
 
-#     unity_x, unity_z, px, py, segments, smoothed_speed = compute_trajectory_data(df, image_metadata, convert_func, sampling_rate, window_size)
-
-#     norm = Normalize(vmin=np.percentile(smoothed_speed, 2), vmax=np.percentile(smoothed_speed, 98))
-#     cmap = plt.get_cmap('plasma')
-#     colors = cmap(norm(smoothed_speed))
-
-#     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 8))
-
-#     # Unity space
-#     ax1.plot(unity_x, unity_z, color='black', linewidth=1, alpha=0.4, label='Trajectory')
-#     plot_start_end_markers(ax1, unity_x, unity_z)
-#     plot_tiles(ax1, tile_df)  # works because the structure is the same
-#     ax1.set_title("Trajectory in Unity Units")
-#     ax1.set_xlabel("Unity X")
-#     ax1.set_ylabel("Unity Z")
-#     ax1.axis("equal")
-#     ax1.grid(True)
-#     ax1.legend()
-
-#     # Image space
-#     ax2.imshow(background)
-#     ax2.add_collection(LineCollection(segments, colors=colors, linewidth=2))
-#     plot_start_end_markers(ax2, px, py)
-#     plot_tiles(ax2, tile_df_px)
-
-#     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-#     sm.set_array([])
-#     cbar = plt.colorbar(sm, ax=ax2, orientation="vertical", shrink=0.8)
-#     cbar.set_label("Speed (px/sec)")
-
-#     ax2.set_title("Trajectory on Image (Pixels)")
-#     ax2.axis("off")
-#     ax2.legend(loc="upper right")
-
-#     fig.suptitle(f"Participant: {participant_data.participant_id}", fontsize=14)
-
-#     if save_file:
-#         filename = f"{participant_data.participant_id}_trajectory_dual_view.png"
-#         path = os.path.join("Plots", filename)
-#         plt.savefig(path, bbox_inches='tight')
-#         print(f"Saved to {path}")
-
-#     plt.show()
-#     if close_plot:
-#         plt.close()
-
-# def plot_trajectory_over_image(participant_data, image_path, save_file=True, sampling_rate=60, window_size=5, close_plot=True):
-#     """
-#     Plot trajectory on the top-view image with tile overlays and smoothed speed coloring.
-#     """
-#     background = Image.open(image_path)
-#     df = participant_data.dataframes["ContinuousData"]
-#     exp_start_time = participant_data.trials_data.iloc[0]["StartTime"]
-#     df = df[df['Time'] >= exp_start_time]
-
-
-
-#     unity_x, unity_z, px, py, segments, smoothed_speed = compute_trajectory_data(df, image_metadata, convert_func, sampling_rate, window_size)
-
-#     norm = Normalize(vmin=np.percentile(smoothed_speed, 2), vmax=np.percentile(smoothed_speed, 98))
-#     cmap = plt.get_cmap('plasma')
-#     colors = cmap(norm(smoothed_speed))
-
-#     fig, ax = plt.subplots(figsize=(12, 8))
-#     ax.imshow(background)
-#     ax.add_collection(LineCollection(segments, colors=colors, linewidth=2))
-#     plot_start_end_markers(ax, px, py)
-#     plot_tiles(ax, tile_df_px)
-
-#     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-#     sm.set_array([])
-#     cbar = plt.colorbar(sm, ax=ax, orientation="vertical", shrink=0.8)
-#     cbar.set_label("Speed (px/sec)")
-
-#     ax.set_title(f"Trajectory Colored by Smoothed Speed, participant: {participant_data.participant_id}")
-#     ax.axis("off")
-#     ax.legend(loc="upper right")
-
-#     if save_file:
-#         filename = f"{participant_data.participant_id}_speed_trajectory.png"
-#         path = os.path.join("Plots", filename)
-#         plt.savefig(path, bbox_inches='tight')
-#         print(f"Saved to {path}")
-    
-#     plt.show()
-#     if close_plot:
-#         plt.close()
 
 #endregion
+
+
 
 
 # region ---- helpers ----
@@ -422,7 +368,7 @@ def gaze_percent_legend_labels(participant_data: participantData)-> list[str]:
     for _, row in default_tile_positions.iterrows():
         painting_name = row['name']
         df = participant_data.dataframes["ContinuousData"]
-        filtering_func = participant_data.filter_by_trial_and_tile
+        filtering_func = participant_data._filter_by_trial_and_tile
         
         gazed_time, gaze_percent = participant_data.calculate_gaze_time(piece_name=painting_name, fitering_function=filtering_func)
         
