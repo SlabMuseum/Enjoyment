@@ -14,9 +14,9 @@ from visualizations import *
 logging_level = logging.INFO  # Set to DEBUG to see all messages, or INFO for less verbosity
 
 # path configs - change accordingly                         # TODO set to relaive paths with known structure
-# root_data_path = r"D:\Yana-Analisys\Yanas-Museum-Data\Data" 
-root_data_path = r"D:\Yana-Analisys\Yanas-Museum-Data\TestData"  #3 participants
-questionnaire_csv_path = r"D:\Yana-Analisys\Enjoyment\res.csv" 
+root_data_path = r"/Users/yanasklar/Documents/TAU/Data" 
+# root_data_path = r"D:\Yana-Analisys\Yanas-Museum-Data\TestData"  #3 participants
+questionnaire_csv_path = r"/Users/yanasklar/GitHub/Enjoyment/res.csv" 
 
 # ----------- main function - entry point --------------
 
@@ -35,9 +35,9 @@ def main() -> None:
     for participant_id, participant_data in participants.items():
         logging.info(f"Visualizing participant {participant_id}...")
 
-        plot_trajectory_over_image_dual_view(participant_data, r"Top views\top_view_no_tiles_no_grid_isometric.png", save_file=True
+        plot_trajectory_over_image_dual_view(participant_data, r"Top views/top_view_no_tiles_no_grid_isometric.png", save_file=True
                                     ,sampling_rate=60, window_size=5, close_plot=False)
-        plot_trajectory_over_image(participant_data, r"Top views\top_view_no_tiles_no_grid_isometric.png", save_file=True
+        plot_trajectory_over_image(participant_data, r"Top views/top_view_no_tiles_no_grid_isometric.png", save_file=True
                                    ,sampling_rate=60, window_size=5, close_plot=False)
         logging.info(f"Visualization for participant {participant_id} completed.")
 
@@ -79,8 +79,9 @@ def load_all_participants(datapath: str, use_pkl = True) -> Dict[int, MuseumVRPa
             data = MuseumVRParticipantData(participant_id=str(participant_id), data_path=folder_path, use_pkl=use_pkl)
             participants[participant_id] = data
         except Exception as e:
-            logging.error(f"Failed to load participant {participant_id}: {str(e)}")
-            raise e
+            logging.info(f"Failed to load participant {participant_id}: {e}")
+            print(f"Skipping participant {participant_id} due to error: {e}")
+            continue
 
     return participants
 

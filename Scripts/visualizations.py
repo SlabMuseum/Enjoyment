@@ -21,22 +21,22 @@ import os
 # top_right_barrier: reference point in image coordinates --- (Klimt corner barrier)
 
 image_dict = {
-    r"Top views\museum_top_iso_grid.png": {
+    r"Top views/museum_top_iso_grid.png": {
         "img_origin": (224, 113),
         "bottom_left_barrier": (44, 720),
         "top_right_barrier": (331, 32),
     }
-    , r"Top views\museum_top_iso.png": {
+    , r"Top views/museum_top_iso.png": {
         "img_origin": (226, 107),
         "bottom_left_barrier": (46, 712),
         "top_right_barrier": (334, 26),
     }
-    , r"Top views\museum_top_perspective_grid.png": {
+    , r"Top views/museum_top_perspective_grid.png": {
         "img_origin": (286, 133),
         "bottom_left_barrier": (113, 715),
         "top_right_barrier": (391, 55),
     }
-    , r"Top views\museum_top_perspective.png": {
+    , r"Top views/museum_top_perspective.png": {
         "img_origin": (306, 138),
         "bottom_left_barrier": (133, 720),
         "top_right_barrier": (411, 60),
@@ -46,27 +46,27 @@ image_dict = {
         "bottom_left_barrier": (-2.3101, -2.4648), 
         "top_right_barrier": (0.9805, 5.351),
     }
-    , r"Top views\top_view.png": {
+    , r"Top views/top_view.png": {
         "img_origin": (753,1976),
         "bottom_left_barrier": (1215,409),
         "top_right_barrier": (476,2185),
     }
-    , r"Top views\top_view_no_tiles_grid_isometric.png": {
+    , r"Top views/top_view_no_tiles_grid_isometric.png": {
         "img_origin": (266,109),
         "bottom_left_barrier": (68,775),
         "top_right_barrier": (386,20),
     }
-        , r"Top views\top_view_no_tiles_no_grid_isometric.png": {
+        , r"Top views/top_view_no_tiles_no_grid_isometric.png": {
         "img_origin": (254,117),
         "bottom_left_barrier": (56,783),
         "top_right_barrier": (374,27),
     }
-        , r"Top views\top_view_no_grid_no_tiles_prespective.png": {
+        , r"Top views/top_view_no_grid_no_tiles_prespective.png": {
         "img_origin": (283,141),
         "bottom_left_barrier": (111,718),
         "top_right_barrier": (387,63),
     }
-        , r"Top views\top_view_grid_no_tiles_prespective_.png": {
+        , r"Top views/top_view_grid_no_tiles_prespective_.png": {
         "img_origin": (285,139),
         "bottom_left_barrier": (113,716),
         "top_right_barrier": (389,61),

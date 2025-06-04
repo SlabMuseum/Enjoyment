@@ -362,12 +362,16 @@ class MuseumVRParticipantData(BaseParticipantData):
             # Define tour order
             tour_order = ["Klimt", "Pollock", "van Dongen", "Braque", "de Chirico", "Janco", "Picasso"]
 
-            # Find tour start
-            start_instruction = logs_df[logs_df['LogText'] == "Instructions board hidden Lets start the tour Instructions"]
-            if start_instruction.empty:
-                raise ValueError("Start of tour instruction not found in logs.")
             
-            tour_start_time = start_instruction.iloc[0]['Time']
+
+            # Find tour start
+            if self.participant_id == "109":
+                tour_start_time = 129.0
+            else:
+                start_instruction = logs_df[logs_df['LogText'] == "Instructions board hidden Lets start the tour Instructions"]
+                if start_instruction.empty:
+                    raise ValueError("Start of tour instruction not found in logs.")
+                tour_start_time = start_instruction.iloc[0]['Time']
 
             trials = []
             current_start_time = tour_start_time
