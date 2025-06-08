@@ -14,8 +14,8 @@ from visualizations import *
 logging_level = logging.INFO  # Set to DEBUG to see all messages, or INFO for less verbosity
 
 # path configs - change accordingly                         # TODO set to relaive paths with known structure
-root_data_path = r"/Users/yanasklar/Documents/TAU/Data" 
-# root_data_path = r"D:\Yana-Analisys\Yanas-Museum-Data\TestData"  #3 participants
+# root_data_path = r"/Users/yanasklar/Documents/TAU/Data" 
+root_data_path = r"/Users/yanasklar/Documents/TAU/TestData"  #3 participants
 questionnaire_csv_path = r"/Users/yanasklar/GitHub/Enjoyment/res.csv" 
 
 # ----------- main function - entry point --------------
@@ -32,6 +32,7 @@ def main() -> None:
     logging.info("Added questionnaire data to participants.")
 
     # ---- visualizations ----
+    """
     for participant_id, participant_data in participants.items():
         logging.info(f"Visualizing participant {participant_id}...")
 
@@ -40,7 +41,8 @@ def main() -> None:
         plot_trajectory_over_image(participant_data, r"Top views/top_view_no_tiles_no_grid_isometric.png", save_file=True
                                    ,sampling_rate=60, window_size=5, close_plot=False)
         logging.info(f"Visualization for participant {participant_id} completed.")
-
+"""
+    plot_per_painting_summary(participants)
 
 # ----------------- helper functions -------------------
 

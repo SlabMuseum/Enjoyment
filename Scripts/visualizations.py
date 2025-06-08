@@ -10,6 +10,7 @@ from PIL import Image
 import cv2
 import matplotlib.patches as patches
 from matplotlib.cm import get_cmap
+import seaborn as sns
 
 import pandas as pd
 from io import StringIO
@@ -91,34 +92,21 @@ EXPORTS_FOLDER = "Plots"  # Folder to save plots
 #endregion
 
 # region ---- Plotting functions ----
-def plot_trajectory_over_image(participant_data : participantData, image_path, save_file=True, sampling_rate=60, window_size=5,close_plot=True):
+def plot_trajectory_over_image(participant_data : participantData, image_path, save_file=True, sampling_rate=60, window_size=5, close_plot=True):
     """
-    Plot trajectory colored by smoothed speed over museum top-view image.
-
-    Args:
-        df (pd.DataFrame): Must contain 'Head_Position_x' and 'Head_Position_Z'
-        image_path (str): Path to top-view image
-        image_metadata (dict): Contains 'img_origin' and 'bottom_left_barrier'
-        save_file (bool): Whether to save the plot as a file
-        sampling_rate (int): Sampling rate in Hz
-        window_size (int): Smoothing window for speed
+    Plot trajectory colored by smoothed speed over museum top-view image with valence heatmap and gaze/valence legend.
     """
+    if image_path not in image_dict:
+        raise ValueError(f"Image path '{image_path}' not found in image_dict.")
 
-    if (image_path not in image_dict):
-        raise ValueError(f"Image path '{image_path}' not found in image_dict. Available images: {list(image_dict.keys())}")
-    
     image_metadata = image_dict[image_path]
     background = Image.open(image_path)
 
     df = participant_data.dataframes["ContinuousData"]
-    # filter out the demo
     exp_start_time = participant_data.trials_data.iloc[0]["StartTime"]
     df = df[df['Time'] >= exp_start_time]
-    
+
     coords = df[['Head_Position_x', 'Head_Position_Z']].values
-
-
-
     pixel_points = np.array([convert_unity_units_to_image_px(x, z, image_metadata) for x, z in coords])
     x, y = pixel_points[:, 0], pixel_points[:, 1]
 
@@ -135,24 +123,25 @@ def plot_trajectory_over_image(participant_data : participantData, image_path, s
     cmap = plt.get_cmap('plasma')
     colors = cmap(norm(smoothed_speed))
 
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(14, 8))  # Wider canvas to leave space for legend
+    fig.subplots_adjust(left=0.4)  # Reserve space on the left
     ax.imshow(background)
     ax.add_collection(LineCollection(segments, colors=colors, linewidth=2))
     ax.scatter(x[0], y[0], color="green", label="Start", zorder=5)
     ax.scatter(x[-1], y[-1], color="blue", label="End", zorder=5)
 
-    # Add tiles as rectangles in pixel coordinates
+    valence_cmap = get_cmap("RdYlGn")
+    valence_norm = Normalize(vmin=-50, vmax=50)
+    bar_height = 5
+    segment_gap = 0.0
+
     default_tile_positions_px = convert_tile_position_to_image_px(image_metadata)
     for _, row in default_tile_positions_px.iterrows():
         xs = [row['bottom-left_x'], row['top-left_x'], row['top-right_x'], row['bottom-right_x'], row['bottom-left_x']]
         ys = [row['bottom-left_z'], row['top-left_z'], row['top-right_z'], row['bottom-right_z'], row['bottom-left_z']]
-
-        # Draw black tile outline
         ax.plot(xs, ys, color='black', linewidth=1.5, zorder=1)
 
-        # Determine label placement side
         side = get_tile_label_position(row['name'])
-
         if side == "left":
             label_x = row["top-left_x"] + 5
             label_y = row["top-left_z"] + 5
@@ -162,29 +151,63 @@ def plot_trajectory_over_image(participant_data : participantData, image_path, s
             label_y = row["top-right_z"] + 5
             ha = "right"
 
-        ax.text(label_x, label_y, row['name'],
-             ha=ha, va='top', rotation=90,
-             fontsize=8, color='black', zorder=2)
+        ax.text(label_x, label_y, row['name'], ha=ha, va='top', rotation=90, fontsize=8, color='black', zorder=2)
+
+        name = row['name']
+        tile_emotions = participant_data._filter_by_audio_guide_time(participant_data.emotions_df, name)
+        if tile_emotions.empty:
+            continue
+
+        gap = 8
+        center_x = (row['top-left_x'] + row['top-right_x']) / 2
+        top_y = min(row['top-left_z'], row['top-right_z'])
+        bar_y = top_y - gap
+        total_width = row['top-right_x'] - row['top-left_x']
+        segment_width = total_width / len(tile_emotions)
+        start_x = center_x - total_width / 2
+
+        for i, (_, emo_row) in enumerate(tile_emotions.iterrows()):
+            valence = emo_row['valence']
+            color = valence_cmap(valence_norm(valence))
+            x = start_x + i * (segment_width + segment_gap)
+            rect = patches.Rectangle((x, bar_y), segment_width, bar_height, color=color, linewidth=0, zorder=3)
+            ax.add_patch(rect)
+
+    # Add legend with Gaze Percent | First Impression OUTSIDE to the LEFT
+    legend_labels = gaze_percent_legend_labels(participant_data)
+    dy = 0.035
+    x_pos = 0.02     # Far left, in freed-up space
+    y_start = 0.9    # Near top
+
+    fig.text(x_pos, y_start, "Gaze Percent | First Impression:",
+            fontsize=10, weight='bold', va='top', ha='left')
+    for i, label in enumerate(legend_labels):
+        fig.text(x_pos, y_start - (i + 1) * dy, label,
+                fontsize=9, va='top', ha='left')
 
 
+
+    # Add speed colorbar
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
     cbar = plt.colorbar(sm, ax=ax, orientation="vertical", shrink=0.8)
     cbar.set_label("Speed (px/sec)")
 
-    ax.set_title("Trajectory Colored by Smoothed Speed, participant: " + str(participant_data.participant_id))
+    ax.set_title("Trajectory Colored by Smoothed Speed")
     ax.axis("off")
     ax.legend(loc="upper right")
 
     if save_file:
-        filename = f"{participant_data.participant_id}_speed_trajectory.png"
+        filename = f"{participant_data.participant_id}_speed_trajectory_valence.png"
         path = os.path.join(EXPORTS_FOLDER, filename)
         plt.savefig(path, bbox_inches='tight')
         logging.info(f"Saved to {path}")
-    
-    plt.show()
+
     if close_plot:
-        plt.close()
+        plt.show()
+        plt.close(fig)
+    else:
+        plt.show()
 
 def plot_trajectory_over_image_dual_view(participant_data: participantData, image_path, save_file=True, sampling_rate=60, window_size=5, close_plot=True):
     """
@@ -227,7 +250,7 @@ def plot_trajectory_over_image_dual_view(participant_data: participantData, imag
     colors = cmap(norm(smoothed_speed))
 
     # --- Plotting ---
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 8))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(17, 8), gridspec_kw={'wspace': 0.3})
 
     # -- Unity coordinate plot --
     ax1.plot(unity_x, unity_z, color='black', linewidth=1, alpha=0.4, label='Trajectory')
@@ -323,13 +346,18 @@ def plot_trajectory_over_image_dual_view(participant_data: participantData, imag
     #add a legend with the gaze percentage for each painting 
     legend_labels = gaze_percent_legend_labels(participant_data)
     # Place legend labels between plots using figure coordinates
-    dy = 0.025  # reduced vertical gap
-    x_pos = 0.5  # horizontal placement between ax1 and ax2
+    # Move legend slightly left to avoid overlapping right graph
+    dy = 0.025
+    x_pos = 0.475 
     y_start = 0.85
 
-    plt.gcf().text(x_pos, y_start + 1 * dy, "gaze percent within trial+tile:", fontsize=9, weight='bold', verticalalignment='top', ha='left')
+    fig = plt.gcf()
+    fig.text(x_pos, y_start + dy, "Gaze Percent | First Impression:",
+            fontsize=9, weight='bold', va='top', ha='left')
+
     for i, label in enumerate(legend_labels):
-        plt.gcf().text(x_pos, y_start - i * dy, label, fontsize=9, verticalalignment='top', ha='left')
+        fig.text(x_pos, y_start - i * dy, label,
+                fontsize=9, va='top', ha='left')
 
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
@@ -348,33 +376,59 @@ def plot_trajectory_over_image_dual_view(participant_data: participantData, imag
         plt.savefig(path, bbox_inches='tight')
         logging.info(f"Saved to {path}")
     
-    plt.show()
-
     if close_plot:
-        plt.close()
+        plt.show()
+        plt.close('all')
+    else:
+        plt.show()
 
 
-
+def plot_per_painting_summary(participants: dict):
+    all_summaries = pd.concat([
+    participant.get_per_painting_summary()
+    for participant in participants.values()
+])
+    all_summaries.to_csv("all_participant_summary.csv", index=False)
+    sns.boxplot(data=all_summaries, x="Painting", y="GazePercent")
+    plt.title("Gaze Percent by Painting Across Participants")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
 #endregion
-
-
 
 
 # region ---- helpers ----
 
-def gaze_percent_legend_labels(participant_data: participantData)-> list[str]:
+def gaze_percent_legend_labels(participant_data: participantData) -> list[str]:
     legend_labels = []
+    impressions_df = participant_data.first_impressions  # this is a DataFrame
 
     for _, row in default_tile_positions.iterrows():
         painting_name = row['name']
+
+        # Gaze percentage
         df = participant_data.dataframes["ContinuousData"]
         filtering_func = participant_data._filter_by_trial_and_tile
-        
-        gazed_time, gaze_percent = participant_data.calculate_gaze_time(piece_name=painting_name, fitering_function=filtering_func)
-        
-        label = f"{painting_name}: {gaze_percent:.1f}%"
+        gazed_time, gaze_percent = participant_data.calculate_gaze_time(
+            piece_name=painting_name,
+            fitering_function=filtering_func
+        )
+
+        # Safely look up valence from the first impressions DataFrame
+        val_row = impressions_df[impressions_df["PaintingName"] == painting_name]
+        if not val_row.empty:
+            valence = val_row.iloc[0]["Valence"]
+            valence_str = f"{valence:.1f}"
+        else:
+            valence_str = "N/A"
+
+        label = f"{painting_name}: {gaze_percent:.1f}% | {valence_str}"
         legend_labels.append(label)
+
     return legend_labels
+
+
+
 
 def compute_trajectory_data(df, image_metadata, sampling_rate=60, window_size=5):
     coords = df[['Head_Position_x', 'Head_Position_Z']].values
