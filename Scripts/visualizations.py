@@ -91,7 +91,7 @@ EXPORTS_FOLDER = "Plots"  # Folder to save plots
 
 #endregion
 
-# region ---- Plotting functions ----
+# region ---- Plotting trajectory functions ----
 def plot_trajectory_over_image(participant_data : participantData, image_path, save_file=True, sampling_rate=60, window_size=5, close_plot=True):
     """
     Plot trajectory colored by smoothed speed over museum top-view image with valence heatmap and gaze/valence legend.
@@ -382,18 +382,287 @@ def plot_trajectory_over_image_dual_view(participant_data: participantData, imag
     else:
         plt.show()
 
+def plot_mean_trajectories_by_type(participants: dict, image_path: str, n_points=100000, save_file=True, close_plot=True):
+    """
+    Plots the average trajectory per tour type (1, 2, 3), with standard deviation shading,
+    over the museum background image.
 
-def plot_per_painting_summary(participants: dict):
+    Args:
+        participants (dict): participant_id → MuseumVRParticipantData
+        image_path (str): path key from image_dict
+        n_points (int): number of resampled points for trajectory
+    """
+    if image_path not in image_dict:
+        raise ValueError(f"Image path '{image_path}' not found in image_dict.")
+
+    image_metadata = image_dict[image_path]
+    background = Image.open(image_path)
+
+    type_colors = {1: 'blue', 2: 'green', 3: 'orange'}
+    type_names = {1: 'Type 1 (Active)', 2: 'Type 2 (Semi-Active)', 3: 'Type 3 (Passive)'}
+
+    # Collect trajectories per type
+    trajectories = {1: [], 2: [], 3: []}
+
+    for participant in participants.values():
+        tour_type = participant.tour_type
+        if tour_type not in [1, 2, 3]:
+            continue
+        try:
+            df = participant.dataframes["ContinuousData"]
+            start_time = participant.trials_data.iloc[0]["StartTime"]
+            df = df[df['Time'] >= start_time]
+
+            coords = df[['Head_Position_x', 'Head_Position_Z']].values
+            if len(coords) < 10:
+                continue  # skip if not enough points
+
+            # Resample to fixed number of points
+            orig_idx = np.linspace(0, 1, len(coords))
+            target_idx = np.linspace(0, 1, n_points)
+            interp_x = np.interp(target_idx, orig_idx, coords[:, 0])
+            interp_z = np.interp(target_idx, orig_idx, coords[:, 1])
+
+            # Convert to pixel coordinates
+            pixels = [convert_unity_units_to_image_px(x, z, image_metadata) for x, z in zip(interp_x, interp_z)]
+            trajectories[tour_type].append(pixels)
+
+        except Exception as e:
+            logging.warning(f"Skipping participant {participant.participant_id}: {e}")
+            continue
+
+    # --- Plotting ---
+    fig, ax = plt.subplots(figsize=(12, 8))
+    ax.imshow(background)
+    ax.set_title("Mean Trajectories by Tour Type")
+    ax.axis("off")
+
+    for tour_type, traj_list in trajectories.items():
+        if not traj_list:
+            continue
+        traj_array = np.array(traj_list)  # shape: (participants, n_points, 2)
+        mean_path = np.nanmean(traj_array, axis=0)
+        std_path = np.nanstd(traj_array, axis=0)
+
+        x = mean_path[:, 0]
+        y = mean_path[:, 1]
+        x_std = std_path[:, 0]
+        y_std = std_path[:, 1]
+
+        ax.plot(x, y, label=type_names[tour_type], color=type_colors[tour_type], linewidth=2)
+        ax.fill_betweenx(y, x - x_std, x + x_std, color=type_colors[tour_type], alpha=0.2)
+
+    ax.legend(loc='lower right')
+
+    if save_file:
+        os.makedirs(EXPORTS_FOLDER, exist_ok=True)
+        filename = "mean_trajectories_by_type.png"
+        plt.savefig(os.path.join(EXPORTS_FOLDER, filename), bbox_inches='tight')
+        logging.info(f"Saved {filename}")
+
+    if close_plot:
+        plt.show()
+        plt.close()
+    else:
+        plt.show()
+
+
+
+# endregion
+
+# region ---- Different plots ----
+
+def plot_gaze_per_painting(participants: dict):
+    """
+    Plot a boxplot of gaze percent per painting across participants.
+    Expects a dict: {participant_id: MuseumVRParticipantData}
+    """
     all_summaries = pd.concat([
-    participant.get_per_painting_summary()
-    for participant in participants.values()
-])
+        participant.get_per_painting_summary()
+        for participant in participants.values()
+    ])
+
     all_summaries.to_csv("all_participant_summary.csv", index=False)
-    sns.boxplot(data=all_summaries, x="Painting", y="GazePercent")
-    plt.title("Gaze Percent by Painting Across Participants")
+
+    sns.boxplot(data=all_summaries, x="Painting", y="GazeTime")
+    plt.title("Gaze Time by Painting Across Participants")
     plt.xticks(rotation=45)
     plt.tight_layout()
+    filename = "Gaze Time by Painting.png"
+    path = os.path.join(EXPORTS_FOLDER, filename)
+    plt.savefig(path, bbox_inches='tight')
     plt.show()
+
+def plot_gaze_percent_per_painting(participants: dict):
+    """
+    Plot a boxplot of gaze percent per painting across participants.
+    Expects a dict: {participant_id: MuseumVRParticipantData}
+    """
+    all_summaries = pd.concat([
+        participant.get_per_painting_summary()
+        for participant in participants.values()
+    ])
+
+    all_summaries.to_csv("all_participant_summary.csv", index=False)
+
+    sns.boxplot(data=all_summaries, x="Painting", y="GazePercent")
+    plt.title("Gaze Percent During Audioguide")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    filename = "Gaze Percent During Audioguide.png"
+    path = os.path.join(EXPORTS_FOLDER, filename)
+    plt.savefig(path, bbox_inches='tight')
+    plt.show()
+
+def plot_group_avg_emotions_bar(participants: dict, emotion_keys=None, save_file=True, close_plot=True):
+    """
+    Plots a grouped bar chart of average emotion intensities per painting across participants,
+    with error bars showing standard deviation.
+
+    Args:
+        participants (dict): participant_id → MuseumVRParticipantData
+        emotion_keys (list): emotions to include (defaults to common ones)
+    """
+    if emotion_keys is None:
+        emotion_keys = ['joy', 'sadness', 'anger', 'disgust', 'surprise']
+
+    paintings = ["Klimt", "Pollock", "van Dongen", "Braque", "de Chirico", "Janco", "Picasso"]
+
+    mean_data = {emo: [] for emo in emotion_keys}
+    std_data = {emo: [] for emo in emotion_keys}
+    mean_data["Painting"] = []
+
+    for painting in paintings:
+        emotion_accumulator = []
+
+        for participant in participants.values():
+            try:
+                emo_df = participant._filter_by_audio_guide_time(participant.emotions_df, painting)
+                if emo_df.empty:
+                    continue
+
+                avg = emo_df[emotion_keys].mean()
+                emotion_accumulator.append(avg)
+            except Exception as e:
+                logging.warning(f"{participant.participant_id} failed on {painting}: {e}")
+                continue
+
+        if emotion_accumulator:
+            emo_df_all = pd.DataFrame(emotion_accumulator)
+            group_avg = emo_df_all.mean()
+            group_std = emo_df_all.std()
+            for emo in emotion_keys:
+                mean_data[emo].append(group_avg.get(emo, 0))
+                std_data[emo].append(group_std.get(emo, 0))
+        else:
+            for emo in emotion_keys:
+                mean_data[emo].append(0)
+                std_data[emo].append(0)
+
+        mean_data["Painting"].append(painting)
+
+    # Create DataFrames
+    df_mean = pd.DataFrame(mean_data).set_index("Painting")
+    df_std = pd.DataFrame(std_data)
+
+    # Plotting
+    ax = df_mean.plot(kind='bar', yerr=df_std[emotion_keys].T.values, capsize=4, figsize=(12, 6), legend=True)
+
+    plt.ylabel("Average Intensity")
+    plt.title("Average Emotion Intensities per Painting (± SD)")
+    plt.xticks(rotation=45)
+    plt.legend(title="Emotion", bbox_to_anchor=(1.02, 1), loc='upper left')
+    plt.tight_layout()
+
+    if save_file:
+        filename = "group_avg_emotion_bar_with_sd.png"
+        os.makedirs(EXPORTS_FOLDER, exist_ok=True)
+        plt.savefig(os.path.join(EXPORTS_FOLDER, filename), bbox_inches='tight')
+        logging.info(f"Saved emotion bar chart with SD to {filename}")
+
+    if close_plot:
+        plt.show()
+        plt.close()
+    else:
+        plt.show()
+
+def plot_temporal_emotion_lines_by_painting(participants: dict, emotion_keys=None, save_file=True, close_plot=True):
+    """
+    For each painting, plot time-series lines of emotion intensities averaged across participants.
+    X-axis: 1-second time bins during audioguide (variable length per painting).
+    Y-axis: Mean emotion intensity. One line per emotion.
+    """
+    if emotion_keys is None:
+        emotion_keys = ['joy', 'sadness', 'anger', 'disgust', 'surprise', 'valence']
+
+    paintings = ["Klimt", "Pollock", "van Dongen", "Braque", "de Chirico", "Janco", "Picasso"]
+
+    for painting in paintings:
+        all_emotions = []
+
+        for participant in participants.values():
+            try:
+                emo_df = participant._filter_by_audio_guide_time(participant.emotions_df, painting)
+                if emo_df.empty or not all(key in emo_df.columns for key in emotion_keys):
+                    continue
+                all_emotions.append(emo_df[emotion_keys].reset_index(drop=True))
+            except Exception as e:
+                logging.warning(f"{participant.participant_id} failed on {painting}: {e}")
+                continue
+
+        if not all_emotions:
+            logging.warning(f"No valid emotion data for painting: {painting}")
+            continue
+
+        # Determine max available length across participants
+        max_len = max(len(df) for df in all_emotions)
+
+        # Pad shorter DataFrames with NaNs
+        padded_data = []
+        for df in all_emotions:
+            pad_size = max_len - len(df)
+            if pad_size > 0:
+                pad_df = pd.DataFrame(np.nan, index=range(pad_size), columns=emotion_keys)
+                df = pd.concat([df, pad_df], ignore_index=True)
+            padded_data.append(df)
+
+        # Stack: shape = (participants, time, emotions)
+        emo_stack = np.stack([df.values for df in padded_data])
+
+        # Compute mean and std, ignoring NaNs
+        mean_emotions = np.nanmean(emo_stack, axis=0)
+        std_emotions = np.nanstd(emo_stack, axis=0)
+
+        time_points = list(range(max_len))  # 1s bins
+
+        # --- Plotting ---
+        plt.figure(figsize=(10, 5))
+        for i, emo in enumerate(emotion_keys):
+            plt.plot(time_points, mean_emotions[:, i], label=emo)
+            plt.fill_between(time_points,
+                             mean_emotions[:, i] - std_emotions[:, i],
+                             mean_emotions[:, i] + std_emotions[:, i],
+                             alpha=0.2)
+
+        plt.axhline(0, color='gray', linestyle='--', linewidth=1)
+        plt.title(f"Emotion Intensities Over Time - {painting}")
+        plt.xlabel("Time (seconds)")
+        plt.ylabel("Mean Emotion Intensity")
+        plt.legend()
+        plt.tight_layout()
+
+        if save_file:
+            filename = f"temporal_emotions_{painting}.png"
+            os.makedirs(EXPORTS_FOLDER, exist_ok=True)
+            plt.savefig(os.path.join(EXPORTS_FOLDER, filename), bbox_inches='tight')
+            logging.info(f"Saved {filename}")
+
+        if close_plot:
+            plt.show()
+            plt.close()
+        else:
+            plt.show()
+
 #endregion
 
 

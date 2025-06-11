@@ -548,6 +548,7 @@ class MuseumVRParticipantData(BaseParticipantData):
     def _get_art_piece_colliders(self):
         #TODO  in next runs of the experiment replace with per run colliders csv, if not exist return the default one
         return default_art_piece_colliders
+
     
     # endregion
     # region ------- Face analysis -------
@@ -721,6 +722,13 @@ class MuseumVRParticipantData(BaseParticipantData):
             'windowLength': [window_length]
         })
 
+    def get_emotion_during_audio(self, painting_name: str) -> pd.DataFrame:
+        """
+        Returns emotion time series (2s intervals) while the participant was listening to the audioguide.
+        """
+        return self._filter_by_audio_guide_time(self.emotions_df, painting_name)
+
+
     # endregion
     # region ------- filtering -------
     def _filter_by_trial_time(self, df: pd.DataFrame, trial_name: str) -> pd.DataFrame:
@@ -862,7 +870,7 @@ class MuseumVRParticipantData(BaseParticipantData):
         return gazed_time, gazed_percent
 
     # endregion
-
+    # region ------- Processing Data --------
     def save_to_intermediate_folder_as_csv(self, df: pd.DataFrame, filename: str):
         """
         Saves a DataFrame to the participant's intermediate output folder.
@@ -878,6 +886,275 @@ class MuseumVRParticipantData(BaseParticipantData):
         output_path = os.path.join(self.intermidiate_output_folder, filename)
         df.to_csv(output_path, index=False)
         logging.info(f"Data saved to {output_path}")
+
+    def get_per_painting_summary(self) -> pd.DataFrame:
+        """
+        Returns a DataFrame summarizing this participant's gaze percentage
+        and first impression valence for each painting.
+
+        Returns:
+            pd.DataFrame with columns:
+                ['Participant', 'Painting', 'GazePercent', 'FirstImpressionValence']
+        """
+        records = []
+        for painting in default_tile_positions['name']:
+            try:
+                gazed_time, _  = self.calculate_gaze_time(piece_name=painting)
+                _, gaze_percent = self.calculate_gaze_time(piece_name=painting, fitering_function = self._filter_by_audio_guide_time)
+
+                val_row = self.first_impressions[
+                    self.first_impressions['PaintingName'] == painting
+                ]
+                valence = val_row['Valence'].values[0] if not val_row.empty else None
+
+                records.append({
+                    'Participant': self.participant_id,
+                    'Painting': painting,
+                    'GazeTime': round(gazed_time, 2),
+                    'GazePercent': round(gaze_percent, 2),
+                    'FirstImpressionValence': round(valence, 2) if valence is not None else None
+                })
+
+            except Exception as e:
+                logging.info(f"Failed to compute summary for {painting} (Participant {self.participant_id}): {e}")
+                continue
+
+        return pd.DataFrame(records)
+
+    def calculate_saccade_rate_and_engagement(self, df: pd.DataFrame, distance_threshold=0.01) -> tuple[float, str]:
+        """
+        Calculate saccade rate and engagement from gaze hit positions.
+
+        Args:
+            df (pd.DataFrame): Must contain 'EyeGazeHitPosition_X/Y/Z'
+            time_column (str): Timestamp column
+            distance_threshold (float): Euclidean distance in meters to count as a saccade
+
+        Returns:
+            (saccade_rate, engagement_level)
+        """
+        import numpy as np
+
+        if df.empty or df.shape[0] < 2:
+            print("empty")
+            return 0.0, "undefined"
+
+        # Extract gaze hit positions
+        points = df[['EyeGazeHitPosition_X', 'EyeGazeHitPosition_Y', 'EyeGazeHitPosition_Z']].values
+
+        # Compute Euclidean distances between consecutive gaze hits
+        deltas = np.linalg.norm(np.diff(points, axis=0), axis=1)
+        saccades = deltas > distance_threshold
+        num_saccades = np.sum(saccades)
+
+        duration_sec = df['Time'].max() - df['Time'].min()
+        if duration_sec == 0 or np.isnan(duration_sec):
+            return 0.0, "undefined"
+
+        saccade_rate = num_saccades / duration_sec
+
+        # Engagement rule
+        if saccade_rate < 3:
+            level = "high"
+        elif saccade_rate <= 5:
+            level = "moderate"
+        else:
+            level = "low"
+
+        return round(saccade_rate, 2), level
+
+    def generate_painting_summary(self) -> pd.DataFrame:
+        """
+        Generates a summary DataFrame for each painting including:
+        - Self-reported liking
+        - FI valence, max emotion, max intensity
+        - Gaze time (full), gaze percent (audio period)
+        - Avg valence & emotion during audio
+        - Saccade rate and engagement during audio
+        - Full emotion sequence during audio
+        - Reaction time (latency to first fixation)
+        """
+        painting_list = ["Klimt", "Pollock", "van Dongen", "Braque", "de Chirico", "Janco", "Picasso"]
+        emotion_keys = ['joy', 'sadness', 'anger', 'disgust', 'surprise', 'valence']
+        summary_rows = []
+
+        for painting in painting_list:
+            row = {"ParticipantID": self.participant_id, "Painting": painting}
+
+            # --- 1. Self-reported liking ---
+            try:
+                q_df = self.questionnaire_data
+                painting_rating = q_df.get(painting)
+                row["SelfReportedLiking"] = painting_rating
+            except Exception:
+                row["SelfReportedLiking"] = None
+
+            # --- 2. First Impression (FI) Data ---
+            try:
+                fi_row = self.first_impressions[self.first_impressions["PaintingName"] == painting].iloc[0]
+                row["FI_Valence"] = round(fi_row["Valence"], 2)
+                row["FI_MaxEmotion"] = fi_row["MaxEmotion"]
+                row["FI_MaxIntensity"] = round(fi_row["MaxIntensity"], 2)
+            except Exception:
+                logging.info(f"Failed to calculate FI for {self.participant_id} - {painting}")
+                row.update({k: None for k in ["FI_Valence", "FI_MaxEmotion", "FI_MaxIntensity"]})
+
+            # --- 3. Gaze Time and Gaze Percent ---
+            try:
+                gaze_time, _ = self.calculate_gaze_time(piece_name=painting, fitering_function=self._filter_by_trial_and_tile)
+                row["GazeTime"] = round(gaze_time, 2)
+            except Exception:
+                row["GazeTime"] = None
+
+            try:
+                _, gaze_percent = self.calculate_gaze_time(piece_name=painting, fitering_function=self._filter_by_audio_guide_time)
+                row["GazePercent_Audio"] = round(gaze_percent, 2)
+            except Exception:
+                row["GazePercent_Audio"] = None
+
+            # --- 4. Emotions During Audio ---
+            try:
+                emo_df = self._filter_by_audio_guide_time(self.emotions_df, painting)
+                if not emo_df.empty:
+                    row["Audio_AvgValence"] = round(emo_df["valence"].mean(), 2)
+                    dominant_emotion = emo_df[emotion_keys[:-1]].mean().idxmax()
+                    row["Audio_DominantEmotion"] = dominant_emotion
+                    row["Audio_DominantEmotionIntensity"] = round(emo_df[dominant_emotion].mean(), 2)
+                    row["Audio_EmotionSequence"] = ";".join(
+                        emo_df[emotion_keys[:-1]].mean().sort_values(ascending=False).index.tolist()
+                    )
+                else:
+                    row.update({k: None for k in ["Audio_AvgValence", "Audio_DominantEmotion",
+                                                "Audio_DominantEmotionIntensity", "Audio_EmotionSequence"]})
+            except Exception:
+                row.update({k: None for k in ["Audio_AvgValence", "Audio_DominantEmotion",
+                                            "Audio_DominantEmotionIntensity", "Audio_EmotionSequence"]})
+
+            # --- 5. Saccade Rate and Engagement ---
+            try:
+                continuous_df = self._filter_by_audio_guide_time(self.dataframes["ContinuousData"], painting)
+                saccade_rate, engagement = self.calculate_saccade_rate_and_engagement(continuous_df)
+                row["SaccadeRate"] = saccade_rate
+                row["EngagementLevel"] = engagement
+            except Exception:
+                logging.info(f"Skipping saccade rate for {self.participant_id} - {painting}")
+                row.update({"SaccadeRate": None, "EngagementLevel": None})
+
+            # --- 6. Reaction Time to Fixation ---
+            try:
+                trial = self.trials_data[self.trials_data["TrialName"] == painting].iloc[0]
+                trial_start = trial["StartTime"]
+                trial_end = trial["EndTime"]
+                df = self.dataframes["ContinuousData"]
+                df_trial = df[(df["Time"] >= trial_start) & (df["Time"] <= trial_end)]
+                first_fixation = df_trial[df_trial["CorrectedFocusedObject"] == painting]
+                if not first_fixation.empty:
+                    reaction_time = first_fixation.iloc[0]["Time"] - trial_start
+                    row["ReactionTime"] = round(reaction_time, 2)
+                else:
+                    row["ReactionTime"] = None
+            except Exception:
+                row["ReactionTime"] = None
+
+            summary_rows.append(row)
+
+        return pd.DataFrame(summary_rows)
+
+
+    def generate_participant_summary(self, still_speed_threshold=0.005) -> pd.DataFrame:
+        """
+        Creates a summary of general behavior, emotion, movement, and questionnaire answers
+        for the entire experiment (1 row per participant).
+        """
+        import numpy as np
+
+        painting_list = ["Klimt", "Pollock", "van Dongen", "Braque", "de Chirico", "Janco", "Picasso"]
+        general_questions = {
+            "Q1_SatisfactionTour": "Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.",
+            "Q2_SatisfactionExplanations": "Please rate your satisfaction with the explanations about the artworks.",
+            "Q3_VisitDuration": "Was the duration of the visit to your liking?",
+            "Q4_WantMoreExplanations": "Would you like to hear more explanations of this kind about other works in the collection?",
+            "Q5_VisitAgainThisMuseum": "Would you like to visit the museum again with such a guide?",
+            "Q6_VisitOtherMuseums": "Would you like to visit other museums with similar guidance?",
+            "Q7_RecommendFriends": "Would you recommend your friends to visit the collection accompanied by this type of audio guide?",
+        }
+
+        # Get painting-level summary
+        painting_df = self.generate_painting_summary()
+
+        row = {"ParticipantID": self.participant_id, "TourType": self.tour_type}
+
+        # --- Painting-level aggregates ---
+        row["AvgSelfReportedLiking"] = round(painting_df["SelfReportedLiking"].mean(), 2)
+        row["AvgGazeTime"] = round(painting_df["GazeTime"].mean(), 2)
+        row["AvgGazePercent_Audio"] = round(painting_df["GazePercent_Audio"].mean(), 2)
+        row["AvgFI_Valence"] = round(painting_df["FI_Valence"].mean(), 2)
+        row["AvgAudio_Valence"] = round(painting_df["Audio_AvgValence"].mean(), 2)
+        row["AvgAudio_DominantIntensity"] = round(painting_df["Audio_DominantEmotionIntensity"].mean(), 2)
+        row["AvgSaccadeRate"] = round(painting_df["SaccadeRate"].mean(), 2)
+
+        # Engagement distribution
+        engagement_counts = painting_df["EngagementLevel"].value_counts()
+        row["Engagement_High"] = engagement_counts.get("high", 0)
+        row["Engagement_Moderate"] = engagement_counts.get("moderate", 0)
+        row["Engagement_Low"] = engagement_counts.get("low", 0)
+
+        # % of joy/surprise dominant
+        dominant = painting_df["Audio_DominantEmotion"].dropna()
+        row["NumPaintings_JoyOrSurprise"] = dominant.isin(["joy", "surprise"]).sum()
+
+        # --- Experiment time ---
+        try:
+            start = self.trials_data["StartTime"].min()
+            end = self.trials_data["EndTime"].max()
+            row["TotalExperimentTime"] = round(end - start, 2)
+        except Exception:
+            row["TotalExperimentTime"] = None
+
+        # --- Movement speed ---
+        try:
+            df = self.dataframes["ContinuousData"]
+            start_time = self.trials_data["StartTime"].min()
+            df = df[df["Time"] >= start_time]
+
+            coords = df[["Head_Position_x", "Head_Position_Z"]].values
+            dx = np.diff(coords[:, 0])
+            dz = np.diff(coords[:, 1])
+            distances = np.sqrt(dx**2 + dz**2)
+            time_deltas = np.diff(df["Time"].values)
+            speeds = np.divide(distances, time_deltas, out=np.zeros_like(distances), where=time_deltas > 0)
+
+            row["AvgSpeed"] = round(np.nanmean(speeds), 2)
+
+            still_mask = speeds < still_speed_threshold
+            move_mask = speeds >= still_speed_threshold
+            row["TimeStill"] = round(np.sum(time_deltas[still_mask]), 2)
+            row["TimeMoving"] = round(np.sum(time_deltas[move_mask]), 2)
+        except Exception:
+            row.update({"AvgSpeed": None, "TimeStill": None, "TimeMoving": None})
+
+        # --- General questionnaire answers ---
+        try:
+            if isinstance(self.questionnaire_data, pd.Series):
+                qdata = self.questionnaire_data
+            else:
+                qdata = pd.Series(dtype=object)
+
+            scores = []
+            for col, qtext in general_questions.items():
+                val = qdata.get(qtext, None)
+                row[col] = int(val)
+                if isinstance(val, (int, float, np.integer, np.floating)):
+                    scores.append(val)
+
+            row["AvgGeneralRating"] = round(np.mean(scores), 2) if scores else None
+        except Exception:
+            for col in general_questions:
+                row[col] = None
+            row["AvgGeneralRating"] = None
+
+        return pd.DataFrame([row])
+
 
 #test:
 if __name__ == "__main__":
