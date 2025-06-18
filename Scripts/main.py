@@ -153,7 +153,6 @@ def main() -> None:
     plt.savefig("Tree importance.png")
     plt.show()
 
-
     # Print tree rules
     print("\n📋 Decision Tree Rules:\n")
     print(export_text(clf, feature_names=list(X.columns)))

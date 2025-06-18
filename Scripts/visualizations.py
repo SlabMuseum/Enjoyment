@@ -482,8 +482,6 @@ def plot_gaze_per_painting(participants: dict):
         for participant in participants.values()
     ])
 
-    all_summaries.to_csv("all_participant_summary.csv", index=False)
-
     sns.boxplot(data=all_summaries, x="Painting", y="GazeTime")
     plt.title("Gaze Time by Painting Across Participants")
     plt.xticks(rotation=45)
@@ -502,8 +500,6 @@ def plot_gaze_percent_per_painting(participants: dict):
         participant.get_per_painting_summary()
         for participant in participants.values()
     ])
-
-    all_summaries.to_csv("all_participant_summary.csv", index=False)
 
     sns.boxplot(data=all_summaries, x="Painting", y="GazePercent")
     plt.title("Gaze Percent During Audioguide")
