@@ -130,11 +130,6 @@ def plot_trajectory_over_image(participant_data : participantData, image_path, s
     ax.scatter(x[0], y[0], color="green", label="Start", zorder=5)
     ax.scatter(x[-1], y[-1], color="blue", label="End", zorder=5)
 
-    valence_cmap = get_cmap("RdYlGn")
-    valence_norm = Normalize(vmin=-50, vmax=50)
-    bar_height = 5
-    segment_gap = 0.0
-
     default_tile_positions_px = convert_tile_position_to_image_px(image_metadata)
     for _, row in default_tile_positions_px.iterrows():
         xs = [row['bottom-left_x'], row['top-left_x'], row['top-right_x'], row['bottom-right_x'], row['bottom-left_x']]
@@ -153,39 +148,17 @@ def plot_trajectory_over_image(participant_data : participantData, image_path, s
 
         ax.text(label_x, label_y, row['name'], ha=ha, va='top', rotation=90, fontsize=8, color='black', zorder=2)
 
-        name = row['name']
-        tile_emotions = participant_data._filter_by_audio_guide_time(participant_data.emotions_df, name)
-        if tile_emotions.empty:
-            continue
-
-        gap = 8
-        center_x = (row['top-left_x'] + row['top-right_x']) / 2
-        top_y = min(row['top-left_z'], row['top-right_z'])
-        bar_y = top_y - gap
-        total_width = row['top-right_x'] - row['top-left_x']
-        segment_width = total_width / len(tile_emotions)
-        start_x = center_x - total_width / 2
-
-        for i, (_, emo_row) in enumerate(tile_emotions.iterrows()):
-            valence = emo_row['valence']
-            color = valence_cmap(valence_norm(valence))
-            x = start_x + i * (segment_width + segment_gap)
-            rect = patches.Rectangle((x, bar_y), segment_width, bar_height, color=color, linewidth=0, zorder=3)
-            ax.add_patch(rect)
-
     # Add legend with Gaze Percent | First Impression OUTSIDE to the LEFT
     legend_labels = gaze_percent_legend_labels(participant_data)
     dy = 0.035
     x_pos = 0.02     # Far left, in freed-up space
     y_start = 0.9    # Near top
 
-    fig.text(x_pos, y_start, "Gaze Percent | First Impression:",
+    fig.text(x_pos, y_start, "Gaze Percent:",
             fontsize=10, weight='bold', va='top', ha='left')
     for i, label in enumerate(legend_labels):
         fig.text(x_pos, y_start - (i + 1) * dy, label,
                 fontsize=9, va='top', ha='left')
-
-
 
     # Add speed colorbar
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -279,12 +252,6 @@ def plot_trajectory_over_image_dual_view(participant_data: participantData, imag
     ax2.scatter(px[0], py[0], color="green", label="Start", zorder=5)
     ax2.scatter(px[-1], py[-1], color="blue", label="End", zorder=5)
 
-    # ---- bar plot for valence properties ----
-    valence_cmap = get_cmap("RdYlGn")
-    valence_norm = Normalize(vmin=-50, vmax=50)
-    bar_height = 5
-    segment_gap = 0.0
-    
     # Add tiles as rectangles in pixel coordinates
     default_tile_positions_px = convert_tile_position_to_image_px(image_metadata)
     for _, row in default_tile_positions_px.iterrows():
@@ -311,37 +278,6 @@ def plot_trajectory_over_image_dual_view(participant_data: participantData, imag
              fontsize=8, color='black', zorder=2)
         
         name = row['name']
-
-        # -------- valence bar ----------
-        # Get all 1-second valence rows for this tile
-        tile_emotions = participant_data._filter_by_audio_guide_time(participant_data.emotions_df, name)
-        if tile_emotions.empty:
-            continue
-
-        # Compute bar position: centered horizontally under the tile
-        # Define gap above the tile (in pixels)
-        gap = 8
-
-        # Compute bar position: centered horizontally above the tile
-        center_x = (row['top-left_x'] + row['top-right_x']) / 2
-        top_y = min(row['top-left_z'], row['top-right_z'])  # smaller y = higher on image
-
-        bar_y = top_y - gap  # move bar upward
-
-        total_width = row['top-right_x'] - row['top-left_x']  # Width of the tile in pixel coordinates
-        segment_width = total_width/ len(tile_emotions)
-       
-        start_x = center_x - total_width / 2
-
-        # Draw one colored segment per second
-        for i, (_, emo_row) in enumerate(tile_emotions.iterrows()):
-            valence = emo_row['valence']
-            color = valence_cmap(valence_norm(valence))
-
-            x = start_x + i * (segment_width + segment_gap)
-            rect = patches.Rectangle((x, bar_y), segment_width, bar_height,
-                                    color=color, linewidth=0, zorder=3)
-            ax2.add_patch(rect)
         
     #add a legend with the gaze percentage for each painting 
     legend_labels = gaze_percent_legend_labels(participant_data)
@@ -352,7 +288,7 @@ def plot_trajectory_over_image_dual_view(participant_data: participantData, imag
     y_start = 0.85
 
     fig = plt.gcf()
-    fig.text(x_pos, y_start + dy, "Gaze Percent | First Impression:",
+    fig.text(x_pos, y_start + dy, "Gaze Percent:",
             fontsize=9, weight='bold', va='top', ha='left')
 
     for i, label in enumerate(legend_labels):
@@ -536,155 +472,6 @@ def plot_gaze_percent_per_painting(participants: dict):
     plt.savefig(path, bbox_inches='tight')
     plt.show()
 
-def plot_group_avg_emotions_bar(participants: dict, emotion_keys=None, save_file=True, close_plot=True):
-    """
-    Plots a grouped bar chart of average emotion intensities per painting across participants,
-    with error bars showing standard deviation.
-
-    Args:
-        participants (dict): participant_id → MuseumVRParticipantData
-        emotion_keys (list): emotions to include (defaults to common ones)
-    """
-    if emotion_keys is None:
-        emotion_keys = ['joy', 'sadness', 'anger', 'disgust', 'surprise']
-
-    paintings = ["Klimt", "Pollock", "van Dongen", "Braque", "de Chirico", "Janco", "Picasso"]
-
-    mean_data = {emo: [] for emo in emotion_keys}
-    std_data = {emo: [] for emo in emotion_keys}
-    mean_data["Painting"] = []
-
-    for painting in paintings:
-        emotion_accumulator = []
-
-        for participant in participants.values():
-            try:
-                emo_df = participant._filter_by_audio_guide_time(participant.emotions_df, painting)
-                if emo_df.empty:
-                    continue
-
-                avg = emo_df[emotion_keys].mean()
-                emotion_accumulator.append(avg)
-            except Exception as e:
-                logging.warning(f"{participant.participant_id} failed on {painting}: {e}")
-                continue
-
-        if emotion_accumulator:
-            emo_df_all = pd.DataFrame(emotion_accumulator)
-            group_avg = emo_df_all.mean()
-            group_std = emo_df_all.std()
-            for emo in emotion_keys:
-                mean_data[emo].append(group_avg.get(emo, 0))
-                std_data[emo].append(group_std.get(emo, 0))
-        else:
-            for emo in emotion_keys:
-                mean_data[emo].append(0)
-                std_data[emo].append(0)
-
-        mean_data["Painting"].append(painting)
-
-    # Create DataFrames
-    df_mean = pd.DataFrame(mean_data).set_index("Painting")
-    df_std = pd.DataFrame(std_data)
-
-    # Plotting
-    ax = df_mean.plot(kind='bar', yerr=df_std[emotion_keys].T.values, capsize=4, figsize=(12, 6), legend=True)
-
-    plt.ylabel("Average Intensity")
-    plt.title("Average Emotion Intensities per Painting (± SD)")
-    plt.xticks(rotation=45)
-    plt.legend(title="Emotion", bbox_to_anchor=(1.02, 1), loc='upper left')
-    plt.tight_layout()
-
-    if save_file:
-        filename = "group_avg_emotion_bar_with_sd.png"
-        os.makedirs(EXPORTS_FOLDER, exist_ok=True)
-        plt.savefig(os.path.join(EXPORTS_FOLDER, filename), bbox_inches='tight')
-        logging.info(f"Saved emotion bar chart with SD to {filename}")
-
-    if close_plot:
-        plt.show()
-        plt.close()
-    else:
-        plt.show()
-
-def plot_temporal_emotion_lines_by_painting(participants: dict, emotion_keys=None, save_file=True, close_plot=True):
-    """
-    For each painting, plot time-series lines of emotion intensities averaged across participants.
-    X-axis: 1-second time bins during audioguide (variable length per painting).
-    Y-axis: Mean emotion intensity. One line per emotion.
-    """
-    if emotion_keys is None:
-        emotion_keys = ['joy', 'sadness', 'anger', 'disgust', 'surprise', 'valence']
-
-    paintings = ["Klimt", "Pollock", "van Dongen", "Braque", "de Chirico", "Janco", "Picasso"]
-
-    for painting in paintings:
-        all_emotions = []
-
-        for participant in participants.values():
-            try:
-                emo_df = participant._filter_by_audio_guide_time(participant.emotions_df, painting)
-                if emo_df.empty or not all(key in emo_df.columns for key in emotion_keys):
-                    continue
-                all_emotions.append(emo_df[emotion_keys].reset_index(drop=True))
-            except Exception as e:
-                logging.warning(f"{participant.participant_id} failed on {painting}: {e}")
-                continue
-
-        if not all_emotions:
-            logging.warning(f"No valid emotion data for painting: {painting}")
-            continue
-
-        # Determine max available length across participants
-        max_len = max(len(df) for df in all_emotions)
-
-        # Pad shorter DataFrames with NaNs
-        padded_data = []
-        for df in all_emotions:
-            pad_size = max_len - len(df)
-            if pad_size > 0:
-                pad_df = pd.DataFrame(np.nan, index=range(pad_size), columns=emotion_keys)
-                df = pd.concat([df, pad_df], ignore_index=True)
-            padded_data.append(df)
-
-        # Stack: shape = (participants, time, emotions)
-        emo_stack = np.stack([df.values for df in padded_data])
-
-        # Compute mean and std, ignoring NaNs
-        mean_emotions = np.nanmean(emo_stack, axis=0)
-        std_emotions = np.nanstd(emo_stack, axis=0)
-
-        time_points = list(range(max_len))  # 1s bins
-
-        # --- Plotting ---
-        plt.figure(figsize=(10, 5))
-        for i, emo in enumerate(emotion_keys):
-            plt.plot(time_points, mean_emotions[:, i], label=emo)
-            plt.fill_between(time_points,
-                             mean_emotions[:, i] - std_emotions[:, i],
-                             mean_emotions[:, i] + std_emotions[:, i],
-                             alpha=0.2)
-
-        plt.axhline(0, color='gray', linestyle='--', linewidth=1)
-        plt.title(f"Emotion Intensities Over Time - {painting}")
-        plt.xlabel("Time (seconds)")
-        plt.ylabel("Mean Emotion Intensity")
-        plt.legend()
-        plt.tight_layout()
-
-        if save_file:
-            filename = f"temporal_emotions_{painting}.png"
-            os.makedirs(EXPORTS_FOLDER, exist_ok=True)
-            plt.savefig(os.path.join(EXPORTS_FOLDER, filename), bbox_inches='tight')
-            logging.info(f"Saved {filename}")
-
-        if close_plot:
-            plt.show()
-            plt.close()
-        else:
-            plt.show()
-
 def plot_individual_voting_bars(questionnaire: pd.DataFrame, save_file=True, close_plot=True):
     """
     Plots separate bar charts for each voting question (column 16+),
@@ -734,7 +521,6 @@ def plot_individual_voting_bars(questionnaire: pd.DataFrame, save_file=True, clo
 
 def gaze_percent_legend_labels(participant_data: participantData) -> list[str]:
     legend_labels = []
-    impressions_df = participant_data.first_impressions  # this is a DataFrame
 
     for _, row in default_tile_positions.iterrows():
         painting_name = row['name']
@@ -747,15 +533,7 @@ def gaze_percent_legend_labels(participant_data: participantData) -> list[str]:
             fitering_function=filtering_func
         )
 
-        # Safely look up valence from the first impressions DataFrame
-        val_row = impressions_df[impressions_df["PaintingName"] == painting_name]
-        if not val_row.empty:
-            valence = val_row.iloc[0]["Valence"]
-            valence_str = f"{valence:.1f}"
-        else:
-            valence_str = "N/A"
-
-        label = f"{painting_name}: {gaze_percent:.1f}% | {valence_str}"
+        label = f"{painting_name}: {gaze_percent:.1f}%"
         legend_labels.append(label)
 
     return legend_labels

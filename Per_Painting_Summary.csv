@@ -1,337 +1,337 @@
-ParticipantID,Painting,TimeAtTheTile,TileTimePercent_Audio,SelfReportedLiking,FI_Valence,FI_MaxEmotion,FI_MaxIntensity,GazeTime,GazePercent_Audio,Audio_AvgValence,Audio_DominantEmotion,Audio_DominantEmotionIntensity,Audio_EmotionSequence,SaccadeRate,EngagementLevel,ReactionTime
-135,Klimt,101.3,116.4,51.5,-36.93,sadness,40.32,78.24,86.58,-29.51,sadness,30.54,sadness;anger;joy;disgust;surprise,14.38,low,3.99
-135,Pollock,101.8,116.64,30.0,-20.76,sadness,31.55,77.52,88.52,-25.97,sadness,29.53,sadness;anger;joy;surprise;disgust,8.87,low,9.89
-135,van Dongen,94.03,116.41,51.0,-31.64,sadness,31.64,70.58,86.75,-22.43,sadness,22.65,sadness;anger;joy;disgust;surprise,7.46,low,5.39
-135,Braque,86.1,115.27,37.5,0.0,neutral,0.0,65.1,86.85,-14.02,sadness,14.17,sadness;anger;joy;disgust;surprise,8.84,low,7.56
-135,de Chirico,65.34,134.32,29.0,-33.85,sadness,33.85,45.92,93.75,-28.51,sadness,28.45,sadness;anger;disgust;surprise;joy,7.67,low,8.99
-135,Janco,81.29,124.6,43.5,-35.85,sadness,35.85,55.84,84.76,-17.95,sadness,18.12,sadness;anger;joy;disgust;surprise,10.99,low,1.87
-135,Picasso,67.18,111.78,51.0,-20.3,sadness,20.3,53.2,88.55,-24.12,sadness,24.25,sadness;anger;joy;disgust;surprise,8.84,low,1.56
-132,Klimt,106.53,122.41,38.5,0.0,neutral,0.0,88.68,98.46,-4.2,anger,6.05,anger;sadness;disgust;joy;surprise,11.36,low,8.53
-132,Pollock,131.49,150.65,14.0,0.0,neutral,0.0,61.58,69.56,-2.34,anger,6.46,anger;joy;sadness;surprise;disgust,7.93,low,6.46
-132,van Dongen,96.19,119.08,41.0,0.0,neutral,0.0,65.48,80.21,-3.47,anger,4.72,anger;sadness;joy;disgust;surprise,6.84,low,7.89
-132,Braque,86.42,115.7,23.5,-11.33,anger,22.66,63.24,83.29,-3.73,anger,4.85,anger;sadness;disgust;joy;surprise,6.84,low,8.12
-132,de Chirico,63.23,129.97,14.0,-10.94,anger,21.89,43.92,89.02,-4.07,anger,4.34,anger;sadness;disgust;joy;surprise,7.4,low,8.09
-132,Janco,81.25,124.53,43.5,0.0,neutral,0.0,64.8,97.15,-1.67,anger,6.85,anger;surprise;sadness;joy;disgust,9.37,low,1.7
-132,Picasso,66.76,111.07,20.5,0.0,neutral,0.0,54.86,89.81,-3.18,anger,4.33,anger;sadness;disgust;joy;surprise,6.97,low,1.55
-157,Klimt,102.08,117.28,51.5,27.37,surprise,54.74,81.36,90.85,13.67,surprise,45.16,surprise;anger;sadness;joy;disgust,14.97,low,4.27
-157,Pollock,104.1,119.27,42.0,2.12,surprise,44.53,69.46,79.39,13.89,surprise,48.98,surprise;anger;sadness;joy;disgust,8.6,low,1.31
-157,van Dongen,91.73,113.56,51.0,4.88,surprise,51.21,62.3,75.53,9.96,surprise,38.22,surprise;anger;sadness;joy;disgust,9.67,low,4.61
-157,Braque,82.39,110.31,53.0,9.47,surprise,65.38,61.68,81.76,1.05,surprise,41.5,surprise;sadness;anger;joy;disgust,9.04,low,4.86
-157,de Chirico,62.42,128.32,29.0,30.32,surprise,60.64,45.0,91.86,5.52,surprise,31.58,surprise;anger;sadness;joy;disgust,8.62,low,8.08
-157,Janco,73.76,113.04,24.5,8.39,surprise,36.2,58.16,86.11,15.71,surprise,38.24,surprise;anger;sadness;joy;disgust,10.99,low,3.19
-157,Picasso,68.93,114.69,37.5,28.15,surprise,56.3,56.96,93.21,9.94,surprise,24.42,surprise;anger;sadness;joy;disgust,9.3,low,1.53
-150,Klimt,102.45,117.71,20.0,-1.0,anger,23.3,59.6,66.84,-2.09,anger,18.93,anger;surprise;disgust;joy;sadness,13.26,low,9.01
-150,Pollock,103.13,118.16,42.0,-11.32,anger,22.65,18.14,18.43,2.49,surprise,10.89,surprise;anger;disgust;joy;sadness,5.15,low,6.23
-150,van Dongen,88.85,109.99,14.0,0.0,neutral,0.0,12.1,14.61,2.75,surprise,7.05,surprise;anger;joy;sadness;disgust,9.91,low,4.51
-150,Braque,82.08,109.88,46.0,0.0,neutral,0.0,10.4,13.77,1.34,surprise,5.02,surprise;anger;joy;sadness;disgust,9.68,low,6.43
-150,de Chirico,64.27,132.14,46.5,-0.45,anger,27.75,5.7,10.53,1.01,surprise,4.79,surprise;disgust;anger;joy;sadness,10.12,low,11.96
-150,Janco,134.44,206.06,24.5,0.0,neutral,0.0,24.94,37.09,0.66,surprise,2.43,surprise;disgust;anger;joy;sadness,12.03,low,2.68
-150,Picasso,66.01,109.82,4.5,0.0,neutral,0.0,13.38,22.24,1.99,surprise,5.6,surprise;anger;joy;sadness;disgust,12.82,low,2.04
-159,Klimt,124.07,142.57,20.0,21.78,surprise,43.57,67.9,76.78,8.58,surprise,37.59,surprise;disgust;anger;sadness;joy,16.06,low,28.92
-159,Pollock,113.14,129.63,30.0,35.44,joy,43.57,11.34,17.1,7.09,surprise,28.31,surprise;sadness;anger;joy;disgust,8.58,low,11.79
-159,van Dongen,96.91,119.98,3.5,12.4,surprise,46.92,17.22,21.01,8.57,surprise,27.8,surprise;joy;anger;sadness;disgust,11.22,low,6.49
-159,Braque,93.74,125.5,10.5,0.0,neutral,0.0,21.48,28.76,0.92,surprise,8.76,surprise;anger;sadness;disgust;joy,8.17,low,10.83
-159,de Chirico,63.13,129.77,46.5,20.34,surprise,40.67,33.54,67.26,7.61,surprise,24.06,surprise;anger;sadness;disgust;joy,8.54,low,8.41
-159,Janco,74.76,114.59,2.0,28.05,surprise,56.1,56.44,84.97,10.18,surprise,24.84,surprise;anger;sadness;disgust;joy,11.56,low,1.79
-159,Picasso,69.47,115.59,20.5,0.0,neutral,0.0,42.6,69.71,2.57,surprise,15.79,surprise;anger;sadness;disgust;joy,6.96,low,2.88
-133,Klimt,112.7,129.5,20.0,-11.03,surprise,23.91,76.56,85.1,-3.65,sadness,4.89,sadness;anger;surprise;disgust;joy,12.07,low,12.63
-133,Pollock,103.43,118.5,51.5,0.0,neutral,0.0,54.38,60.74,-6.95,sadness,6.95,sadness;anger;joy;disgust;surprise,6.53,low,2.54
-133,van Dongen,90.04,111.47,41.0,0.0,neutral,0.0,21.76,26.08,-2.13,sadness,3.54,sadness;anger;joy;surprise;disgust,11.21,low,4.74
-133,Braque,84.89,113.65,46.0,0.0,neutral,0.0,32.02,42.05,-2.86,sadness,2.84,sadness;anger;disgust;surprise;joy,10.52,low,6.21
-133,de Chirico,59.27,121.84,29.0,0.0,neutral,0.0,30.3,62.11,0.0,joy,0.0,joy;sadness;anger;disgust;surprise,9.26,low,8.23
-133,Janco,81.76,125.32,13.5,0.0,neutral,0.0,36.96,56.0,-2.1,sadness,2.1,sadness;disgust;joy;anger;surprise,11.97,low,2.49
-133,Picasso,66.85,111.23,1.5,0.0,neutral,0.0,29.5,48.17,-5.56,sadness,7.43,sadness;anger;surprise;disgust;joy,11.68,low,2.27
-134,Klimt,103.92,119.41,38.5,15.0,surprise,53.47,81.26,89.7,26.18,surprise,55.28,surprise;sadness;anger;joy;disgust,10.73,low,8.75
-134,Pollock,100.69,115.37,42.0,15.79,surprise,31.58,62.86,71.33,10.24,surprise,34.69,surprise;sadness;anger;joy;disgust,5.94,low,1.97
-134,van Dongen,89.28,110.53,14.0,0.0,neutral,0.0,68.38,83.75,5.39,surprise,26.27,surprise;sadness;anger;joy;disgust,5.24,low,6.53
-134,Braque,83.58,111.9,23.5,23.08,surprise,46.17,51.82,67.78,-3.38,surprise,11.78,surprise;sadness;anger;joy;disgust,6.82,low,6.69
-134,de Chirico,61.36,126.14,29.0,22.96,surprise,45.93,32.62,65.63,-2.92,surprise,17.3,surprise;sadness;anger;joy;disgust,7.61,low,10.11
-134,Janco,129.38,198.32,43.5,20.98,surprise,41.96,57.7,86.6,-2.73,surprise,21.31,surprise;sadness;anger;joy;disgust,7.33,low,44.24
-134,Picasso,65.63,109.2,51.0,-8.54,surprise,26.05,49.82,82.02,-6.35,surprise,14.2,surprise;sadness;anger;joy;disgust,7.44,low,1.5
-158,Klimt,107.93,123.99,3.5,12.34,joy,24.67,70.44,75.55,-5.42,anger,10.0,anger;sadness;joy;disgust;surprise,13.12,low,10.02
-158,Pollock,101.08,115.81,21.0,-10.28,anger,20.56,59.88,66.77,-7.96,anger,10.26,anger;sadness;joy;surprise;disgust,6.12,low,4.61
-158,van Dongen,91.09,112.77,41.0,0.0,neutral,0.0,45.6,54.99,-3.64,anger,9.35,anger;joy;sadness;disgust;surprise,8.15,low,5.95
-158,Braque,90.49,121.15,23.5,0.0,neutral,0.0,51.28,66.36,-5.18,anger,9.99,anger;sadness;joy;disgust;surprise,8.14,low,6.16
-158,de Chirico,60.97,125.33,46.5,22.23,joy,44.46,39.46,79.28,-1.02,anger,5.95,anger;joy;sadness;disgust;surprise,10.03,low,6.33
-158,Janco,77.32,118.52,43.5,-5.54,joy,37.14,52.62,76.76,-4.73,joy,13.99,joy;anger;sadness;disgust;surprise,11.24,low,2.94
-158,Picasso,69.28,115.27,7.5,-10.46,disgust,20.92,52.64,85.86,-3.93,joy,9.0,joy;anger;sadness;disgust;surprise,7.89,low,2.42
-151,Klimt,109.51,125.82,7.5,0.0,neutral,0.0,85.0,93.77,11.6,surprise,47.88,surprise;anger;sadness;joy;disgust,11.61,low,14.2
-151,Pollock,100.05,114.63,42.0,19.13,surprise,52.47,66.24,74.65,6.44,surprise,27.35,surprise;anger;joy;sadness;disgust,7.19,low,3.99
-151,van Dongen,88.39,109.42,27.5,0.0,neutral,0.0,62.9,77.07,-0.83,anger,22.81,anger;surprise;sadness;joy;disgust,7.92,low,3.76
-151,Braque,83.08,111.23,10.5,-7.79,anger,36.72,36.52,47.59,-1.14,anger,15.35,anger;surprise;joy;sadness;disgust,9.72,low,6.45
-151,de Chirico,58.17,119.58,14.0,4.09,surprise,35.41,34.46,69.31,-1.94,anger,22.77,anger;surprise;joy;sadness;disgust,11.0,low,7.57
-151,Janco,72.19,110.65,43.5,-10.86,anger,21.72,43.76,66.7,-2.73,anger,23.88,anger;surprise;sadness;joy;disgust,10.2,low,1.87
-151,Picasso,67.59,112.46,37.5,-14.86,anger,29.73,44.14,73.07,-1.88,anger,24.84,anger;surprise;joy;sadness;disgust,10.35,low,1.8
-142,Klimt,135.83,156.07,38.5,17.73,joy,50.09,83.82,94.3,4.53,surprise,27.24,surprise;anger;sadness;joy;disgust,11.53,low,29.09
-142,Pollock,99.65,114.18,30.0,15.66,surprise,31.32,84.24,94.82,1.71,surprise,17.01,surprise;anger;sadness;joy;disgust,5.32,low,4.95
-142,van Dongen,87.98,108.92,27.5,0.0,neutral,0.0,69.7,85.49,-1.21,surprise,9.2,surprise;anger;sadness;joy;disgust,4.4,moderate,3.8
-142,Braque,82.22,110.08,37.5,3.77,surprise,34.48,63.74,85.35,-1.82,surprise,13.93,surprise;sadness;anger;joy;disgust,5.48,low,4.55
-142,de Chirico,57.5,118.21,14.0,-10.09,sadness,21.81,43.76,89.3,-6.05,surprise,13.14,surprise;anger;sadness;joy;disgust,4.36,moderate,5.59
-142,Janco,71.27,109.24,43.5,0.0,neutral,0.0,63.94,97.55,-1.42,surprise,14.69,surprise;sadness;anger;joy;disgust,6.95,low,1.69
-142,Picasso,65.43,108.86,37.5,21.24,surprise,42.47,54.22,89.18,-2.71,surprise,10.21,surprise;sadness;anger;joy;disgust,5.01,low,2.02
-129,Klimt,95.32,109.52,20.0,-5.9,anger,38.98,76.88,86.19,5.08,surprise,19.36,surprise;anger;joy;sadness;disgust,10.65,low,3.74
-129,Pollock,96.49,110.55,5.5,0.0,neutral,0.0,73.4,83.75,1.71,surprise,14.78,surprise;anger;sadness;joy;disgust,6.01,low,6.41
-129,van Dongen,86.38,106.93,51.0,-12.02,anger,24.05,62.36,76.67,-0.07,anger,7.49,anger;surprise;joy;sadness;disgust,6.67,low,2.46
-129,Braque,80.89,108.3,23.5,0.0,neutral,0.0,44.48,59.58,-1.91,anger,9.38,anger;surprise;sadness;joy;disgust,7.82,low,4.32
-129,de Chirico,55.62,114.34,46.5,-1.22,anger,26.07,39.5,80.91,-2.12,anger,6.86,anger;surprise;joy;sadness;disgust,7.77,low,4.95
-129,Janco,70.25,107.68,43.5,-22.86,anger,45.72,43.6,65.53,-2.43,anger,9.23,anger;surprise;sadness;joy;disgust,9.66,low,1.13
-129,Picasso,65.68,109.28,37.5,0.0,neutral,0.0,41.72,69.44,-4.77,anger,13.95,anger;surprise;sadness;joy;disgust,9.29,low,1.71
-116,Klimt,107.32,123.31,20.0,20.78,surprise,37.58,14.82,83.45,15.73,joy,31.61,joy;surprise;anger;disgust;sadness,16.86,low,16.4
-116,Pollock,105.09,120.41,5.5,11.15,joy,22.3,22.7,23.61,11.69,joy,31.55,joy;anger;surprise;disgust;sadness,11.6,low,5.17
-116,van Dongen,89.36,110.62,3.5,16.26,joy,32.51,18.18,23.11,14.71,joy,30.59,joy;anger;surprise;disgust;sadness,10.46,low,5.25
-116,Braque,88.67,118.71,37.5,-4.27,anger,39.19,20.04,25.84,10.56,joy,18.11,joy;surprise;anger;disgust;sadness,14.31,low,7.64
-116,de Chirico,57.33,117.86,29.0,15.15,joy,30.3,27.36,55.3,11.96,joy,28.5,joy;anger;surprise;disgust;sadness,11.88,low,6.71
-116,Janco,75.85,116.26,24.5,6.78,joy,33.55,52.42,80.16,15.27,joy,28.82,joy;surprise;anger;sadness;disgust,12.22,low,4.23
-116,Picasso,66.24,110.21,37.5,17.71,surprise,35.3,42.7,71.07,14.51,joy,31.03,joy;anger;surprise;disgust;sadness,11.0,low,1.82
-111,Klimt,122.09,140.3,38.5,0.0,neutral,0.0,94.56,96.6,-12.19,sadness,13.72,sadness;anger;surprise;joy;disgust,15.9,low,20.12
-111,Pollock,105.42,120.78,14.0,0.0,neutral,0.0,55.28,61.98,-6.26,anger,7.03,anger;sadness;joy;disgust;surprise,9.89,low,7.33
-111,van Dongen,90.91,112.54,51.0,0.0,neutral,0.0,73.66,87.87,-10.23,anger,10.91,anger;sadness;joy;disgust;surprise,10.35,low,5.72
-111,Braque,85.86,114.97,10.5,0.0,neutral,0.0,45.58,59.52,-8.92,sadness,8.92,sadness;anger;joy;disgust;surprise,11.01,low,7.27
-111,de Chirico,69.35,142.56,29.0,0.0,neutral,0.0,35.54,71.62,-2.46,sadness,3.08,sadness;anger;surprise;joy;disgust,13.31,low,17.43
-111,Janco,134.76,206.51,43.5,0.0,neutral,0.0,58.82,86.63,-8.27,sadness,8.27,sadness;anger;joy;disgust;surprise,14.47,low,61.1
-111,Picasso,68.36,113.74,20.5,0.0,neutral,0.0,57.86,94.07,-7.32,anger,7.56,anger;sadness;joy;disgust;surprise,10.82,low,4.68
-118,Klimt,111.59,128.22,51.5,0.0,sadness,22.27,85.02,94.64,1.81,surprise,5.13,surprise;sadness;joy;anger;disgust,10.79,low,17.64
-118,Pollock,98.39,112.73,42.0,0.0,sadness,32.03,79.78,90.6,-0.26,surprise,0.74,surprise;sadness;disgust;anger;joy,6.22,low,5.08
-118,van Dongen,91.65,113.46,27.5,0.0,neutral,0.0,66.7,82.07,0.25,surprise,1.33,surprise;sadness;disgust;joy;anger,5.51,low,5.31
-118,Braque,87.34,116.93,37.5,0.0,neutral,0.0,62.34,81.84,0.48,surprise,1.54,surprise;sadness;joy;anger;disgust,6.23,low,7.3
-118,de Chirico,59.66,122.64,46.5,0.0,neutral,0.0,47.7,95.89,0.63,surprise,1.26,surprise;joy;sadness;anger;disgust,6.11,low,7.62
-118,Janco,75.53,115.77,24.5,0.0,sadness,22.16,63.88,94.63,0.44,surprise,0.88,surprise;joy;sadness;anger;disgust,7.33,low,2.12
-118,Picasso,67.01,111.49,51.0,0.0,neutral,0.0,60.1,98.07,0.63,surprise,1.27,surprise;joy;sadness;anger;disgust,4.61,moderate,1.95
-127,Klimt,126.89,145.8,20.0,0.0,neutral,0.0,86.44,98.3,-10.45,sadness,11.35,sadness;anger;surprise;joy;disgust,12.05,low,32.39
-127,Pollock,102.98,117.99,14.0,-26.45,sadness,26.45,87.88,95.85,-12.89,sadness,15.58,sadness;anger;surprise;joy;disgust,6.88,low,6.9
-127,van Dongen,88.25,109.25,14.0,-28.21,sadness,28.21,70.36,85.51,-1.56,sadness,1.56,sadness;anger;joy;disgust;surprise,7.31,low,3.69
-127,Braque,86.8,116.19,46.0,0.0,neutral,0.0,61.94,80.02,-2.74,sadness,2.74,sadness;anger;joy;disgust;surprise,6.71,low,6.85
-127,de Chirico,60.8,124.99,46.5,0.0,neutral,0.0,43.32,85.69,-2.95,sadness,2.95,sadness;anger;joy;disgust;surprise,6.72,low,7.58
-127,Janco,78.8,120.79,43.5,0.0,neutral,0.0,55.98,82.34,0.0,joy,0.0,joy;sadness;anger;disgust;surprise,8.02,low,3.25
-127,Picasso,69.61,115.84,37.5,0.0,neutral,0.0,44.94,73.63,-0.8,sadness,0.8,sadness;anger;joy;disgust;surprise,7.53,low,2.58
-120,Klimt,118.63,136.31,7.5,-20.07,sadness,20.07,87.3,97.84,-8.39,sadness,8.78,sadness;anger;surprise;joy;disgust,8.59,low,22.72
-120,Pollock,286.8,328.6,5.5,0.0,neutral,0.0,109.84,86.34,-7.32,sadness,7.97,sadness;anger;surprise;joy;disgust,5.25,low,18.37
-120,van Dongen,89.18,110.42,27.5,0.0,neutral,0.0,61.16,75.75,-5.12,sadness,6.52,sadness;anger;surprise;disgust;joy,6.7,low,8.97
-120,Braque,84.31,112.88,46.0,0.0,neutral,0.0,62.56,83.66,-4.31,sadness,6.25,sadness;anger;surprise;disgust;joy,6.37,low,7.5
-120,de Chirico,61.13,125.67,29.0,-10.3,anger,20.59,37.74,77.55,-6.56,sadness,7.6,sadness;anger;surprise;joy;disgust,7.36,low,9.01
-120,Janco,79.48,121.8,8.0,-25.82,sadness,25.82,59.32,90.93,-2.6,sadness,3.16,sadness;anger;surprise;joy;disgust,7.74,low,15.04
-120,Picasso,67.62,112.5,20.5,0.0,neutral,0.0,5.06,7.82,-2.2,sadness,2.03,sadness;anger;disgust;joy;surprise,8.8,low,5.0
-144,Klimt,169.14,194.33,20.0,3.84,surprise,33.94,85.48,94.71,-10.04,surprise,32.96,surprise;sadness;anger;joy;disgust,10.25,low,74.06
-144,Pollock,112.2,128.55,42.0,-16.11,sadness,30.77,70.82,79.74,-22.48,anger,33.22,anger;sadness;surprise;joy;disgust,5.64,low,13.65
-144,van Dongen,90.45,111.98,41.0,-27.71,sadness,40.78,59.72,72.73,-18.79,sadness,31.15,sadness;anger;surprise;joy;disgust,7.67,low,7.85
-144,Braque,85.55,114.54,23.5,-11.9,surprise,43.11,47.22,61.03,-25.7,sadness,44.05,sadness;anger;surprise;joy;disgust,7.97,low,6.34
-144,de Chirico,59.11,121.52,6.0,-37.07,sadness,37.07,45.1,90.91,-31.1,sadness,49.2,sadness;anger;joy;surprise;disgust,6.95,low,7.57
-144,Janco,73.94,113.33,24.5,0.0,neutral,0.0,64.04,96.63,-23.0,sadness,31.26,sadness;anger;joy;surprise;disgust,6.98,low,5.64
-144,Picasso,65.78,109.44,37.5,0.0,neutral,0.0,60.24,99.8,-12.94,sadness,23.67,sadness;anger;surprise;joy;disgust,4.93,moderate,3.61
-121,Klimt,114.25,131.27,20.0,12.44,surprise,24.88,57.8,63.11,2.39,surprise,27.7,surprise;sadness;anger;joy;disgust,11.51,low,7.47
-121,Pollock,226.72,259.76,30.0,11.11,surprise,22.22,37.18,41.23,-1.83,surprise,10.32,surprise;anger;sadness;joy;disgust,6.47,low,2.51
-121,van Dongen,95.31,117.99,27.5,0.0,neutral,0.0,21.9,26.36,-0.83,surprise,8.29,surprise;sadness;anger;joy;disgust,5.92,low,3.07
-121,Braque,105.74,141.57,4.0,17.93,surprise,35.87,59.78,77.28,-0.99,surprise,10.0,surprise;sadness;anger;joy;disgust,4.85,moderate,14.33
-121,de Chirico,93.56,192.34,6.0,0.0,neutral,0.0,31.06,63.1,-0.36,surprise,11.53,surprise;sadness;anger;joy;disgust,6.54,low,36.45
-121,Janco,148.76,228.02,4.5,0.0,neutral,0.0,35.26,50.32,1.25,surprise,10.3,surprise;anger;sadness;joy;disgust,7.33,low,39.2
-121,Picasso,72.84,121.19,20.5,28.58,surprise,57.17,50.14,82.46,-3.89,anger,12.26,anger;surprise;sadness;joy;disgust,7.46,low,2.23
-119,Klimt,117.69,135.22,38.5,41.44,joy,98.2,83.64,90.51,4.52,surprise,11.33,surprise;anger;joy;sadness;disgust,12.91,low,17.66
-119,Pollock,110.03,126.06,51.5,41.34,joy,77.19,80.64,87.03,5.13,surprise,10.32,surprise;anger;joy;sadness;disgust,8.7,low,3.02
-119,van Dongen,96.85,119.89,27.5,0.0,neutral,0.0,71.06,87.74,-0.23,anger,1.05,anger;surprise;joy;sadness;disgust,7.75,low,2.85
-119,Braque,88.14,118.0,53.0,-11.11,anger,22.22,31.62,83.07,0.05,surprise,2.75,surprise;anger;joy;sadness;disgust,8.48,low,10.0
-119,de Chirico,67.46,138.69,46.5,11.18,surprise,22.36,42.78,87.75,-0.12,anger,0.87,anger;surprise;joy;sadness;disgust,8.74,low,13.96
-119,Janco,136.8,209.69,43.5,10.59,surprise,21.18,26.86,92.18,-0.76,anger,3.36,anger;surprise;joy;sadness;disgust,10.87,low,63.12
-119,Picasso,68.12,113.34,51.0,-10.64,anger,21.29,32.76,83.52,-2.49,anger,5.35,anger;surprise;joy;sadness;disgust,9.15,low,1.61
-126,Klimt,98.63,113.34,1.0,0.0,neutral,0.0,87.86,98.41,16.8,surprise,45.99,surprise;anger;sadness;disgust;joy,10.1,low,4.26
-126,Pollock,101.64,116.45,5.5,0.0,neutral,0.0,83.72,94.75,11.73,surprise,51.92,surprise;anger;joy;sadness;disgust,6.03,low,7.09
-126,van Dongen,88.25,109.25,41.0,0.0,neutral,0.0,78.98,96.71,-0.37,anger,5.76,anger;surprise;joy;sadness;disgust,5.34,low,3.02
-126,Braque,83.16,111.33,23.5,-13.81,anger,27.62,67.66,89.74,-2.76,anger,11.78,anger;surprise;joy;sadness;disgust,7.0,low,6.17
-126,de Chirico,58.69,120.63,4.0,-15.58,surprise,33.94,44.82,91.12,5.29,surprise,39.2,surprise;anger;joy;sadness;disgust,6.97,low,7.05
-126,Janco,74.88,114.77,13.5,-11.33,anger,22.66,63.74,97.36,2.89,surprise,16.24,surprise;anger;joy;sadness;disgust,8.48,low,1.78
-126,Picasso,67.92,113.0,1.5,0.0,neutral,0.0,54.02,87.95,-3.51,anger,13.43,anger;surprise;joy;sadness;disgust,7.56,low,2.34
-110,Klimt,114.14,131.15,51.5,13.88,joy,27.76,78.96,85.06,6.36,joy,14.74,joy;anger;surprise;sadness;disgust,12.54,low,15.35
-110,Pollock,102.6,117.55,30.0,14.46,joy,28.93,59.08,63.97,7.97,joy,18.15,joy;anger;sadness;surprise;disgust,7.13,low,4.02
-110,van Dongen,91.62,113.42,41.0,18.7,joy,37.4,47.38,57.43,-6.89,sadness,7.18,sadness;anger;joy;disgust;surprise,7.23,low,5.05
-110,Braque,88.41,118.36,46.0,0.0,neutral,0.0,44.24,57.86,0.73,joy,1.46,joy;sadness;anger;disgust;surprise,7.33,low,8.47
-110,de Chirico,70.23,144.38,6.0,0.0,neutral,0.0,41.36,82.93,-0.22,anger,0.43,anger;joy;sadness;disgust;surprise,8.74,low,15.6
-110,Janco,136.27,208.88,24.5,11.03,joy,22.06,42.52,61.85,-0.33,anger,0.67,anger;surprise;sadness;joy;disgust,8.82,low,16.21
-110,Picasso,66.62,110.87,20.5,0.0,neutral,0.0,46.48,76.0,-1.35,anger,1.57,anger;sadness;joy;disgust;surprise,8.12,low,2.22
-128,Klimt,151.89,174.52,20.0,0.0,neutral,0.0,78.44,90.16,-14.17,sadness,14.14,sadness;anger;disgust;surprise;joy,13.05,low,61.36
-128,Pollock,99.9,114.46,5.5,0.0,neutral,0.0,55.46,63.03,-10.35,anger,11.9,anger;sadness;surprise;disgust;joy,6.41,low,5.42
-128,van Dongen,87.65,108.51,14.0,0.0,neutral,0.0,60.16,73.82,-7.32,anger,7.19,anger;sadness;disgust;joy;surprise,6.06,low,3.47
-128,Braque,84.02,112.49,4.0,0.0,neutral,0.0,59.8,78.87,-5.85,sadness,6.22,sadness;anger;surprise;disgust;joy,7.19,low,6.03
-128,de Chirico,62.32,128.12,14.0,-24.65,sadness,24.65,38.7,79.02,-7.49,anger,8.7,anger;sadness;surprise;joy;disgust,8.23,low,9.81
-128,Janco,131.02,200.83,24.5,0.0,neutral,0.0,63.4,96.6,-6.74,sadness,7.81,sadness;anger;surprise;joy;disgust,8.11,low,1.4
-128,Picasso,66.3,110.31,51.0,0.0,neutral,0.0,57.54,95.77,-4.98,sadness,5.16,sadness;anger;surprise;joy;disgust,5.36,low,2.37
-153,Klimt,120.4,138.35,51.5,7.56,surprise,42.38,70.7,75.06,15.61,surprise,49.99,surprise;anger;sadness;joy;disgust,10.82,low,14.19
-153,Pollock,100.43,115.07,14.0,23.97,surprise,71.05,50.24,57.05,12.49,surprise,40.35,surprise;anger;sadness;joy;disgust,7.21,low,1.59
-153,van Dongen,87.19,107.94,51.0,13.12,surprise,50.8,33.98,41.41,9.97,surprise,36.44,surprise;anger;sadness;joy;disgust,7.92,low,4.36
-153,Braque,81.6,109.25,10.5,31.71,surprise,63.42,8.68,11.52,12.57,surprise,45.04,surprise;anger;joy;sadness;disgust,12.09,low,5.27
-153,de Chirico,128.45,264.05,29.0,34.12,surprise,68.23,36.16,72.73,2.99,surprise,23.15,surprise;anger;joy;sadness;disgust,8.76,low,70.21
-153,Janco,73.15,112.13,8.0,13.59,surprise,51.15,53.22,81.63,7.98,surprise,36.58,surprise;anger;sadness;joy;disgust,10.12,low,1.76
-153,Picasso,69.42,115.53,10.5,27.72,surprise,55.44,25.76,42.88,7.76,surprise,36.05,surprise;anger;sadness;joy;disgust,10.37,low,2.59
-154,Klimt,111.91,128.59,38.5,0.0,neutral,0.0,63.82,69.38,3.5,surprise,12.07,surprise;anger;sadness;joy;disgust,11.51,low,17.57
-154,Pollock,101.46,116.24,42.0,1.13,joy,24.88,46.34,51.34,-3.91,anger,7.83,anger;sadness;surprise;joy;disgust,5.68,low,6.62
-154,van Dongen,87.86,108.77,27.5,0.0,neutral,0.0,47.0,57.65,-1.04,anger,2.98,anger;sadness;surprise;joy;disgust,6.49,low,4.33
-154,Braque,83.81,112.2,37.5,0.0,neutral,0.0,38.96,51.25,0.28,surprise,5.18,surprise;sadness;anger;disgust;joy,6.92,low,6.84
-154,de Chirico,59.23,121.74,29.0,0.0,neutral,0.0,34.56,70.48,-4.11,anger,5.19,anger;sadness;surprise;joy;disgust,7.13,low,7.65
-154,Janco,74.33,113.95,43.5,-7.2,joy,27.79,58.24,87.15,-1.28,surprise,6.16,surprise;anger;sadness;joy;disgust,7.22,low,3.24
-154,Picasso,67.62,112.52,20.5,0.0,neutral,0.0,44.26,72.03,-7.59,sadness,7.98,sadness;anger;surprise;disgust;joy,8.51,low,2.27
-165,Klimt,98.97,113.72,38.5,-24.95,sadness,36.08,89.06,98.9,10.42,surprise,36.5,surprise;anger;sadness;joy;disgust,11.4,low,5.12
-165,Pollock,101.82,116.66,21.0,5.07,surprise,42.03,80.96,92.05,4.54,surprise,24.13,surprise;sadness;anger;disgust;joy,7.68,low,6.27
-165,van Dongen,98.61,122.09,27.5,14.28,surprise,28.55,73.74,91.21,-2.08,anger,8.75,anger;surprise;joy;sadness;disgust,4.83,moderate,14.49
-165,Braque,85.94,115.07,46.0,19.8,surprise,39.6,69.72,92.53,3.35,surprise,12.98,surprise;anger;sadness;joy;disgust,5.93,low,8.14
-165,de Chirico,60.88,125.17,46.5,10.16,surprise,51.38,45.36,93.29,5.26,surprise,25.37,surprise;anger;joy;sadness;disgust,5.41,low,9.02
-165,Janco,83.79,128.43,43.5,16.25,surprise,32.5,65.68,98.22,5.57,surprise,22.02,surprise;anger;sadness;joy;disgust,6.88,low,2.25
-165,Picasso,66.9,111.3,20.5,-35.2,sadness,56.93,56.64,94.27,-0.56,anger,8.21,anger;surprise;joy;sadness;disgust,4.51,moderate,2.05
-131,Klimt,111.0,127.54,7.5,0.0,neutral,0.0,79.84,90.09,8.94,surprise,18.87,surprise;anger;joy;sadness;disgust,10.88,low,17.89
-131,Pollock,97.29,111.47,14.0,25.58,surprise,51.15,54.04,61.93,4.18,surprise,9.53,surprise;sadness;anger;joy;disgust,6.69,low,4.85
-131,van Dongen,86.58,107.5,27.5,-10.7,sadness,32.8,9.54,12.82,0.15,surprise,7.92,surprise;anger;sadness;joy;disgust,10.53,low,2.95
-131,Braque,82.25,110.12,4.0,0.0,neutral,0.0,54.9,73.35,2.3,surprise,5.45,surprise;anger;joy;sadness;disgust,6.19,low,5.79
-131,de Chirico,61.5,126.43,14.0,-10.03,anger,20.06,42.1,85.49,2.81,surprise,6.46,surprise;anger;joy;sadness;disgust,5.53,low,9.75
-131,Janco,128.55,197.04,43.5,0.0,neutral,0.0,51.78,78.32,2.16,surprise,5.36,surprise;anger;joy;sadness;disgust,6.5,low,58.16
-131,Picasso,65.77,109.43,37.5,0.0,neutral,0.0,35.32,57.82,0.36,surprise,3.64,surprise;anger;sadness;joy;disgust,5.94,low,1.35
-136,Klimt,150.22,172.61,38.5,2.76,joy,30.01,78.6,87.77,6.88,surprise,26.76,surprise;sadness;joy;anger;disgust,14.69,low,51.24
-136,Pollock,268.14,307.22,51.5,1.83,joy,26.49,90.12,94.16,-7.71,anger,16.41,anger;sadness;joy;surprise;disgust,6.92,low,6.24
-136,van Dongen,93.51,115.76,27.5,0.0,sadness,22.11,72.2,88.11,-6.53,anger,13.56,anger;sadness;joy;surprise;disgust,6.56,low,9.58
-136,Braque,88.46,118.43,46.0,-4.38,anger,29.74,70.72,92.58,-4.8,sadness,8.76,sadness;anger;joy;surprise;disgust,7.73,low,9.82
-136,de Chirico,66.12,135.92,14.0,-10.68,sadness,21.08,46.6,95.06,-10.68,anger,17.17,anger;sadness;joy;surprise;disgust,7.53,low,12.16
-136,Janco,137.73,211.08,43.5,0.0,neutral,0.0,60.14,88.14,-3.14,joy,12.65,joy;sadness;anger;surprise;disgust,12.09,low,63.41
-136,Picasso,70.82,117.83,37.5,-0.67,sadness,26.28,58.36,95.01,-13.76,anger,21.09,anger;sadness;joy;surprise;disgust,6.74,low,4.75
-107,Klimt,106.66,122.56,51.5,16.48,surprise,32.96,81.2,91.77,5.63,surprise,28.14,surprise;sadness;anger;joy;disgust,12.31,low,13.23
-107,Pollock,97.83,112.09,21.0,0.0,neutral,0.0,71.58,81.48,1.38,surprise,9.0,surprise;sadness;anger;joy;disgust,6.67,low,2.05
-107,van Dongen,87.73,108.61,51.0,37.8,joy,52.44,67.78,83.41,0.17,surprise,6.7,surprise;anger;sadness;joy;disgust,6.39,low,3.79
-107,Braque,83.35,111.59,23.5,0.0,neutral,0.0,49.34,64.43,-1.0,surprise,8.77,surprise;anger;sadness;joy;disgust,7.55,low,5.36
-107,de Chirico,59.69,122.69,2.0,0.0,neutral,0.0,40.32,82.93,-0.73,surprise,10.73,surprise;sadness;anger;disgust;joy,7.47,low,10.39
-107,Janco,126.36,193.68,1.0,11.02,joy,22.05,54.36,82.92,-1.14,surprise,6.37,surprise;sadness;anger;disgust;joy,9.34,low,56.22
-107,Picasso,64.31,107.02,51.0,0.0,neutral,0.0,45.5,75.73,0.46,surprise,11.89,surprise;anger;sadness;joy;disgust,8.46,low,1.34
-138,Klimt,98.57,113.26,2.0,0.0,neutral,0.0,80.42,90.55,-2.22,sadness,5.65,sadness;surprise;anger;disgust;joy,16.68,low,5.65
-138,Pollock,97.7,111.94,30.0,0.0,sadness,20.81,56.56,63.6,-2.71,anger,4.34,anger;sadness;surprise;joy;disgust,7.85,low,5.39
-138,van Dongen,87.41,108.21,3.5,-10.62,anger,21.25,61.36,74.2,-0.57,surprise,2.75,surprise;sadness;anger;joy;disgust,9.62,low,2.69
-138,Braque,82.05,109.85,4.0,0.0,neutral,0.0,50.22,66.12,-0.8,surprise,5.96,surprise;anger;sadness;disgust;joy,11.05,low,4.95
-138,de Chirico,56.84,116.86,14.0,0.0,neutral,0.0,32.68,65.61,-3.23,sadness,7.28,sadness;surprise;anger;joy;disgust,11.15,low,4.67
-138,Janco,123.54,189.35,8.0,-27.26,anger,49.32,54.14,82.0,-2.87,surprise,9.17,surprise;sadness;anger;joy;disgust,15.09,low,0.01
-138,Picasso,65.36,108.74,37.5,0.0,neutral,0.0,51.26,84.16,0.74,surprise,3.44,surprise;sadness;anger;joy;disgust,10.03,low,2.05
-164,Klimt,95.31,109.52,51.5,32.68,joy,41.67,84.38,95.52,16.64,surprise,44.96,surprise;anger;joy;sadness;disgust,13.1,low,1.82
-164,Pollock,97.31,111.49,30.0,23.65,surprise,72.65,64.58,73.55,1.15,surprise,14.74,surprise;anger;joy;sadness;disgust,8.14,low,3.95
-164,van Dongen,90.36,111.82,41.0,17.57,surprise,35.13,63.38,77.72,2.47,surprise,18.84,surprise;anger;joy;sadness;disgust,6.44,low,2.14
-164,Braque,81.53,109.14,23.5,-13.17,anger,26.34,53.54,71.26,9.68,surprise,26.42,surprise;anger;joy;sadness;disgust,7.47,low,4.12
-164,de Chirico,56.64,116.41,14.0,29.23,joy,89.97,42.68,87.75,12.69,surprise,20.27,surprise;joy;anger;sadness;disgust,7.52,low,5.99
-164,Janco,71.28,109.26,43.5,0.0,neutral,0.0,57.58,88.29,2.03,surprise,19.64,surprise;anger;joy;sadness;disgust,9.92,low,1.32
-164,Picasso,66.1,109.93,37.5,0.0,neutral,0.0,48.22,79.3,7.46,surprise,24.68,surprise;anger;joy;sadness;disgust,6.74,low,2.35
-155,Klimt,112.94,129.75,38.5,0.0,neutral,0.0,82.14,91.73,15.65,surprise,49.56,surprise;sadness;anger;joy;disgust,12.15,low,18.24
-155,Pollock,263.15,301.5,30.0,45.16,surprise,90.33,65.98,74.33,8.68,surprise,37.16,surprise;anger;sadness;disgust;joy,7.8,low,7.59
-155,van Dongen,88.33,109.35,41.0,-49.28,sadness,51.23,65.32,80.11,10.38,surprise,33.26,surprise;anger;sadness;disgust;joy,8.21,low,5.42
-155,Braque,83.19,111.4,23.5,38.84,surprise,77.67,42.52,56.48,5.88,surprise,18.06,surprise;anger;sadness;disgust;joy,9.26,low,7.25
-155,de Chirico,66.12,135.93,46.5,0.0,neutral,0.0,48.3,97.66,13.67,surprise,27.78,surprise;anger;joy;sadness;disgust,6.99,low,14.86
-155,Janco,132.63,203.29,43.5,45.78,surprise,91.55,61.16,92.64,10.82,surprise,26.08,surprise;anger;sadness;joy;disgust,7.77,low,61.03
-155,Picasso,66.22,110.18,51.0,14.91,surprise,29.82,57.56,94.81,1.4,surprise,9.76,surprise;anger;sadness;joy;disgust,6.74,low,2.2
-152,Klimt,100.11,115.01,20.0,14.45,joy,28.9,79.28,89.45,18.45,joy,25.38,joy;surprise;anger;sadness;disgust,12.34,low,7.89
-152,Pollock,99.65,114.17,30.0,22.44,joy,44.89,79.42,90.4,7.21,surprise,13.83,surprise;joy;sadness;anger;disgust,7.75,low,1.83
-152,van Dongen,88.04,108.99,14.0,0.0,neutral,0.0,50.4,61.76,5.23,joy,6.67,joy;surprise;sadness;anger;disgust,7.8,low,3.99
-152,Braque,83.51,111.8,4.0,17.0,surprise,33.99,51.04,67.38,13.56,surprise,15.09,surprise;joy;sadness;disgust;anger,8.81,low,6.9
-152,de Chirico,58.64,120.54,14.0,45.03,joy,45.83,40.06,81.74,31.66,joy,34.99,joy;surprise;sadness;anger;disgust,9.73,low,5.97
-152,Janco,72.35,110.91,4.5,0.0,neutral,0.0,50.32,76.13,7.06,surprise,10.8,surprise;joy;sadness;anger;disgust,10.72,low,1.81
-152,Picasso,66.68,110.96,4.5,11.71,joy,23.42,50.18,82.89,9.19,surprise,17.22,surprise;joy;sadness;anger;disgust,9.14,low,2.69
-106,Klimt,111.57,128.18,20.0,0.0,neutral,0.0,86.0,89.17,-3.46,sadness,6.64,sadness;anger;surprise;joy;disgust,14.78,low,9.13
-106,Pollock,100.43,115.06,30.0,-20.09,sadness,20.09,81.44,92.28,-5.87,anger,11.26,anger;sadness;surprise;joy;disgust,7.12,low,6.4
-106,van Dongen,87.87,108.78,27.5,0.0,neutral,0.0,28.84,83.95,-1.54,anger,3.23,anger;surprise;sadness;joy;disgust,8.17,low,4.24
-106,Braque,86.58,115.91,23.5,0.0,sadness,27.51,54.96,77.48,-1.87,sadness,2.51,sadness;anger;surprise;joy;disgust,7.95,low,5.32
-106,de Chirico,57.7,118.6,29.0,0.0,neutral,0.0,43.16,85.85,-0.83,anger,1.58,anger;sadness;surprise;joy;disgust,8.49,low,5.46
-106,Janco,71.79,110.03,13.5,-22.81,sadness,22.81,39.54,71.7,-1.83,anger,2.94,anger;sadness;surprise;joy;disgust,11.41,low,2.44
-106,Picasso,66.46,110.59,37.5,0.0,neutral,0.0,50.16,82.16,-4.6,anger,6.73,anger;sadness;surprise;disgust;joy,8.51,low,2.03
-139,Klimt,130.42,149.86,7.5,-5.41,sadness,41.86,71.22,77.96,-6.07,surprise,17.26,surprise;sadness;anger;joy;disgust,14.87,low,34.14
-139,Pollock,185.59,212.67,51.5,0.0,neutral,0.0,65.6,72.13,-10.37,sadness,14.12,sadness;anger;surprise;disgust;joy,8.45,low,5.73
-139,van Dongen,92.33,114.32,51.0,0.0,neutral,0.0,58.98,69.81,-8.91,sadness,12.26,sadness;anger;surprise;disgust;joy,8.85,low,5.15
-139,Braque,86.29,115.54,53.0,0.0,neutral,0.0,35.64,75.3,-0.28,sadness,2.82,sadness;surprise;anger;joy;disgust,8.81,low,8.13
-139,de Chirico,62.78,129.04,46.5,0.0,neutral,0.0,45.32,85.11,-12.18,anger,14.21,anger;sadness;joy;surprise;disgust,8.14,low,7.97
-139,Janco,75.91,116.35,24.5,-20.24,sadness,20.31,46.06,70.13,-5.52,sadness,8.25,sadness;anger;surprise;joy;disgust,10.01,low,7.36
-139,Picasso,69.98,116.45,51.0,0.0,neutral,0.0,42.32,67.98,-11.25,sadness,19.49,sadness;anger;surprise;disgust;joy,7.87,low,3.08
-137,Klimt,97.94,112.54,38.5,0.0,neutral,0.0,70.9,79.75,-0.68,sadness,1.17,sadness;anger;surprise;joy;disgust,12.31,low,5.81
-137,Pollock,129.96,148.9,30.0,-20.52,sadness,20.52,72.88,79.23,-0.81,sadness,0.81,sadness;anger;joy;disgust;surprise,4.27,moderate,1.75
-137,van Dongen,87.94,108.87,3.5,0.0,neutral,0.0,63.42,78.28,-0.31,sadness,0.31,sadness;anger;joy;disgust;surprise,4.66,moderate,6.27
-137,Braque,91.75,122.84,4.0,0.0,neutral,0.0,51.72,68.43,0.51,surprise,1.4,surprise;sadness;anger;joy;disgust,4.69,moderate,14.56
-137,de Chirico,62.27,128.01,2.0,0.0,neutral,0.0,21.96,45.17,0.23,surprise,0.46,surprise;joy;sadness;anger;disgust,8.8,low,9.48
-137,Janco,74.5,114.19,43.5,0.0,neutral,0.0,58.5,88.96,-0.68,sadness,0.68,sadness;anger;joy;disgust;surprise,7.19,low,3.85
-137,Picasso,69.89,116.28,10.5,0.0,neutral,0.0,51.28,84.35,-1.09,sadness,1.09,sadness;anger;joy;disgust;surprise,7.11,low,2.33
-108,Klimt,99.82,114.69,20.0,0.0,neutral,0.0,81.24,91.13,-15.55,sadness,18.54,sadness;anger;joy;surprise;disgust,13.74,low,5.92
-108,Pollock,101.14,115.88,51.5,0.0,neutral,0.0,66.44,74.15,-20.67,anger,22.83,anger;sadness;surprise;joy;disgust,8.26,low,2.53
-108,van Dongen,88.97,110.14,14.0,-10.8,joy,23.55,42.24,50.94,-17.31,anger,17.62,anger;sadness;joy;disgust;surprise,8.2,low,3.56
-108,Braque,87.15,116.68,23.5,0.0,neutral,0.0,34.68,44.59,-20.84,sadness,22.33,sadness;anger;surprise;joy;disgust,10.9,low,7.89
-108,de Chirico,70.23,144.37,29.0,0.0,neutral,0.0,30.18,58.12,-19.37,sadness,26.06,sadness;anger;surprise;joy;disgust,8.89,low,15.93
-108,Janco,137.0,210.0,43.5,0.0,neutral,0.0,55.26,83.56,-15.59,sadness,20.11,sadness;anger;surprise;joy;disgust,11.16,low,2.27
-108,Picasso,67.8,112.82,20.5,0.0,neutral,0.0,38.2,62.17,-12.34,sadness,14.14,sadness;anger;joy;surprise;disgust,7.64,low,1.93
-130,Klimt,117.88,135.45,38.5,0.0,neutral,0.0,87.22,95.75,0.0,joy,0.0,joy;sadness;anger;disgust;surprise,12.44,low,19.37
-130,Pollock,103.16,118.19,21.0,0.0,neutral,0.0,9.18,83.31,0.21,joy,1.1,joy;anger;surprise;sadness;disgust,7.56,low,2.67
-130,van Dongen,92.23,114.17,7.5,0.0,neutral,0.0,6.0,66.15,1.02,surprise,2.05,surprise;joy;sadness;anger;disgust,8.31,low,4.92
-130,Braque,86.85,116.27,23.5,0.0,neutral,0.0,41.1,88.27,1.58,surprise,3.16,surprise;joy;sadness;anger;disgust,7.26,low,6.96
-130,de Chirico,60.41,124.19,46.5,0.0,neutral,0.0,47.4,96.87,0.68,surprise,1.35,surprise;joy;sadness;anger;disgust,7.03,low,7.73
-130,Janco,74.08,113.55,24.5,0.0,neutral,0.0,63.9,96.53,0.0,joy,0.0,joy;sadness;anger;disgust;surprise,7.48,low,2.72
-130,Picasso,66.77,111.11,4.5,0.0,neutral,0.0,56.64,92.04,1.2,surprise,2.4,surprise;joy;sadness;anger;disgust,6.09,low,2.57
-112,Klimt,108.12,124.25,20.0,26.13,surprise,52.26,82.32,91.84,2.27,surprise,19.94,surprise;anger;joy;sadness;disgust,17.03,low,9.98
-112,Pollock,103.42,118.5,42.0,15.57,joy,72.24,55.82,61.45,-1.17,anger,11.64,anger;surprise;sadness;joy;disgust,7.98,low,5.89
-112,van Dongen,191.43,236.99,14.0,-12.65,anger,25.3,57.48,70.48,0.53,surprise,8.71,surprise;anger;joy;sadness;disgust,9.47,low,74.74
-112,Braque,83.58,111.9,23.5,-11.9,anger,23.81,52.74,69.52,-0.5,anger,7.26,anger;surprise;joy;sadness;disgust,10.06,low,5.23
-112,de Chirico,57.29,117.77,14.0,0.0,neutral,0.0,44.78,91.04,-2.43,anger,10.74,anger;surprise;joy;sadness;disgust,8.66,low,4.65
-112,Janco,73.19,112.18,13.5,14.84,surprise,29.69,57.58,85.5,-3.97,anger,19.29,anger;surprise;joy;sadness;disgust,12.34,low,1.58
-112,Picasso,66.52,110.7,20.5,0.0,neutral,0.0,48.32,79.52,-2.31,anger,10.91,anger;surprise;joy;sadness;disgust,8.54,low,2.07
-123,Klimt,116.41,133.76,51.5,32.96,joy,96.08,79.76,91.1,-6.3,sadness,16.21,sadness;anger;surprise;joy;disgust,10.49,low,25.29
-123,Pollock,102.5,117.44,14.0,12.64,joy,25.27,73.06,83.25,-2.24,sadness,10.71,sadness;anger;surprise;joy;disgust,6.25,low,2.15
-123,van Dongen,90.45,111.97,51.0,-9.41,surprise,35.11,57.42,69.99,-0.57,surprise,11.78,surprise;sadness;anger;joy;disgust,7.11,low,2.7
-123,Braque,84.54,113.18,23.5,-23.74,sadness,23.74,60.88,80.77,-5.63,sadness,12.34,sadness;anger;joy;surprise;disgust,7.26,low,5.35
-123,de Chirico,62.16,127.79,14.0,26.88,surprise,53.76,46.18,92.88,-16.66,sadness,18.02,sadness;anger;surprise;joy;disgust,7.08,low,9.66
-123,Janco,131.15,201.03,43.5,-5.4,joy,32.01,52.74,80.65,2.12,joy,17.07,joy;sadness;surprise;anger;disgust,9.37,low,1.26
-123,Picasso,66.64,110.88,20.5,10.06,joy,81.88,54.34,89.45,-8.2,sadness,11.82,sadness;anger;joy;surprise;disgust,5.58,low,1.11
-148,Klimt,116.01,133.28,3.5,35.77,surprise,71.54,75.52,81.22,21.18,surprise,59.5,surprise;anger;sadness;joy;disgust,12.82,low,15.15
-148,Pollock,110.16,126.21,30.0,20.92,surprise,41.85,73.54,78.75,12.65,surprise,46.02,surprise;anger;sadness;joy;disgust,6.13,low,4.88
-148,van Dongen,93.02,115.16,14.0,7.38,surprise,38.3,61.36,74.91,17.69,surprise,54.41,surprise;anger;sadness;joy;disgust,5.32,low,3.48
-148,Braque,88.96,119.1,10.5,28.26,surprise,77.05,64.56,85.94,17.55,surprise,51.49,surprise;anger;joy;sadness;disgust,5.82,low,8.81
-148,de Chirico,65.51,134.69,46.5,23.46,surprise,46.93,36.72,73.96,13.61,surprise,50.9,surprise;anger;joy;sadness;disgust,7.49,low,9.88
-148,Janco,83.83,128.49,24.5,36.4,surprise,72.79,61.56,91.63,9.72,surprise,43.99,surprise;anger;sadness;joy;disgust,8.25,low,1.6
-148,Picasso,72.83,121.17,37.5,12.75,surprise,25.5,37.64,61.02,10.78,surprise,46.39,surprise;anger;sadness;joy;disgust,8.64,low,1.9
-141,Klimt,105.85,121.61,20.0,0.0,neutral,0.0,72.74,76.9,14.59,surprise,43.51,surprise;anger;sadness;joy;disgust,13.8,low,4.63
-141,Pollock,112.9,129.36,51.5,-10.45,anger,20.9,76.6,85.49,2.48,surprise,37.13,surprise;sadness;anger;joy;disgust,6.31,low,13.48
-141,van Dongen,92.43,114.43,3.5,46.34,surprise,92.67,43.78,53.37,-3.31,surprise,13.32,surprise;anger;sadness;joy;disgust,6.35,low,7.79
-141,Braque,90.48,121.13,46.0,0.0,neutral,0.0,54.9,71.02,-1.93,surprise,20.75,surprise;anger;sadness;joy;disgust,8.13,low,12.06
-141,de Chirico,68.28,140.36,46.5,0.0,neutral,0.0,43.28,88.03,1.07,surprise,23.07,surprise;sadness;anger;joy;disgust,6.64,low,12.58
-141,Janco,137.77,211.17,4.5,0.0,neutral,0.0,55.5,84.67,5.69,surprise,18.69,surprise;sadness;anger;joy;disgust,6.19,low,2.88
-141,Picasso,66.85,111.23,4.5,-14.76,sadness,29.09,35.1,58.42,-3.97,surprise,19.27,surprise;sadness;anger;joy;disgust,9.3,low,4.68
-146,Klimt,113.27,130.16,20.0,0.0,neutral,0.0,65.6,73.87,0.11,surprise,10.77,surprise;sadness;anger;joy;disgust,13.8,low,20.85
-146,Pollock,101.78,116.61,30.0,0.0,neutral,0.0,70.58,79.3,-5.88,surprise,14.44,surprise;sadness;anger;disgust;joy,7.32,low,3.78
-146,van Dongen,90.78,112.38,7.5,0.0,neutral,0.0,49.72,59.36,-3.15,surprise,10.62,surprise;sadness;anger;joy;disgust,7.8,low,4.22
-146,Braque,87.82,117.58,23.5,0.0,neutral,0.0,60.56,77.83,-2.54,anger,6.32,anger;surprise;sadness;joy;disgust,7.7,low,8.45
-146,de Chirico,60.12,123.59,29.0,-26.03,sadness,26.03,34.62,68.9,-10.56,sadness,14.88,sadness;anger;surprise;joy;disgust,6.85,low,7.33
-146,Janco,75.08,115.08,43.5,0.0,neutral,0.0,36.46,53.97,-5.28,sadness,12.48,sadness;surprise;anger;disgust;joy,10.67,low,2.73
-146,Picasso,66.99,111.46,37.5,-22.72,sadness,22.72,21.5,34.65,-5.18,sadness,10.53,sadness;surprise;anger;joy;disgust,6.52,low,2.15
-125,Klimt,132.32,152.03,38.5,11.92,joy,23.84,96.1,96.02,2.26,joy,5.31,joy;surprise;anger;sadness;disgust,10.66,low,20.75
-125,Pollock,109.95,125.97,14.0,43.8,joy,62.77,83.44,93.19,-1.1,anger,2.84,anger;joy;sadness;disgust;surprise,5.36,low,8.06
-125,van Dongen,89.46,110.77,14.0,0.0,neutral,0.0,75.78,91.55,0.58,surprise,1.43,surprise;anger;joy;sadness;disgust,5.46,low,2.82
-125,Braque,86.14,115.32,37.5,0.0,neutral,0.0,61.62,80.53,-0.59,anger,0.91,anger;sadness;joy;disgust;surprise,5.74,low,6.41
-125,de Chirico,59.96,123.26,46.5,-21.76,sadness,21.76,42.64,83.38,-0.46,sadness,0.46,sadness;anger;joy;disgust;surprise,6.33,low,6.39
-125,Janco,77.18,118.28,43.5,-10.31,joy,23.58,63.42,93.96,0.0,joy,0.0,joy;sadness;anger;disgust;surprise,7.9,low,2.45
-125,Picasso,68.55,114.06,20.5,0.0,neutral,0.0,53.18,86.55,0.35,surprise,2.09,surprise;sadness;disgust;anger;joy,6.56,low,2.64
-122,Klimt,157.84,181.33,7.5,19.92,surprise,39.85,78.3,85.45,-13.66,sadness,18.91,sadness;anger;surprise;joy;disgust,13.77,low,51.71
-122,Pollock,105.66,121.06,51.5,-2.2,surprise,60.52,73.9,84.55,-7.26,surprise,15.53,surprise;sadness;anger;joy;disgust,7.28,low,6.23
-122,van Dongen,93.23,115.42,3.5,21.48,surprise,42.95,54.46,65.48,-18.28,sadness,21.52,sadness;anger;surprise;joy;disgust,8.62,low,6.45
-122,Braque,82.89,110.97,53.0,27.87,surprise,55.74,62.14,82.24,-10.89,sadness,12.03,sadness;anger;surprise;joy;disgust,8.21,low,5.17
-122,de Chirico,57.49,118.19,29.0,-25.45,sadness,36.06,44.36,90.54,-21.44,sadness,23.14,sadness;anger;surprise;joy;disgust,8.68,low,5.4
-122,Janco,74.07,113.51,24.5,17.26,surprise,34.53,60.82,91.63,-18.82,sadness,21.07,sadness;anger;surprise;joy;disgust,10.61,low,1.25
-122,Picasso,67.35,112.06,37.5,15.44,surprise,30.88,36.02,58.72,-13.43,sadness,17.4,sadness;anger;surprise;joy;disgust,6.89,low,3.07
-114,Klimt,138.31,158.92,7.5,0.0,neutral,0.0,63.26,69.75,0.0,joy,0.0,joy;sadness;anger;disgust;surprise,25.96,low,42.41
-114,Pollock,98.06,112.35,42.0,0.0,neutral,0.0,20.6,22.44,0.0,joy,0.0,joy;sadness;anger;disgust;surprise,9.95,low,3.12
-114,van Dongen,89.47,110.76,27.5,,,,27.68,32.84,0.62,joy,1.24,joy;sadness;anger;disgust;surprise,27.84,low,3.54
-114,Braque,84.63,113.3,53.0,0.0,neutral,0.0,38.9,50.91,0.0,joy,0.0,joy;sadness;anger;disgust;surprise,26.31,low,6.39
-114,de Chirico,60.19,123.77,46.5,,,,11.9,23.49,0.94,joy,1.87,joy;sadness;anger;disgust;surprise,25.52,low,8.2
-114,Janco,72.59,111.27,43.5,0.0,neutral,0.0,40.44,60.66,0.0,joy,0.0,joy;sadness;anger;disgust;surprise,27.31,low,1.54
-114,Picasso,67.54,112.38,10.5,,,,22.16,35.69,0.0,joy,0.0,joy;sadness;anger;disgust;surprise,27.56,low,2.27
-113,Klimt,99.31,114.1,20.0,41.31,surprise,82.62,72.08,81.82,12.15,surprise,29.34,surprise;anger;joy;sadness;disgust,10.62,low,5.66
-113,Pollock,106.52,122.05,42.0,0.0,neutral,0.0,60.14,67.43,0.62,surprise,2.31,surprise;anger;joy;sadness;disgust,3.98,moderate,4.32
-113,van Dongen,86.8,107.47,51.0,0.0,neutral,0.0,57.6,70.78,-0.47,anger,0.95,anger;joy;sadness;disgust;surprise,3.9,moderate,3.92
-113,Braque,84.76,113.47,23.5,17.88,surprise,35.76,56.74,80.18,0.49,surprise,0.99,surprise;joy;sadness;anger;disgust,4.15,moderate,5.57
-113,de Chirico,58.93,121.15,46.5,0.0,neutral,0.0,44.5,90.42,0.0,joy,0.0,joy;sadness;anger;disgust;surprise,3.25,moderate,5.92
-113,Janco,72.2,110.67,13.5,0.0,neutral,0.0,58.68,89.97,-0.15,anger,7.78,anger;surprise;joy;sadness;disgust,6.18,low,1.78
-113,Picasso,66.42,110.51,7.5,0.0,neutral,0.0,37.6,62.58,0.2,surprise,0.39,surprise;joy;sadness;anger;disgust,3.35,moderate,2.8
-147,Klimt,101.43,116.55,38.5,0.0,neutral,0.0,73.54,82.14,-7.0,anger,15.73,anger;surprise;sadness;joy;disgust,13.57,low,8.88
-147,Pollock,120.67,138.25,14.0,0.0,neutral,0.0,66.96,68.69,-3.43,anger,7.7,anger;surprise;sadness;joy;disgust,8.72,low,2.96
-147,van Dongen,88.85,110.01,41.0,0.0,neutral,0.0,56.28,67.8,-0.95,surprise,14.6,surprise;anger;sadness;joy;disgust,7.38,low,4.85
-147,Braque,84.87,113.62,37.5,0.0,neutral,0.0,49.82,64.85,-6.43,anger,11.18,anger;sadness;surprise;joy;disgust,7.81,low,7.47
-147,de Chirico,60.53,124.45,14.0,0.0,neutral,0.0,47.06,93.34,-2.63,surprise,9.78,surprise;sadness;anger;joy;disgust,4.79,moderate,9.31
-147,Janco,131.77,201.97,24.5,-14.08,anger,26.69,55.56,83.04,-0.45,surprise,4.23,surprise;sadness;anger;joy;disgust,7.41,low,61.31
-147,Picasso,66.91,111.32,51.0,0.0,neutral,0.0,38.04,63.32,-5.99,sadness,7.08,sadness;anger;surprise;joy;disgust,6.18,low,4.78
-149,Klimt,133.76,153.68,20.0,0.0,neutral,0.0,86.9,99.08,-6.85,anger,10.01,anger;sadness;surprise;joy;disgust,7.1,low,37.33
-149,Pollock,107.35,122.98,5.5,-26.32,sadness,27.03,87.44,96.77,-2.61,sadness,2.61,sadness;anger;joy;disgust;surprise,2.65,high,8.4
-149,van Dongen,89.64,110.97,27.5,0.0,neutral,0.0,74.32,91.21,-4.58,sadness,4.58,sadness;anger;joy;disgust;surprise,3.75,moderate,3.59
-149,Braque,85.82,114.9,4.0,0.0,neutral,0.0,60.92,80.45,-5.12,sadness,5.12,sadness;anger;joy;disgust;surprise,3.91,moderate,6.07
-149,de Chirico,65.12,133.88,14.0,-27.73,sadness,27.73,43.36,86.6,-3.05,sadness,3.05,sadness;anger;joy;disgust;surprise,5.67,low,11.15
-149,Janco,132.74,203.47,13.5,0.0,neutral,0.0,44.04,65.92,-7.01,sadness,7.44,sadness;anger;surprise;joy;disgust,6.13,low,1.5
-149,Picasso,65.77,109.43,37.5,0.0,neutral,0.0,55.4,91.68,-9.76,sadness,9.76,sadness;anger;joy;disgust;surprise,3.94,moderate,1.46
+ParticipantID,Painting,TimeAtTheTile,TileTimePercent_Audio,SelfReportedLiking,GazeTime,GazePercent_Audio,SaccadeRate,EngagementLevel,ReactionTime
+135,Klimt,101.3,116.4,51.5,78.24,86.58,14.38,low,3.99
+135,Pollock,101.8,116.64,30.0,77.52,88.52,8.87,low,9.89
+135,van Dongen,94.03,116.41,51.0,70.58,86.75,7.46,low,5.39
+135,Braque,86.1,115.27,37.5,65.1,86.85,8.84,low,7.56
+135,de Chirico,65.34,134.32,29.0,45.92,93.75,7.67,low,8.99
+135,Janco,81.29,124.6,43.5,55.84,84.76,10.99,low,1.87
+135,Picasso,67.18,111.78,51.0,53.2,88.55,8.84,low,1.56
+132,Klimt,106.53,122.41,38.5,88.68,98.46,11.36,low,8.53
+132,Pollock,131.49,150.65,14.0,61.58,69.56,7.93,low,6.46
+132,van Dongen,96.19,119.08,41.0,65.48,80.21,6.84,low,7.89
+132,Braque,86.42,115.7,23.5,63.24,83.29,6.84,low,8.12
+132,de Chirico,63.23,129.97,14.0,43.92,89.02,7.4,low,8.09
+132,Janco,81.25,124.53,43.5,64.8,97.15,9.37,low,1.7
+132,Picasso,66.76,111.07,20.5,54.86,89.81,6.97,low,1.55
+157,Klimt,102.08,117.28,51.5,81.36,90.85,14.97,low,4.27
+157,Pollock,104.1,119.27,42.0,69.46,79.39,8.6,low,1.31
+157,van Dongen,91.73,113.56,51.0,62.3,75.53,9.67,low,4.61
+157,Braque,82.39,110.31,53.0,61.68,81.76,9.04,low,4.86
+157,de Chirico,62.42,128.32,29.0,45.0,91.86,8.62,low,8.08
+157,Janco,73.76,113.04,24.5,58.16,86.11,10.99,low,3.19
+157,Picasso,68.93,114.69,37.5,56.96,93.21,9.3,low,1.53
+150,Klimt,102.45,117.71,20.0,59.6,66.84,13.26,low,9.01
+150,Pollock,103.13,118.16,42.0,18.14,18.43,5.15,low,6.23
+150,van Dongen,88.85,109.99,14.0,12.1,14.61,9.91,low,4.51
+150,Braque,82.08,109.88,46.0,10.4,13.77,9.68,low,6.43
+150,de Chirico,64.27,132.14,46.5,5.7,10.53,10.12,low,11.96
+150,Janco,134.44,206.06,24.5,24.94,37.09,12.03,low,2.68
+150,Picasso,66.01,109.82,4.5,13.38,22.24,12.82,low,2.04
+159,Klimt,124.07,142.57,20.0,67.9,76.78,16.06,low,28.92
+159,Pollock,113.14,129.63,30.0,11.34,17.1,8.58,low,11.79
+159,van Dongen,96.91,119.98,3.5,17.22,21.01,11.22,low,6.49
+159,Braque,93.74,125.5,10.5,21.48,28.76,8.17,low,10.83
+159,de Chirico,63.13,129.77,46.5,33.54,67.26,8.54,low,8.41
+159,Janco,74.76,114.59,2.0,56.44,84.97,11.56,low,1.79
+159,Picasso,69.47,115.59,20.5,42.6,69.71,6.96,low,2.88
+133,Klimt,112.7,129.5,20.0,76.56,85.1,12.07,low,12.63
+133,Pollock,103.43,118.5,51.5,54.38,60.74,6.53,low,2.54
+133,van Dongen,90.04,111.47,41.0,21.76,26.08,11.21,low,4.74
+133,Braque,84.89,113.65,46.0,32.02,42.05,10.52,low,6.21
+133,de Chirico,59.27,121.84,29.0,30.3,62.11,9.26,low,8.23
+133,Janco,81.76,125.32,13.5,36.96,56.0,11.97,low,2.49
+133,Picasso,66.85,111.23,1.5,29.5,48.17,11.68,low,2.27
+134,Klimt,103.92,119.41,38.5,81.26,89.7,10.73,low,8.75
+134,Pollock,100.69,115.37,42.0,62.86,71.33,5.94,low,1.97
+134,van Dongen,89.28,110.53,14.0,68.38,83.75,5.24,low,6.53
+134,Braque,83.58,111.9,23.5,51.82,67.78,6.82,low,6.69
+134,de Chirico,61.36,126.14,29.0,32.62,65.63,7.61,low,10.11
+134,Janco,129.38,198.32,43.5,57.7,86.6,7.33,low,44.24
+134,Picasso,65.63,109.2,51.0,49.82,82.02,7.44,low,1.5
+158,Klimt,107.93,123.99,3.5,70.44,75.55,13.12,low,10.02
+158,Pollock,101.08,115.81,21.0,59.88,66.77,6.12,low,4.61
+158,van Dongen,91.09,112.77,41.0,45.6,54.99,8.15,low,5.95
+158,Braque,90.49,121.15,23.5,51.28,66.36,8.14,low,6.16
+158,de Chirico,60.97,125.33,46.5,39.46,79.28,10.03,low,6.33
+158,Janco,77.32,118.52,43.5,52.62,76.76,11.24,low,2.94
+158,Picasso,69.28,115.27,7.5,52.64,85.86,7.89,low,2.42
+151,Klimt,109.51,125.82,7.5,85.0,93.77,11.61,low,14.2
+151,Pollock,100.05,114.63,42.0,66.24,74.65,7.19,low,3.99
+151,van Dongen,88.39,109.42,27.5,62.9,77.07,7.92,low,3.76
+151,Braque,83.08,111.23,10.5,36.52,47.59,9.72,low,6.45
+151,de Chirico,58.17,119.58,14.0,34.46,69.31,11.0,low,7.57
+151,Janco,72.19,110.65,43.5,43.76,66.7,10.2,low,1.87
+151,Picasso,67.59,112.46,37.5,44.14,73.07,10.35,low,1.8
+142,Klimt,135.83,156.07,38.5,83.82,94.3,11.53,low,29.09
+142,Pollock,99.65,114.18,30.0,84.24,94.82,5.32,low,4.95
+142,van Dongen,87.98,108.92,27.5,69.7,85.49,4.4,moderate,3.8
+142,Braque,82.22,110.08,37.5,63.74,85.35,5.48,low,4.55
+142,de Chirico,57.5,118.21,14.0,43.76,89.3,4.36,moderate,5.59
+142,Janco,71.27,109.24,43.5,63.94,97.55,6.95,low,1.69
+142,Picasso,65.43,108.86,37.5,54.22,89.18,5.01,low,2.02
+129,Klimt,95.32,109.52,20.0,76.88,86.19,10.65,low,3.74
+129,Pollock,96.49,110.55,5.5,73.4,83.75,6.01,low,6.41
+129,van Dongen,86.38,106.93,51.0,62.36,76.67,6.67,low,2.46
+129,Braque,80.89,108.3,23.5,44.48,59.58,7.82,low,4.32
+129,de Chirico,55.62,114.34,46.5,39.5,80.91,7.77,low,4.95
+129,Janco,70.25,107.68,43.5,43.6,65.53,9.66,low,1.13
+129,Picasso,65.68,109.28,37.5,41.72,69.44,9.29,low,1.71
+116,Klimt,107.32,123.31,20.0,14.82,83.45,16.86,low,16.4
+116,Pollock,105.09,120.41,5.5,22.7,23.61,11.6,low,5.17
+116,van Dongen,89.36,110.62,3.5,18.18,23.11,10.46,low,5.25
+116,Braque,88.67,118.71,37.5,20.04,25.84,14.31,low,7.64
+116,de Chirico,57.33,117.86,29.0,27.36,55.3,11.88,low,6.71
+116,Janco,75.85,116.26,24.5,52.42,80.16,12.22,low,4.23
+116,Picasso,66.24,110.21,37.5,42.7,71.07,11.0,low,1.82
+111,Klimt,122.09,140.3,38.5,94.56,96.6,15.9,low,20.12
+111,Pollock,105.42,120.78,14.0,55.28,61.98,9.89,low,7.33
+111,van Dongen,90.91,112.54,51.0,73.66,87.87,10.35,low,5.72
+111,Braque,85.86,114.97,10.5,45.58,59.52,11.01,low,7.27
+111,de Chirico,69.35,142.56,29.0,35.54,71.62,13.31,low,17.43
+111,Janco,134.76,206.51,43.5,58.82,86.63,14.47,low,61.1
+111,Picasso,68.36,113.74,20.5,57.86,94.07,10.82,low,4.68
+118,Klimt,111.59,128.22,51.5,85.02,94.64,10.79,low,17.64
+118,Pollock,98.39,112.73,42.0,79.78,90.6,6.22,low,5.08
+118,van Dongen,91.65,113.46,27.5,66.7,82.07,5.51,low,5.31
+118,Braque,87.34,116.93,37.5,62.34,81.84,6.23,low,7.3
+118,de Chirico,59.66,122.64,46.5,47.7,95.89,6.11,low,7.62
+118,Janco,75.53,115.77,24.5,63.88,94.63,7.33,low,2.12
+118,Picasso,67.01,111.49,51.0,60.1,98.07,4.61,moderate,1.95
+127,Klimt,126.89,145.8,20.0,86.44,98.3,12.05,low,32.39
+127,Pollock,102.98,117.99,14.0,87.88,95.85,6.88,low,6.9
+127,van Dongen,88.25,109.25,14.0,70.36,85.51,7.31,low,3.69
+127,Braque,86.8,116.19,46.0,61.94,80.02,6.71,low,6.85
+127,de Chirico,60.8,124.99,46.5,43.32,85.69,6.72,low,7.58
+127,Janco,78.8,120.79,43.5,55.98,82.34,8.02,low,3.25
+127,Picasso,69.61,115.84,37.5,44.94,73.63,7.53,low,2.58
+120,Klimt,118.63,136.31,7.5,87.3,97.84,8.59,low,22.72
+120,Pollock,286.8,328.6,5.5,109.84,86.34,5.25,low,18.37
+120,van Dongen,89.18,110.42,27.5,61.16,75.75,6.7,low,8.97
+120,Braque,84.31,112.88,46.0,62.56,83.66,6.37,low,7.5
+120,de Chirico,61.13,125.67,29.0,37.74,77.55,7.36,low,9.01
+120,Janco,79.48,121.8,8.0,59.32,90.93,7.74,low,15.04
+120,Picasso,67.62,112.5,20.5,5.06,7.82,8.8,low,5.0
+144,Klimt,169.14,194.33,20.0,85.48,94.71,10.25,low,74.06
+144,Pollock,112.2,128.55,42.0,70.82,79.74,5.64,low,13.65
+144,van Dongen,90.45,111.98,41.0,59.72,72.73,7.67,low,7.85
+144,Braque,85.55,114.54,23.5,47.22,61.03,7.97,low,6.34
+144,de Chirico,59.11,121.52,6.0,45.1,90.91,6.95,low,7.57
+144,Janco,73.94,113.33,24.5,64.04,96.63,6.98,low,5.64
+144,Picasso,65.78,109.44,37.5,60.24,99.8,4.93,moderate,3.61
+121,Klimt,114.25,131.27,20.0,57.8,63.11,11.51,low,7.47
+121,Pollock,226.72,259.76,30.0,37.18,41.23,6.47,low,2.51
+121,van Dongen,95.31,117.99,27.5,21.9,26.36,5.92,low,3.07
+121,Braque,105.74,141.57,4.0,59.78,77.28,4.85,moderate,14.33
+121,de Chirico,93.56,192.34,6.0,31.06,63.1,6.54,low,36.45
+121,Janco,148.76,228.02,4.5,35.26,50.32,7.33,low,39.2
+121,Picasso,72.84,121.19,20.5,50.14,82.46,7.46,low,2.23
+119,Klimt,117.69,135.22,38.5,83.64,90.51,12.91,low,17.66
+119,Pollock,110.03,126.06,51.5,80.64,87.03,8.7,low,3.02
+119,van Dongen,96.85,119.89,27.5,71.06,87.74,7.75,low,2.85
+119,Braque,88.14,118.0,53.0,31.62,83.07,8.48,low,10.0
+119,de Chirico,67.46,138.69,46.5,42.78,87.75,8.74,low,13.96
+119,Janco,136.8,209.69,43.5,26.86,92.18,10.87,low,63.12
+119,Picasso,68.12,113.34,51.0,32.76,83.52,9.15,low,1.61
+126,Klimt,98.63,113.34,1.0,87.86,98.41,10.1,low,4.26
+126,Pollock,101.64,116.45,5.5,83.72,94.75,6.03,low,7.09
+126,van Dongen,88.25,109.25,41.0,78.98,96.71,5.34,low,3.02
+126,Braque,83.16,111.33,23.5,67.66,89.74,7.0,low,6.17
+126,de Chirico,58.69,120.63,4.0,44.82,91.12,6.97,low,7.05
+126,Janco,74.88,114.77,13.5,63.74,97.36,8.48,low,1.78
+126,Picasso,67.92,113.0,1.5,54.02,87.95,7.56,low,2.34
+110,Klimt,114.14,131.15,51.5,78.96,85.06,12.54,low,15.35
+110,Pollock,102.6,117.55,30.0,59.08,63.97,7.13,low,4.02
+110,van Dongen,91.62,113.42,41.0,47.38,57.43,7.23,low,5.05
+110,Braque,88.41,118.36,46.0,44.24,57.86,7.33,low,8.47
+110,de Chirico,70.23,144.38,6.0,41.36,82.93,8.74,low,15.6
+110,Janco,136.27,208.88,24.5,42.52,61.85,8.82,low,16.21
+110,Picasso,66.62,110.87,20.5,46.48,76.0,8.12,low,2.22
+128,Klimt,151.89,174.52,20.0,78.44,90.16,13.05,low,61.36
+128,Pollock,99.9,114.46,5.5,55.46,63.03,6.41,low,5.42
+128,van Dongen,87.65,108.51,14.0,60.16,73.82,6.06,low,3.47
+128,Braque,84.02,112.49,4.0,59.8,78.87,7.19,low,6.03
+128,de Chirico,62.32,128.12,14.0,38.7,79.02,8.23,low,9.81
+128,Janco,131.02,200.83,24.5,63.4,96.6,8.11,low,1.4
+128,Picasso,66.3,110.31,51.0,57.54,95.77,5.36,low,2.37
+153,Klimt,120.4,138.35,51.5,70.7,75.06,10.82,low,14.19
+153,Pollock,100.43,115.07,14.0,50.24,57.05,7.21,low,1.59
+153,van Dongen,87.19,107.94,51.0,33.98,41.41,7.92,low,4.36
+153,Braque,81.6,109.25,10.5,8.68,11.52,12.09,low,5.27
+153,de Chirico,128.45,264.05,29.0,36.16,72.73,8.76,low,70.21
+153,Janco,73.15,112.13,8.0,53.22,81.63,10.12,low,1.76
+153,Picasso,69.42,115.53,10.5,25.76,42.88,10.37,low,2.59
+154,Klimt,111.91,128.59,38.5,63.82,69.38,11.51,low,17.57
+154,Pollock,101.46,116.24,42.0,46.34,51.34,5.68,low,6.62
+154,van Dongen,87.86,108.77,27.5,47.0,57.65,6.49,low,4.33
+154,Braque,83.81,112.2,37.5,38.96,51.25,6.92,low,6.84
+154,de Chirico,59.23,121.74,29.0,34.56,70.48,7.13,low,7.65
+154,Janco,74.33,113.95,43.5,58.24,87.15,7.22,low,3.24
+154,Picasso,67.62,112.52,20.5,44.26,72.03,8.51,low,2.27
+165,Klimt,98.97,113.72,38.5,89.06,98.9,11.4,low,5.12
+165,Pollock,101.82,116.66,21.0,80.96,92.05,7.68,low,6.27
+165,van Dongen,98.61,122.09,27.5,73.74,91.21,4.83,moderate,14.49
+165,Braque,85.94,115.07,46.0,69.72,92.53,5.93,low,8.14
+165,de Chirico,60.88,125.17,46.5,45.36,93.29,5.41,low,9.02
+165,Janco,83.79,128.43,43.5,65.68,98.22,6.88,low,2.25
+165,Picasso,66.9,111.3,20.5,56.64,94.27,4.51,moderate,2.05
+131,Klimt,111.0,127.54,7.5,79.84,90.09,10.88,low,17.89
+131,Pollock,97.29,111.47,14.0,54.04,61.93,6.69,low,4.85
+131,van Dongen,86.58,107.5,27.5,9.54,12.82,10.53,low,2.95
+131,Braque,82.25,110.12,4.0,54.9,73.35,6.19,low,5.79
+131,de Chirico,61.5,126.43,14.0,42.1,85.49,5.53,low,9.75
+131,Janco,128.55,197.04,43.5,51.78,78.32,6.5,low,58.16
+131,Picasso,65.77,109.43,37.5,35.32,57.82,5.94,low,1.35
+136,Klimt,150.22,172.61,38.5,78.6,87.77,14.69,low,51.24
+136,Pollock,268.14,307.22,51.5,90.12,94.16,6.92,low,6.24
+136,van Dongen,93.51,115.76,27.5,72.2,88.11,6.56,low,9.58
+136,Braque,88.46,118.43,46.0,70.72,92.58,7.73,low,9.82
+136,de Chirico,66.12,135.92,14.0,46.6,95.06,7.53,low,12.16
+136,Janco,137.73,211.08,43.5,60.14,88.14,12.09,low,63.41
+136,Picasso,70.82,117.83,37.5,58.36,95.01,6.74,low,4.75
+107,Klimt,106.66,122.56,51.5,81.2,91.77,12.31,low,13.23
+107,Pollock,97.83,112.09,21.0,71.58,81.48,6.67,low,2.05
+107,van Dongen,87.73,108.61,51.0,67.78,83.41,6.39,low,3.79
+107,Braque,83.35,111.59,23.5,49.34,64.43,7.55,low,5.36
+107,de Chirico,59.69,122.69,2.0,40.32,82.93,7.47,low,10.39
+107,Janco,126.36,193.68,1.0,54.36,82.92,9.34,low,56.22
+107,Picasso,64.31,107.02,51.0,45.5,75.73,8.46,low,1.34
+138,Klimt,98.57,113.26,2.0,80.42,90.55,16.68,low,5.65
+138,Pollock,97.7,111.94,30.0,56.56,63.6,7.85,low,5.39
+138,van Dongen,87.41,108.21,3.5,61.36,74.2,9.62,low,2.69
+138,Braque,82.05,109.85,4.0,50.22,66.12,11.05,low,4.95
+138,de Chirico,56.84,116.86,14.0,32.68,65.61,11.15,low,4.67
+138,Janco,123.54,189.35,8.0,54.14,82.0,15.09,low,0.01
+138,Picasso,65.36,108.74,37.5,51.26,84.16,10.03,low,2.05
+164,Klimt,95.31,109.52,51.5,84.38,95.52,13.1,low,1.82
+164,Pollock,97.31,111.49,30.0,64.58,73.55,8.14,low,3.95
+164,van Dongen,90.36,111.82,41.0,63.38,77.72,6.44,low,2.14
+164,Braque,81.53,109.14,23.5,53.54,71.26,7.47,low,4.12
+164,de Chirico,56.64,116.41,14.0,42.68,87.75,7.52,low,5.99
+164,Janco,71.28,109.26,43.5,57.58,88.29,9.92,low,1.32
+164,Picasso,66.1,109.93,37.5,48.22,79.3,6.74,low,2.35
+155,Klimt,112.94,129.75,38.5,82.14,91.73,12.15,low,18.24
+155,Pollock,263.15,301.5,30.0,65.98,74.33,7.8,low,7.59
+155,van Dongen,88.33,109.35,41.0,65.32,80.11,8.21,low,5.42
+155,Braque,83.19,111.4,23.5,42.52,56.48,9.26,low,7.25
+155,de Chirico,66.12,135.93,46.5,48.3,97.66,6.99,low,14.86
+155,Janco,132.63,203.29,43.5,61.16,92.64,7.77,low,61.03
+155,Picasso,66.22,110.18,51.0,57.56,94.81,6.74,low,2.2
+152,Klimt,100.11,115.01,20.0,79.28,89.45,12.34,low,7.89
+152,Pollock,99.65,114.17,30.0,79.42,90.4,7.75,low,1.83
+152,van Dongen,88.04,108.99,14.0,50.4,61.76,7.8,low,3.99
+152,Braque,83.51,111.8,4.0,51.04,67.38,8.81,low,6.9
+152,de Chirico,58.64,120.54,14.0,40.06,81.74,9.73,low,5.97
+152,Janco,72.35,110.91,4.5,50.32,76.13,10.72,low,1.81
+152,Picasso,66.68,110.96,4.5,50.18,82.89,9.14,low,2.69
+106,Klimt,111.57,128.18,20.0,86.0,89.17,14.78,low,9.13
+106,Pollock,100.43,115.06,30.0,81.44,92.28,7.12,low,6.4
+106,van Dongen,87.87,108.78,27.5,28.84,83.95,8.17,low,4.24
+106,Braque,86.58,115.91,23.5,54.96,77.48,7.95,low,5.32
+106,de Chirico,57.7,118.6,29.0,43.16,85.85,8.49,low,5.46
+106,Janco,71.79,110.03,13.5,39.54,71.7,11.41,low,2.44
+106,Picasso,66.46,110.59,37.5,50.16,82.16,8.51,low,2.03
+139,Klimt,130.42,149.86,7.5,71.22,77.96,14.87,low,34.14
+139,Pollock,185.59,212.67,51.5,65.6,72.13,8.45,low,5.73
+139,van Dongen,92.33,114.32,51.0,58.98,69.81,8.85,low,5.15
+139,Braque,86.29,115.54,53.0,35.64,75.3,8.81,low,8.13
+139,de Chirico,62.78,129.04,46.5,45.32,85.11,8.14,low,7.97
+139,Janco,75.91,116.35,24.5,46.06,70.13,10.01,low,7.36
+139,Picasso,69.98,116.45,51.0,42.32,67.98,7.87,low,3.08
+137,Klimt,97.94,112.54,38.5,70.9,79.75,12.31,low,5.81
+137,Pollock,129.96,148.9,30.0,72.88,79.23,4.27,moderate,1.75
+137,van Dongen,87.94,108.87,3.5,63.42,78.28,4.66,moderate,6.27
+137,Braque,91.75,122.84,4.0,51.72,68.43,4.69,moderate,14.56
+137,de Chirico,62.27,128.01,2.0,21.96,45.17,8.8,low,9.48
+137,Janco,74.5,114.19,43.5,58.5,88.96,7.19,low,3.85
+137,Picasso,69.89,116.28,10.5,51.28,84.35,7.11,low,2.33
+108,Klimt,99.82,114.69,20.0,81.24,91.13,13.74,low,5.92
+108,Pollock,101.14,115.88,51.5,66.44,74.15,8.26,low,2.53
+108,van Dongen,88.97,110.14,14.0,42.24,50.94,8.2,low,3.56
+108,Braque,87.15,116.68,23.5,34.68,44.59,10.9,low,7.89
+108,de Chirico,70.23,144.37,29.0,30.18,58.12,8.89,low,15.93
+108,Janco,137.0,210.0,43.5,55.26,83.56,11.16,low,2.27
+108,Picasso,67.8,112.82,20.5,38.2,62.17,7.64,low,1.93
+130,Klimt,117.88,135.45,38.5,87.22,95.75,12.44,low,19.37
+130,Pollock,103.16,118.19,21.0,9.18,83.31,7.56,low,2.67
+130,van Dongen,92.23,114.17,7.5,6.0,66.15,8.31,low,4.92
+130,Braque,86.85,116.27,23.5,41.1,88.27,7.26,low,6.96
+130,de Chirico,60.41,124.19,46.5,47.4,96.87,7.03,low,7.73
+130,Janco,74.08,113.55,24.5,63.9,96.53,7.48,low,2.72
+130,Picasso,66.77,111.11,4.5,56.64,92.04,6.09,low,2.57
+112,Klimt,108.12,124.25,20.0,82.32,91.84,17.03,low,9.98
+112,Pollock,103.42,118.5,42.0,55.82,61.45,7.98,low,5.89
+112,van Dongen,191.43,236.99,14.0,57.48,70.48,9.47,low,74.74
+112,Braque,83.58,111.9,23.5,52.74,69.52,10.06,low,5.23
+112,de Chirico,57.29,117.77,14.0,44.78,91.04,8.66,low,4.65
+112,Janco,73.19,112.18,13.5,57.58,85.5,12.34,low,1.58
+112,Picasso,66.52,110.7,20.5,48.32,79.52,8.54,low,2.07
+123,Klimt,116.41,133.76,51.5,79.76,91.1,10.49,low,25.29
+123,Pollock,102.5,117.44,14.0,73.06,83.25,6.25,low,2.15
+123,van Dongen,90.45,111.97,51.0,57.42,69.99,7.11,low,2.7
+123,Braque,84.54,113.18,23.5,60.88,80.77,7.26,low,5.35
+123,de Chirico,62.16,127.79,14.0,46.18,92.88,7.08,low,9.66
+123,Janco,131.15,201.03,43.5,52.74,80.65,9.37,low,1.26
+123,Picasso,66.64,110.88,20.5,54.34,89.45,5.58,low,1.11
+148,Klimt,116.01,133.28,3.5,75.52,81.22,12.82,low,15.15
+148,Pollock,110.16,126.21,30.0,73.54,78.75,6.13,low,4.88
+148,van Dongen,93.02,115.16,14.0,61.36,74.91,5.32,low,3.48
+148,Braque,88.96,119.1,10.5,64.56,85.94,5.82,low,8.81
+148,de Chirico,65.51,134.69,46.5,36.72,73.96,7.49,low,9.88
+148,Janco,83.83,128.49,24.5,61.56,91.63,8.25,low,1.6
+148,Picasso,72.83,121.17,37.5,37.64,61.02,8.64,low,1.9
+141,Klimt,105.85,121.61,20.0,72.74,76.9,13.8,low,4.63
+141,Pollock,112.9,129.36,51.5,76.6,85.49,6.31,low,13.48
+141,van Dongen,92.43,114.43,3.5,43.78,53.37,6.35,low,7.79
+141,Braque,90.48,121.13,46.0,54.9,71.02,8.13,low,12.06
+141,de Chirico,68.28,140.36,46.5,43.28,88.03,6.64,low,12.58
+141,Janco,137.77,211.17,4.5,55.5,84.67,6.19,low,2.88
+141,Picasso,66.85,111.23,4.5,35.1,58.42,9.3,low,4.68
+146,Klimt,113.27,130.16,20.0,65.6,73.87,13.8,low,20.85
+146,Pollock,101.78,116.61,30.0,70.58,79.3,7.32,low,3.78
+146,van Dongen,90.78,112.38,7.5,49.72,59.36,7.8,low,4.22
+146,Braque,87.82,117.58,23.5,60.56,77.83,7.7,low,8.45
+146,de Chirico,60.12,123.59,29.0,34.62,68.9,6.85,low,7.33
+146,Janco,75.08,115.08,43.5,36.46,53.97,10.67,low,2.73
+146,Picasso,66.99,111.46,37.5,21.5,34.65,6.52,low,2.15
+125,Klimt,132.32,152.03,38.5,96.1,96.02,10.66,low,20.75
+125,Pollock,109.95,125.97,14.0,83.44,93.19,5.36,low,8.06
+125,van Dongen,89.46,110.77,14.0,75.78,91.55,5.46,low,2.82
+125,Braque,86.14,115.32,37.5,61.62,80.53,5.74,low,6.41
+125,de Chirico,59.96,123.26,46.5,42.64,83.38,6.33,low,6.39
+125,Janco,77.18,118.28,43.5,63.42,93.96,7.9,low,2.45
+125,Picasso,68.55,114.06,20.5,53.18,86.55,6.56,low,2.64
+122,Klimt,157.84,181.33,7.5,78.3,85.45,13.77,low,51.71
+122,Pollock,105.66,121.06,51.5,73.9,84.55,7.28,low,6.23
+122,van Dongen,93.23,115.42,3.5,54.46,65.48,8.62,low,6.45
+122,Braque,82.89,110.97,53.0,62.14,82.24,8.21,low,5.17
+122,de Chirico,57.49,118.19,29.0,44.36,90.54,8.68,low,5.4
+122,Janco,74.07,113.51,24.5,60.82,91.63,10.61,low,1.25
+122,Picasso,67.35,112.06,37.5,36.02,58.72,6.89,low,3.07
+114,Klimt,138.31,158.92,7.5,63.26,69.75,25.96,low,42.41
+114,Pollock,98.06,112.35,42.0,20.6,22.44,9.95,low,3.12
+114,van Dongen,89.47,110.76,27.5,27.68,32.84,27.84,low,3.54
+114,Braque,84.63,113.3,53.0,38.9,50.91,26.31,low,6.39
+114,de Chirico,60.19,123.77,46.5,11.9,23.49,25.52,low,8.2
+114,Janco,72.59,111.27,43.5,40.44,60.66,27.31,low,1.54
+114,Picasso,67.54,112.38,10.5,22.16,35.69,27.56,low,2.27
+113,Klimt,99.31,114.1,20.0,72.08,81.82,10.62,low,5.66
+113,Pollock,106.52,122.05,42.0,60.14,67.43,3.98,moderate,4.32
+113,van Dongen,86.8,107.47,51.0,57.6,70.78,3.9,moderate,3.92
+113,Braque,84.76,113.47,23.5,56.74,80.18,4.15,moderate,5.57
+113,de Chirico,58.93,121.15,46.5,44.5,90.42,3.25,moderate,5.92
+113,Janco,72.2,110.67,13.5,58.68,89.97,6.18,low,1.78
+113,Picasso,66.42,110.51,7.5,37.6,62.58,3.35,moderate,2.8
+147,Klimt,101.43,116.55,38.5,73.54,82.14,13.57,low,8.88
+147,Pollock,120.67,138.25,14.0,66.96,68.69,8.72,low,2.96
+147,van Dongen,88.85,110.01,41.0,56.28,67.8,7.38,low,4.85
+147,Braque,84.87,113.62,37.5,49.82,64.85,7.81,low,7.47
+147,de Chirico,60.53,124.45,14.0,47.06,93.34,4.79,moderate,9.31
+147,Janco,131.77,201.97,24.5,55.56,83.04,7.41,low,61.31
+147,Picasso,66.91,111.32,51.0,38.04,63.32,6.18,low,4.78
+149,Klimt,133.76,153.68,20.0,86.9,99.08,7.1,low,37.33
+149,Pollock,107.35,122.98,5.5,87.44,96.77,2.65,high,8.4
+149,van Dongen,89.64,110.97,27.5,74.32,91.21,3.75,moderate,3.59
+149,Braque,85.82,114.9,4.0,60.92,80.45,3.91,moderate,6.07
+149,de Chirico,65.12,133.88,14.0,43.36,86.6,5.67,low,11.15
+149,Janco,132.74,203.47,13.5,44.04,65.92,6.13,low,1.5
+149,Picasso,65.77,109.43,37.5,55.4,91.68,3.94,moderate,1.46

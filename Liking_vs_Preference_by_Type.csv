@@ -1,0 +1,29 @@
+Painting,Type,SpearmanRho,p-value,N
+Klimt,All,0.195,0.1537,55
+Klimt,Type type: 1,0.181,0.5019,16
+Klimt,Type type: 2,0.133,0.6243,16
+Klimt,Type type: 3,0.164,0.545,16
+van Dongen,All,0.396,0.0028,55
+van Dongen,Type type: 1,0.6,0.014,16
+van Dongen,Type type: 2,0.591,0.016,16
+van Dongen,Type type: 3,-0.28,0.2941,16
+Braque,All,0.411,0.0018,55
+Braque,Type type: 1,0.584,0.0175,16
+Braque,Type type: 2,0.448,0.0821,16
+Braque,Type type: 3,0.411,0.1141,16
+Pollock,All,0.112,0.4146,55
+Pollock,Type type: 1,-0.404,0.1206,16
+Pollock,Type type: 2,0.2,0.4579,16
+Pollock,Type type: 3,0.402,0.1225,16
+de Chirico,All,0.622,0.0,55
+de Chirico,Type type: 1,0.47,0.0662,16
+de Chirico,Type type: 2,0.844,0.0,16
+de Chirico,Type type: 3,0.23,0.3919,16
+Janco,All,0.434,0.0009,55
+Janco,Type type: 1,0.347,0.1874,16
+Janco,Type type: 2,0.413,0.1123,16
+Janco,Type type: 3,0.618,0.0108,16
+Picasso,All,0.366,0.006,55
+Picasso,Type type: 1,0.313,0.2372,16
+Picasso,Type type: 2,0.455,0.0769,16
+Picasso,Type type: 3,0.53,0.0347,16

@@ -1,0 +1,8 @@
+Metric,H-stat,p-value
+TileTimePercent_Audio,16.473,0.0003
+ReactionTime,11.709,0.0029
+GazePercent_Audio,10.597,0.005
+TimeAtTheTile,10.253,0.0059
+GazeTime,7.592,0.0225
+SaccadeRate,2.578,0.2755
+SelfReportedLiking,0.476,0.7882

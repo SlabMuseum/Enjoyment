@@ -1,0 +1,5 @@
+Group,N,SpearmanRho,Spearman_p
+ALL,336,0.547,0.0
+TourType=1,112,0.497,0.0
+TourType=2,112,0.469,0.0
+TourType=3,112,0.718,0.0

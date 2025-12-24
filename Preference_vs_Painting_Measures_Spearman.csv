@@ -1,0 +1,50 @@
+Painting,Metric,SpearmanRho,p-value,N
+Braque,SelfReportedLiking,0.476,0.0006,48
+Braque,SaccadeRate,0.207,0.1582,48
+Braque,ReactionTime,0.173,0.2402,48
+Braque,TileTimePercent_Audio,0.1,0.4987,48
+Braque,TimeAtTheTile,0.1,0.4987,48
+Braque,GazePercent_Audio,0.055,0.7126,48
+Braque,GazeTime,0.02,0.8902,48
+Janco,SelfReportedLiking,0.442,0.0016,48
+Janco,GazePercent_Audio,0.092,0.5356,48
+Janco,GazeTime,0.068,0.6444,48
+Janco,TileTimePercent_Audio,-0.037,0.8014,48
+Janco,TimeAtTheTile,-0.037,0.8014,48
+Janco,SaccadeRate,-0.011,0.9415,48
+Janco,ReactionTime,-0.008,0.9582,48
+Klimt,SaccadeRate,-0.224,0.1254,48
+Klimt,GazeTime,0.221,0.1307,48
+Klimt,GazePercent_Audio,0.215,0.1418,48
+Klimt,SelfReportedLiking,0.2,0.1733,48
+Klimt,TileTimePercent_Audio,0.056,0.7069,48
+Klimt,TimeAtTheTile,0.056,0.7069,48
+Klimt,ReactionTime,0.047,0.7528,48
+Picasso,SelfReportedLiking,0.386,0.0068,48
+Picasso,GazePercent_Audio,0.259,0.0756,48
+Picasso,ReactionTime,-0.254,0.0817,48
+Picasso,GazeTime,0.247,0.0905,48
+Picasso,TileTimePercent_Audio,-0.107,0.4708,48
+Picasso,TimeAtTheTile,-0.105,0.4779,48
+Picasso,SaccadeRate,-0.046,0.7578,48
+Pollock,SelfReportedLiking,0.132,0.3698,48
+Pollock,TileTimePercent_Audio,-0.094,0.527,48
+Pollock,TimeAtTheTile,-0.094,0.527,48
+Pollock,GazePercent_Audio,0.088,0.5541,48
+Pollock,ReactionTime,-0.077,0.6031,48
+Pollock,SaccadeRate,-0.069,0.6392,48
+Pollock,GazeTime,0.006,0.9675,48
+de Chirico,SelfReportedLiking,0.611,0.0,48
+de Chirico,ReactionTime,-0.154,0.2962,48
+de Chirico,GazePercent_Audio,-0.122,0.4078,48
+de Chirico,GazeTime,-0.097,0.5137,48
+de Chirico,TimeAtTheTile,-0.075,0.6102,48
+de Chirico,TileTimePercent_Audio,-0.075,0.6103,48
+de Chirico,SaccadeRate,0.032,0.8307,48
+van Dongen,SelfReportedLiking,0.363,0.0112,48
+van Dongen,GazeTime,0.228,0.1186,48
+van Dongen,GazePercent_Audio,0.196,0.1825,48
+van Dongen,TimeAtTheTile,-0.193,0.1897,48
+van Dongen,TileTimePercent_Audio,-0.191,0.1934,48
+van Dongen,ReactionTime,0.099,0.5015,48
+van Dongen,SaccadeRate,0.017,0.9082,48

@@ -5,7 +5,6 @@ import numpy as np
 import pickle
 import logging
 import os
-from face_analysis import *
 from io import StringIO
 
 # region ------- Constants -------
@@ -13,7 +12,6 @@ from io import StringIO
 # helper variables for the dataframes names
 audioGuideTiming = 'AudioGuideTiming'
 continuous = 'ContinuousData'
-face = 'FaceExpressionData'
 questions = 'QuestionsData'
 logs = 'TAUXR_logs'
 
@@ -38,8 +36,6 @@ Janco,-1.983,0.189,-1.983,1.489,-0.383,1.489,-0.383,0.189
 Klimt,-0.32,0.199,-0.32,2.199,1.98,2.199,1.98,0.199
 """
 default_tile_positions = pd.read_csv(StringIO(DEFAULT_TILE_POSITIONS_CSV))
-
-FIRST_IMPRESSION_WINDOW_DURATION = 1.0  # seconds
 
 # endregion
 
@@ -72,9 +68,7 @@ class BaseParticipantData(ABC):
         """Main function to load and process raw data into DataFrames. called from pipeline's DataLoader to instantiate the class."""
         
         self.dataframes: Dict[str, pd.DataFrame] = self._load_dataframes()
-        self.continuous_data = self.dataframes['ContinuousData']
-        self.face_data = self.dataframes['FaceExpressionData']
-        
+        self.continuous_data = self.dataframes['ContinuousData']        
         self.trials_data = self._extract_trials_data()
         # TODO : decide if this is done in the constructor or in the load_data method.
 
@@ -122,14 +116,11 @@ class MuseumVRParticipantData(BaseParticipantData):
         # Initialize experiment specific attributes
         self.questionnaire_data = None
         self.questionnaire_data_unranked = None
-        self.emotions_df = None
         self.tour_type = None
         
         # Load data and perform analysis
         self.load_data(use_pkl)
         self.fix_focus_object_with_colliders()
-        self.emotions_df = self.calculate_emotions_df(use_pkl)
-        self.first_impressions = self.calculate_first_impressions()
         
     # region ------- Data Loading -------
 
@@ -159,10 +150,12 @@ class MuseumVRParticipantData(BaseParticipantData):
                 logging.info(f"Loading dataframes from pickle: {pickle_path}")
                 try:
                     with open(pickle_path, 'rb') as f:
-                        return pickle.load(f)
+                        dfs = pickle.load(f)
+                        dfs.pop("FaceExpressionData", None)
+                        return dfs
                 except Exception as e:
                     logging.error(f"Error loading pickle file: {str(e)}")
-            
+        
         # If pickle doesn't exist or failed to load, process the raw files
         logging.info("Processing raw data files")
         files = [f for f in os.listdir(self.data_path) if f.endswith('.csv')]
@@ -180,6 +173,8 @@ class MuseumVRParticipantData(BaseParticipantData):
                         # Special handling for TAUXR logs
                         df = self._load_TAUXR_logs_to_df(file_path)
                         base_name = 'TAUXR_logs' #fix the name
+                    elif base_name == "FaceExpressionData":
+                        continue
                     else:
                         if "ContinuousData" in file:
                             df = pd.read_csv(file_path, dtype={"FocusedObject": str}) # avoid dtype warning
@@ -552,185 +547,7 @@ class MuseumVRParticipantData(BaseParticipantData):
 
     
     # endregion
-    # region ------- Face analysis -------
-    
-    def calculate_emotions_df(self,usePkl, saveToCSV: bool = True) -> pd.DataFrame:
-        """
-        separates face expression data to 2 seconds windows and calcultes
-        emotion intensities and valence for each window.
 
-        returns:
-            pd.DataFrame: DataFrame with columns ['Time', 'EndTime', 'joy', 'sadness', 'anger', 'fear', 'disgust', 'surprise', 'valence']
-
-        """
-        if (usePkl):
-            #if theres a pickle file with emotions_df, load it
-            emotions_df_path = os.path.join(self.data_path, f"emotions_df.pkl")
-            if os.path.exists(emotions_df_path):
-                logging.info(f"Loading emotions_df from pickle: {emotions_df_path}")
-                try:
-                    emotions_df = pd.read_pickle(emotions_df_path)
-                    if (saveToCSV):
-                        self.save_to_intermediate_folder_as_csv(emotions_df, "EmotionsData")
-                    return emotions_df
-                except Exception as e:
-                    logging.error(f"Error loading emotions_df pickle file: {str(e)}")
-            
-
-        face_df = self.dataframes.get('FaceExpressionData')
-        
-        # Initialize an empty dataframes to store results
-        results = []
-
-        start = face_df['Time'].min()
-        end = face_df['Time'].max()
-
-        # Iterate over the DataFrame in 2-second intervals
-        for start_time in np.arange(start, end, emotion_window_duration):
-            # Calculate the end time for the current window
-            end_time = start_time + emotion_window_duration
-            
-            intensities = claculate_emotion_intensities_for_x_seconds_after_time(face_df, start_time)
-            
-            # calculate valence
-            valence = get_valence_from_emotion_intensities(intensities)
-            
-            # Store results
-            row = intensities.iloc[0]
-            results.append({
-                'Time': start_time,
-                'EndTime': end_time,
-                'joy': row['joy'],
-                'sadness': row['sadness'],
-                'anger': row['anger'],
-                'disgust': row['disgust'],
-                'surprise': row['surprise'],
-                'valence': valence
-            })
-
-        emotions_df = pd.DataFrame(results)
-
-        # save the df as a pickle file for faster loading next time
-        emotions_df_path = os.path.join(self.data_path, f"emotions_df.pkl")
-        try:
-            emotions_df.to_pickle(emotions_df_path)
-            logging.debug(f"Saved emotions_df to pickle: {emotions_df_path}")
-        except Exception as e:
-            logging.error(f"Error saving emotions_df pickle file: {str(e)}")
-
-        if saveToCSV:
-            self.save_to_intermediate_folder_as_csv(emotions_df, "EmotionsData")
-
-        return emotions_df
-
-    def calculate_first_impressions(self, saveToCSV:bool = True) -> pd.DataFrame:
-        # Prepare an empty list to collect rows
-        first_impressions_list = []
-
-        # Iterate over the trials
-        for _, trial in self.trials_data.iterrows():
-            painting_name = trial['TrialName']
-            
-            # Get the first impression emotions for the painting
-            first_impression_max_emotion = self.get_first_impression_max_emotion(painting_name)
-            
-            if first_impression_max_emotion is None or first_impression_max_emotion.empty:
-                logging.warning(f"No first impression max emotion data found for {painting_name} on participant {self.participant_id}.")
-                continue
-
-            first_impression_max_emotion = first_impression_max_emotion.squeeze()  # Convert to Series if it's a single row
-            if first_impression_max_emotion is None:
-                logging.warning(f"No first impression data found for {painting_name} on participant {self.participant_id}.")
-                continue
-
-            # Add the current impression to the list
-            first_impressions_list.append({
-            'PaintingName': painting_name,
-            'MaxEmotion': str(first_impression_max_emotion['MaxEmotion']),
-            'MaxIntensity': float(first_impression_max_emotion['MaxIntensity']),
-            'Valence': float(first_impression_max_emotion['Valence']),
-            'windowStartTime': first_impression_max_emotion['windowStartTime'],
-            'windowLength': first_impression_max_emotion['windowLength']
-            })
-        # Create a DataFrame from the list
-        first_impressions_df = pd.DataFrame(first_impressions_list, columns=['PaintingName', 'MaxEmotion', 'MaxIntensity', 'Valence', 'windowStartTime', 'windowLength'])
-
-        if (saveToCSV):
-            self.save_to_intermediate_folder_as_csv(first_impressions_df, "FirstImpressionsData")
-
-        return first_impressions_df
-
-    def get_first_impression_window(self, painting_name: str, first_impression_window_duration=FIRST_IMPRESSION_WINDOW_DURATION) -> pd.DataFrame:
-
-        """
-        Get the first impression window for a specific painting.
-        first impression is defined as the first full 2 seconds the participant was looking at the painting (regardless of the trial they're at).
-        """
-        continuous_df = self.dataframes.get('ContinuousData')
-
-        # Finding windows of consecutive rows where CorrectedFocusedObject == painting_name
-        windows = []
-        current_window = []
-
-        for index, row in continuous_df.iterrows():
-            if row['CorrectedFocusedObject'] == painting_name:
-                current_window.append(row)
-            else:
-                if current_window:  # Save the current window if it's not empty
-                    windows.append(current_window)
-                    
-                    start_time = current_window[0]['Time']
-                    end_time = current_window[-1]['Time']
-                    
-                    if end_time - start_time >= first_impression_window_duration:
-                        # create a DataFrame for the current window and take only the first 2 seconds
-                        
-                        window_df = pd.DataFrame(current_window)
-                        window_df = window_df[(window_df['Time'] >= start_time) & (window_df['Time'] <= start_time + first_impression_window_duration)]
-
-                        return window_df
-                    
-                    current_window = []  # Reset the current window
-
-        return None
-
-    def get_first_impression_max_emotion(self, painting_name: str) -> pd.DataFrame:
-        """
-        Get the first impression max emotion for a specific painting.
-        """
-        face_df = self.dataframes.get('FaceExpressionData')
-
-        # Get the first impression window
-        first_impression_window = self.get_first_impression_window(painting_name)
-
-        if first_impression_window is None:
-            logging.warning(f"No first impression window found for {painting_name}.")
-            return None
-
-        window_start_time = first_impression_window.iloc[0]['Time']
-        window_length = first_impression_window.iloc[-1]['Time'] - window_start_time
-
-        intensities = claculate_emotion_intensities_for_x_seconds_after_time(face_df, window_start_time)
-        max_emotion, max_intensity = get_dominant_emotion_from_intensities(intensities)
-        valence = get_valence_from_emotion_intensities(intensities)
-
-        return pd.DataFrame({
-            'PaintingName': [painting_name],
-            'MaxEmotion': [max_emotion],
-            'MaxIntensity': [max_intensity],
-            'Valence': [valence],
-            'windowStartTime': [window_start_time],
-            'windowLength': [window_length]
-        })
-
-    def get_emotion_during_audio(self, painting_name: str) -> pd.DataFrame:
-        """
-        Returns emotion time series (2s intervals) while the participant was listening to the audioguide.
-        """
-        return self._filter_by_audio_guide_time(self.emotions_df, painting_name)
-
-
-    # endregion
     # region ------- filtering -------
     def _filter_by_trial_time(self, df: pd.DataFrame, trial_name: str) -> pd.DataFrame:
             """
@@ -896,17 +713,12 @@ class MuseumVRParticipantData(BaseParticipantData):
                 gazed_time, _  = self.calculate_gaze_time(piece_name=painting)
                 _, gaze_percent = self.calculate_gaze_time(piece_name=painting, fitering_function = self._filter_by_audio_guide_time)
 
-                val_row = self.first_impressions[
-                    self.first_impressions['PaintingName'] == painting
-                ]
-                valence = val_row['Valence'].values[0] if not val_row.empty else None
-
+                
                 records.append({
                     'Participant': self.participant_id,
                     'Painting': painting,
                     'GazeTime': round(gazed_time, 2),
                     'GazePercent': round(gaze_percent, 2),
-                    'FirstImpressionValence': round(valence, 2) if valence is not None else None
                 })
 
             except Exception as e:
@@ -969,7 +781,6 @@ class MuseumVRParticipantData(BaseParticipantData):
         - Reaction time (latency to first fixation)
         """
         painting_list = ["Klimt", "Pollock", "van Dongen", "Braque", "de Chirico", "Janco", "Picasso"]
-        emotion_keys = ['joy', 'sadness', 'anger', 'disgust', 'surprise', 'valence']
         summary_rows = []
 
         for painting in painting_list:
@@ -994,16 +805,7 @@ class MuseumVRParticipantData(BaseParticipantData):
             except Exception:
                 row["SelfReportedLiking"] = None
 
-            # --- 2. First Impression (FI) Data ---
-            try:
-                fi_row = self.first_impressions[self.first_impressions["PaintingName"] == painting].iloc[0]
-                row["FI_Valence"] = round(fi_row["Valence"], 2)
-                row["FI_MaxEmotion"] = fi_row["MaxEmotion"]
-                row["FI_MaxIntensity"] = round(fi_row["MaxIntensity"], 2)
-            except Exception:
-                logging.info(f"Failed to calculate FI for {self.participant_id} - {painting}")
-                row.update({k: None for k in ["FI_Valence", "FI_MaxEmotion", "FI_MaxIntensity"]})
-
+        
             # --- 3. Gaze Time and Gaze Percent ---
             try:
                 gaze_time, _ = self.calculate_gaze_time(piece_name=painting, fitering_function=self._filter_by_trial_and_tile)
@@ -1016,24 +818,6 @@ class MuseumVRParticipantData(BaseParticipantData):
                 row["GazePercent_Audio"] = round(gaze_percent, 2)
             except Exception:
                 row["GazePercent_Audio"] = None
-
-            # --- 4. Emotions During Audio ---
-            try:
-                emo_df = self._filter_by_audio_guide_time(self.emotions_df, painting)
-                if not emo_df.empty:
-                    row["Audio_AvgValence"] = round(emo_df["valence"].mean(), 2)
-                    dominant_emotion = emo_df[emotion_keys[:-1]].mean().idxmax()
-                    row["Audio_DominantEmotion"] = dominant_emotion
-                    row["Audio_DominantEmotionIntensity"] = round(emo_df[dominant_emotion].mean(), 2)
-                    row["Audio_EmotionSequence"] = ";".join(
-                        emo_df[emotion_keys[:-1]].mean().sort_values(ascending=False).index.tolist()
-                    )
-                else:
-                    row.update({k: None for k in ["Audio_AvgValence", "Audio_DominantEmotion",
-                                                "Audio_DominantEmotionIntensity", "Audio_EmotionSequence"]})
-            except Exception:
-                row.update({k: None for k in ["Audio_AvgValence", "Audio_DominantEmotion",
-                                            "Audio_DominantEmotionIntensity", "Audio_EmotionSequence"]})
 
             # --- 5. Saccade Rate and Engagement ---
             try:
@@ -1093,9 +877,6 @@ class MuseumVRParticipantData(BaseParticipantData):
         row["AvgSelfReportedLiking"] = round(painting_df["SelfReportedLiking"].mean(), 2)
         row["AvgGazeTime"] = round(painting_df["GazeTime"].mean(), 2)
         row["AvgGazePercent_Audio"] = round(painting_df["GazePercent_Audio"].mean(), 2)
-        row["AvgFI_Valence"] = round(painting_df["FI_Valence"].mean(), 2)
-        row["AvgAudio_Valence"] = round(painting_df["Audio_AvgValence"].mean(), 2)
-        row["AvgAudio_DominantIntensity"] = round(painting_df["Audio_DominantEmotionIntensity"].mean(), 2)
         row["AvgSaccadeRate"] = round(painting_df["SaccadeRate"].mean(), 2)
 
         # Engagement distribution
@@ -1103,10 +884,6 @@ class MuseumVRParticipantData(BaseParticipantData):
         row["Engagement_High"] = engagement_counts.get("high", 0)
         row["Engagement_Moderate"] = engagement_counts.get("moderate", 0)
         row["Engagement_Low"] = engagement_counts.get("low", 0)
-
-        # % of joy/surprise dominant
-        dominant = painting_df["Audio_DominantEmotion"].dropna()
-        row["NumPaintings_JoyOrSurprise"] = dominant.isin(["joy", "surprise"]).sum()
 
         # --- Experiment time ---
         try:

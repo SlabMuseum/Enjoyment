@@ -1,0 +1,113 @@
+Metric,Question,Type,SpearmanRho,p-value,N
+TileTimePercent_Audio,Please rate your satisfaction with the explanations about the artworks.,3,0.319,0.0006,112
+TileTimePercent_Audio,Picasso,3,-0.199,0.0352,112
+TileTimePercent_Audio,Picasso,1,0.198,0.0359,112
+TileTimePercent_Audio,Braque,3,0.191,0.0435,112
+TileTimePercent_Audio,Would you like to hear more explanations of this kind about other works in the collection?,3,0.191,0.0442,112
+TileTimePercent_Audio,de Chirico,1,0.159,0.094,112
+TileTimePercent_Audio,Was the duration of the visit to your liking?,1,-0.157,0.0983,112
+TileTimePercent_Audio,Would you like to hear more explanations of this kind about other works in the collection?,2,-0.155,0.1026,112
+TileTimePercent_Audio,Would you recommend your friends to visit the collection accompanied by this type of audio guide?,3,-0.15,0.114,112
+TileTimePercent_Audio,Please rate your satisfaction with the explanations about the artworks.,All,0.082,0.1328,336
+TileTimePercent_Audio,Pollock,2,0.127,0.1825,112
+TileTimePercent_Audio,Braque,All,0.07,0.2023,336
+TileTimePercent_Audio,Pollock,All,0.07,0.2023,336
+TileTimePercent_Audio,Klimt,1,-0.111,0.2419,112
+TileTimePercent_Audio,Please rate your satisfaction with the explanations about the artworks.,1,-0.109,0.2545,112
+TileTimePercent_Audio,Would you recommend your friends to visit the collection accompanied by this type of audio guide?,2,0.106,0.2669,112
+TileTimePercent_Audio,van Dongen,All,-0.06,0.2737,336
+TileTimePercent_Audio,van Dongen,1,-0.103,0.2803,112
+TimeAtTheTile,Would you like to hear more explanations of this kind about other works in the collection?,2,-0.098,0.302,112
+TileTimePercent_Audio,de Chirico,All,0.056,0.3082,336
+TileTimePercent_Audio,de Chirico,3,0.091,0.341,112
+TileTimePercent_Audio,Picasso,2,-0.089,0.3504,112
+TimeAtTheTile,Picasso,3,-0.083,0.3852,112
+TimeAtTheTile,Janco,3,-0.081,0.3977,112
+TileTimePercent_Audio,Would you like to visit other museums with similar guidance?,3,-0.079,0.4087,112
+TimeAtTheTile,Pollock,2,0.077,0.4217,112
+TimeAtTheTile,Would you recommend your friends to visit the collection accompanied by this type of audio guide?,2,0.075,0.4333,112
+TimeAtTheTile,Would you like to visit other museums with similar guidance?,All,0.04,0.4648,336
+TimeAtTheTile,Picasso,2,-0.067,0.4795,112
+TimeAtTheTile,Would you recommend your friends to visit the collection accompanied by this type of audio guide?,All,0.037,0.5032,336
+TimeAtTheTile,Picasso,1,0.063,0.5118,112
+TileTimePercent_Audio,Would you like to visit the museum again with such a guide?,2,-0.061,0.5219,112
+TileTimePercent_Audio,Braque,2,0.06,0.5323,112
+TimeAtTheTile,Would you like to hear more explanations of this kind about other works in the collection?,3,0.057,0.5518,112
+TileTimePercent_Audio,Would you recommend your friends to visit the collection accompanied by this type of audio guide?,1,0.055,0.5641,112
+TileTimePercent_Audio,Would you like to visit the museum again with such a guide?,3,0.055,0.5675,112
+TileTimePercent_Audio,Pollock,1,-0.054,0.5683,112
+TileTimePercent_Audio,Was the duration of the visit to your liking?,3,0.053,0.5782,112
+TimeAtTheTile,Klimt,All,0.03,0.5817,336
+TimeAtTheTile,Was the duration of the visit to your liking?,1,-0.052,0.5842,112
+TimeAtTheTile,Janco,All,-0.029,0.5924,336
+TileTimePercent_Audio,van Dongen,3,-0.051,0.5949,112
+TimeAtTheTile,Was the duration of the visit to your liking?,3,0.048,0.6139,112
+TimeAtTheTile,de Chirico,1,0.048,0.617,112
+TimeAtTheTile,Pollock,All,0.026,0.6344,336
+TimeAtTheTile,Please rate your satisfaction with the explanations about the artworks.,1,-0.044,0.6437,112
+TimeAtTheTile,Would you recommend your friends to visit the collection accompanied by this type of audio guide?,3,-0.043,0.6514,112
+TimeAtTheTile,Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,3,-0.043,0.6557,112
+TileTimePercent_Audio,Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,3,-0.04,0.6762,112
+TimeAtTheTile,Please rate your satisfaction with the explanations about the artworks.,3,0.04,0.6768,112
+TileTimePercent_Audio,Janco,3,-0.039,0.6844,112
+TileTimePercent_Audio,Would you like to visit other museums with similar guidance?,1,-0.039,0.6855,112
+TileTimePercent_Audio,Janco,All,-0.022,0.6872,336
+TileTimePercent_Audio,Klimt,All,0.022,0.6879,336
+TimeAtTheTile,Klimt,1,-0.037,0.6964,112
+TimeAtTheTile,van Dongen,1,-0.036,0.7047,112
+TileTimePercent_Audio,Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,1,0.036,0.7058,112
+TileTimePercent_Audio,Would you recommend your friends to visit the collection accompanied by this type of audio guide?,All,0.021,0.707,336
+TileTimePercent_Audio,Would you like to hear more explanations of this kind about other works in the collection?,All,-0.019,0.7282,336
+TimeAtTheTile,de Chirico,All,-0.019,0.7287,336
+TimeAtTheTile,Please rate your satisfaction with the explanations about the artworks.,All,0.018,0.7368,336
+TimeAtTheTile,Would you like to visit the museum again with such a guide?,2,-0.031,0.7494,112
+TimeAtTheTile,Was the duration of the visit to your liking?,All,0.016,0.7754,336
+TileTimePercent_Audio,Pollock,3,0.026,0.7832,112
+TileTimePercent_Audio,Would you like to visit other museums with similar guidance?,2,0.024,0.8047,112
+TimeAtTheTile,Janco,2,-0.023,0.8073,112
+TimeAtTheTile,Would you like to visit the museum again with such a guide?,All,0.012,0.8205,336
+TimeAtTheTile,Would you like to visit other museums with similar guidance?,2,0.021,0.8268,112
+TimeAtTheTile,van Dongen,All,-0.012,0.8275,336
+TileTimePercent_Audio,Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,2,0.02,0.8317,112
+TileTimePercent_Audio,Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,All,-0.011,0.8338,336
+TimeAtTheTile,Picasso,All,0.011,0.8405,336
+TimeAtTheTile,Braque,2,0.019,0.8429,112
+TimeAtTheTile,Would you like to hear more explanations of this kind about other works in the collection?,All,-0.01,0.8522,336
+TileTimePercent_Audio,Was the duration of the visit to your liking?,2,-0.018,0.8524,112
+TimeAtTheTile,Would you like to visit other museums with similar guidance?,3,-0.018,0.8524,112
+TileTimePercent_Audio,Would you like to visit the museum again with such a guide?,1,-0.017,0.8595,112
+TimeAtTheTile,Would you like to visit the museum again with such a guide?,3,0.016,0.8665,112
+TimeAtTheTile,de Chirico,2,-0.015,0.8721,112
+TimeAtTheTile,Klimt,2,-0.015,0.8744,112
+TimeAtTheTile,van Dongen,3,-0.015,0.8745,112
+TimeAtTheTile,de Chirico,3,0.015,0.8778,112
+TimeAtTheTile,Pollock,1,-0.014,0.8843,112
+TimeAtTheTile,Braque,All,-0.008,0.8857,336
+TimeAtTheTile,Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,1,0.014,0.8864,112
+TimeAtTheTile,Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,All,-0.008,0.8893,336
+TimeAtTheTile,Would you like to visit other museums with similar guidance?,1,-0.013,0.8916,112
+TimeAtTheTile,Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,2,0.012,0.8979,112
+TimeAtTheTile,Would you recommend your friends to visit the collection accompanied by this type of audio guide?,1,0.011,0.9046,112
+TileTimePercent_Audio,Picasso,All,0.006,0.9074,336
+TileTimePercent_Audio,Janco,2,-0.011,0.9087,112
+TileTimePercent_Audio,Janco,1,0.011,0.9099,112
+TimeAtTheTile,Janco,1,0.011,0.9124,112
+TimeAtTheTile,Klimt,3,0.01,0.9194,112
+TileTimePercent_Audio,Would you like to visit other museums with similar guidance?,All,-0.005,0.9241,336
+TimeAtTheTile,van Dongen,2,-0.008,0.9329,112
+TileTimePercent_Audio,Klimt,2,0.007,0.9432,112
+TimeAtTheTile,Was the duration of the visit to your liking?,2,-0.007,0.9442,112
+TileTimePercent_Audio,Braque,1,0.006,0.9486,112
+TileTimePercent_Audio,van Dongen,2,0.006,0.9493,112
+TimeAtTheTile,Would you like to visit the museum again with such a guide?,1,-0.005,0.9552,112
+TileTimePercent_Audio,de Chirico,2,-0.005,0.9577,112
+TimeAtTheTile,Braque,1,0.005,0.959,112
+TimeAtTheTile,Braque,3,-0.005,0.9593,112
+TileTimePercent_Audio,Klimt,3,0.002,0.9819,112
+TileTimePercent_Audio,Was the duration of the visit to your liking?,All,0.001,0.9828,336
+TileTimePercent_Audio,Would you like to visit the museum again with such a guide?,All,0.001,0.9846,336
+TileTimePercent_Audio,Would you like to hear more explanations of this kind about other works in the collection?,1,0.002,0.9863,112
+TimeAtTheTile,Would you like to hear more explanations of this kind about other works in the collection?,1,0.002,0.9866,112
+TileTimePercent_Audio,Please rate your satisfaction with the explanations about the artworks.,2,0.002,0.9869,112
+TimeAtTheTile,Pollock,3,-0.002,0.9871,112
+TimeAtTheTile,Please rate your satisfaction with the explanations about the artworks.,2,-0.001,0.9946,112

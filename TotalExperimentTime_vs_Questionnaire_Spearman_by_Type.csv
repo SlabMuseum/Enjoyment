@@ -1,0 +1,57 @@
+Question,TourType,SpearmanRho,p-value,N
+Would you recommend your friends to visit the collection accompanied by this type of audio guide?,3,-0.552,0.0268,16
+van Dongen,All,-0.296,0.041,48
+Janco,3,-0.488,0.0554,16
+Would you like to visit other museums with similar guidance?,3,-0.471,0.0654,16
+Would you like to visit other museums with similar guidance?,All,-0.261,0.0734,48
+Klimt,1,-0.453,0.0777,16
+Please rate your satisfaction with the explanations about the artworks.,1,-0.445,0.0839,16
+Would you recommend your friends to visit the collection accompanied by this type of audio guide?,2,0.442,0.0869,16
+Picasso,1,0.432,0.0946,16
+van Dongen,3,-0.393,0.1322,16
+Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,3,-0.382,0.1447,16
+Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,All,-0.209,0.1543,48
+Would you like to visit other museums with similar guidance?,1,-0.358,0.173,16
+Klimt,2,-0.332,0.2093,16
+Klimt,All,-0.183,0.2133,48
+Was the duration of the visit to your liking?,3,0.32,0.2268,16
+Would you like to hear more explanations of this kind about other works in the collection?,1,-0.319,0.2288,16
+Please rate your satisfaction with the explanations about the artworks.,2,-0.31,0.2427,16
+Would you like to visit the museum again with such a guide?,1,-0.308,0.246,16
+Would you like to hear more explanations of this kind about other works in the collection?,All,-0.167,0.2567,48
+Would you like to visit the museum again with such a guide?,3,-0.295,0.2669,16
+Picasso,3,-0.291,0.2734,16
+Janco,All,-0.151,0.3054,48
+Would you like to visit the museum again with such a guide?,All,-0.151,0.3059,48
+Braque,2,-0.241,0.3685,16
+Please rate your satisfaction with the explanations about the artworks.,3,0.237,0.3777,16
+Was the duration of the visit to your liking?,All,0.127,0.3881,48
+Would you recommend your friends to visit the collection accompanied by this type of audio guide?,All,-0.113,0.4452,48
+Would you like to hear more explanations of this kind about other works in the collection?,2,-0.193,0.4747,16
+Braque,1,0.189,0.4841,16
+Would you recommend your friends to visit the collection accompanied by this type of audio guide?,1,-0.185,0.4932,16
+van Dongen,1,-0.167,0.5357,16
+Was the duration of the visit to your liking?,1,-0.167,0.5366,16
+de Chirico,All,0.089,0.5456,48
+Please rate your satisfaction with the explanations about the artworks.,All,-0.089,0.5479,48
+Would you like to hear more explanations of this kind about other works in the collection?,3,0.138,0.6109,16
+Braque,3,0.126,0.6412,16
+Janco,2,0.114,0.6738,16
+Pollock,1,-0.106,0.6953,16
+Pollock,All,0.054,0.7139,48
+Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,2,-0.095,0.7267,16
+Pollock,3,0.069,0.799,16
+Janco,1,-0.068,0.8013,16
+van Dongen,2,-0.058,0.8324,16
+Please rate your overall satisfaction with the guided tour of the Minza Blumenthal collection.,1,-0.056,0.8358,16
+Klimt,3,-0.051,0.8517,16
+Picasso,All,-0.028,0.852,48
+Picasso,2,-0.049,0.8562,16
+de Chirico,1,0.031,0.9091,16
+Braque,All,0.017,0.9094,48
+Pollock,2,-0.013,0.9604,16
+de Chirico,3,-0.012,0.9635,16
+Would you like to visit other museums with similar guidance?,2,-0.01,0.971,16
+Would you like to visit the museum again with such a guide?,2,-0.006,0.9814,16
+Was the duration of the visit to your liking?,2,-0.005,0.9858,16
+de Chirico,2,-0.003,0.991,16

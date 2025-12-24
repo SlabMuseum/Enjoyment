@@ -1,0 +1,7 @@
+Feature,SpearmanRho,p_value
+GazePercent_Audio,0.106,0.0533
+GazeTime,0.072,0.1862
+ReactionTime,-0.052,0.3425
+SaccadeRate,-0.023,0.6719
+TimeAtTheTile,-0.015,0.7787
+TileTimePercent_Audio,0.005,0.9206
