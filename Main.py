@@ -1,123 +1,239 @@
+import logging
+import os
+import pickle
+from main_analysis import *
+from pathlib import Path
+from typing import Dict, Any
+from logger_config import configure_logging
+from participant_data import *
+from questionnaire_loader import load_questionnaire_data
+from visualizations import *
 import pandas as pd
-import csv
+from scipy.stats import spearmanr
+from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
+from collections import defaultdict
+from scipy.stats import kruskal
+import scikit_posthocs as sp
+from matplotlib.patches import Patch
 
-data = pd.read_csv('res.csv', quoting=csv.QUOTE_NONE, sep = ';')
-data = data.drop(columns = ['Timestamp'])
+# ---------------------configuration-------------------
 
-order_0 = ['Not satisfied at all', 'Not satisfied', 'Quite dissatisfied', 'Neutral', 'Quite satisfied', 'Satisfied', 'Very satisfied']
-order_1 = ['Too long', 'Long', 'Quite long', 'Exactly the right length', 'Quite short', 'Short', 'Too short']
-order_2 = ['Do not want at all', 'Do not want', 'Quite do not want', 'Not sure', 'Quite want', 'Want', 'Really want']
-order_3 = ['I will not recommend at all', 'I will not recommend', 'I will not quite recommend', 'Not sure', 'Somewhat recommend', 'I will recommend', 'Highly recommend']
-order_4 = ['Did not like at all', 'Did not like', 'Quite disliked', 'Neutral', 'Quite liked', 'Liked', 'Really liked']
-order_5 = ['Option 1', 'Option 2']
+# Set up logging configuration
+logging_level = logging.INFO  # Set to DEBUG to see all messages, or INFO for less verbosity
 
-order_mapping = {
-    'Not satisfied at all': 1, 'Not satisfied': 2, 'Quite dissatisfied': 3, 'Neutral': 4,
-    'Quite satisfied': 5, 'Satisfied': 6, 'Very satisfied': 7,
-    'Too long': 1, 'Long': 2, 'Quite long': 3, 'Exactly the right length': 4,
-    'Quite short': 5, 'Short': 6, 'Too short': 7,
-    'Do not want at all': 1, 'Do not want': 2, 'Quite do not want': 3, 'Not sure': 4,
-    'Quite want': 5, 'Want': 6, 'Really want': 7,
-    'I will not recommend at all': 1, 'I will not recommend': 2, 'I will not quite recommend': 3,
-    'Not sure': 4, 'Somewhat recommend': 5, 'I will recommend': 6, 'Highly recommend': 7,
-    'Did not like at all': 1, 'Did not like': 2, 'Quite disliked': 3, 'Neutral': 4,
-    'Quite liked': 5, 'Liked': 6, 'Really liked': 7,
-    'Option 1': 1, 'Option 2': 2
-}
+# path configs - change accordingly                         # TODO set to relaive paths with known structure
+root_data_path = r"/Users/yanasklar/Documents/TAU/Data" 
+# root_data_path = r"/Users/yanasklar/Documents/TAU/TestData"  #3 participants
+questionnaire_csv_path = r"/Users/yanasklar/GitHub/Enjoyment/res.csv" 
 
-numerical_data = data.copy()
-numerical_data = numerical_data.replace(order_mapping)
+# ----------- main function - entry point --------------
 
-
-for i in range(2, data.shape[1]):
-    columnname = data.columns[i]
+def main() -> None:
     
-    if numerical_data[columnname].dtype.name == 'category':
-        numerical_data[columnname] = numerical_data[columnname].cat.codes + 1  # Convert to numerical codes
-    # Calculate the average of numerical answers for each Type
-    avg_answers = numerical_data.groupby('Type')[columnname].mean().round(2).reset_index()
-    # Prepare legend with averages
-    legend_labels = [
-        f"{row['Type']} (Avg: {row[columnname]})"
-        for _, row in avg_answers.iterrows()
+    configure_logging(logging_level)
+
+    participants = load_all_participants(root_data_path,  use_pkl=True)
+    logging.info(f"Loaded {len(participants)} participants successfully.")
+
+    questionnaire_df = load_questionnaire_data(questionnaire_csv_path)
+    add_questionnaire_data_to_each_participant(participants, questionnaire_df)
+    logging.info("Added questionnaire data to participants.")
+
+    # summary table with all the stats per painting
+    all_summaries = []
+    for participant in participants.values():
+        df = participant.generate_painting_summary()
+
+        all_summaries.append(df)
+
+    per_Painting_Summary = pd.concat(all_summaries, ignore_index=True)
+    per_Painting_Summary.to_csv("Per_Painting_Summary.csv", index=False)
+
+    # summary table with all the stats per participant
+    participant_summary_list = []
+    for participant in participants.values():
+        summary = participant.generate_participant_summary(still_speed_threshold=0.01)
+        participant_summary_list.append(summary)
+
+    per_Participant_Summary = pd.concat(participant_summary_list, ignore_index=True)
+    per_Participant_Summary = per_Participant_Summary.sort_values(by="ParticipantID").reset_index(drop=True)
+    per_Participant_Summary.to_csv("Per_Participant_Summary.csv", index=False)
+
+    # ---- visualizations ----
+    """
+    for participant_id, participant_data in participants.items():
+        logging.info(f"Visualizing participant {participant_id}...")
+
+        plot_trajectory_over_image_dual_view(participant_data, r"Top views/top_view_no_tiles_no_grid_isometric.png", save_file=True
+                                    ,sampling_rate=60, window_size=5, close_plot=False)
+        plot_trajectory_over_image(participant_data, r"Top views/top_view_no_tiles_no_grid_isometric.png", save_file=True
+                                   ,sampling_rate=60, window_size=5, close_plot=False)
+        logging.info(f"Visualization for participant {participant_id} completed.")
+
+
+    plot_mean_trajectories_by_type(participants, metric_df, metric_name="Audio_AvgValence", image_path=r"Top views/top_view_no_tiles_no_grid_isometric.png")
+    plot_gaze_per_painting(participants)
+    plot_gaze_percent_per_painting(participants)
+    plot_group_avg_emotions_bar(participants)
+    plot_temporal_emotion_lines_by_painting(participants)
+    """
+    #plot_individual_voting_bars(questionnaire_df)
+
+    # region ------ Analysis -------
+    compute_questionnaire_descriptive_stats(questionnaire_df)
+    analyze_vr_correlation_with_liking(per_Painting_Summary, per_Participant_Summary)
+    run_questionnaire_anova(questionnaire_csv_path)
+    run_per_participant_kruskal(per_Participant_Summary)
+    merged_df = run_per_painting_kruskal(per_Painting_Summary, per_Participant_Summary)
+    run_per_painting_spearman(merged_df)
+    run_per_participant_spearman(per_Participant_Summary)
+    analyze_liking_vs_preference(questionnaire_df, participants)
+
+    # endregion 
+
+# region ------ Decision Tree Classifier -------
+
+"""
+    # Load both summaries
+    per_painting = pd.read_csv("all_participant_painting_summary.csv")
+    per_participant = pd.read_csv("Per_Participant_Summary.csv")
+
+    # Merge on ParticipantID
+    merged = per_painting.merge(per_participant, on="ParticipantID", suffixes=("", "_Participant"))
+
+    # Create binary target: Liked = 1 if SelfReportedLiking ≥ 6
+    merged["Liked"] = (merged["SelfReportedLiking"] >= 6).astype(int)
+
+    # Define columns to exclude
+    exclude_columns = [
+        "ParticipantID", "Painting", "SelfReportedLiking",
+        "Audio_EmotionSequence", "FI_MaxEmotion", "Audio_DominantEmotion",
+        "EngagementLevel"
     ]
 
-    # Create categorical data
-    if i ==2 or i == 3:
-        data[columnname] = pd.Categorical(data[columnname], categories=order_0, ordered=True)
-    if i ==4:
-        data[columnname] = pd.Categorical(data[columnname], categories=order_1, ordered=True)
-    if i >=5 and i<8:
-        data[columnname] = pd.Categorical(data[columnname], categories=order_2, ordered=True)
-    if i ==8:
-        data[columnname] = pd.Categorical(data[columnname], categories=order_3, ordered=True)
-    if i >=9 and i<16:
-        data[columnname] = pd.Categorical(data[columnname], categories=order_4, ordered=True)
-    if i >=16:
-        data[columnname] = pd.Categorical(data[columnname], categories=order_5, ordered=True)
+    # Drop excluded and keep only numeric input features
+    X = merged.drop(columns=[col for col in exclude_columns if col in merged.columns])
+    X = X.select_dtypes(include="number").drop(columns=["Liked"], errors="ignore")
+    y = merged["Liked"]
+
+    # Split train/test
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Train decision tree
+    clf = DecisionTreeClassifier(max_depth=5, random_state=42)
+    clf.fit(X_train, y_train)
+   
+    # Compute feature importances
+    importances = clf.feature_importances_
+    features = X.columns
+    importance_df = pd.DataFrame({
+        "Feature": features,
+        "Importance": importances
+    }).sort_values(by="Importance", ascending=True)
+
+    # Plot as horizontal bar chart
+    plt.figure(figsize=(10, 8))
+    plt.barh(importance_df["Feature"], importance_df["Importance"], color="skyblue")
+    plt.xlabel("Importance")
+    plt.title("Feature Importances (Decision Tree Classifier)")
+    plt.grid(axis="x", linestyle="--", alpha=0.7)
+    plt.tight_layout()
+    plt.savefig("Tree importance.png")
+    plt.show()
+
+    # Print tree rules
+    print("\n📋 Decision Tree Rules:\n")
+    print(export_text(clf, feature_names=list(X.columns)))
+
+    # Optional: plot the tree
+    plt.figure(figsize=(16, 8))
+    plot_tree(clf, feature_names=X.columns, class_names=["Not Liked", "Liked"], filled=True)
+    plt.title("Decision Tree Classifier (without SelfReportedLiking as Feature)")
+    plt.savefig("Tree.png")
+    plt.show()
+
+    # ---- Evaluate the model ----
+    y_pred = clf.predict(X_test)
+    metrics = {
+        "Accuracy": round(accuracy_score(y_test, y_pred), 3),
+        "Precision": round(precision_score(y_test, y_pred), 3),
+        "Recall": round(recall_score(y_test, y_pred), 3),
+        "F1 Score": round(f1_score(y_test, y_pred), 3)
+    }
+
+    # Convert to DataFrame and save
+    metrics_df = pd.DataFrame([metrics])
+    metrics_df.to_csv("decision_tree_metrics.csv", index=False)
+    print("✅ Saved decision tree evaluation to decision_tree_metrics.csv")
+"""
+# endregion
+
+# region ----------------- helper functions -------------------
+
+def load_all_participants(datapath: str, use_pkl = True) -> Dict[int, MuseumVRParticipantData]:
+    """
+    Load all participant data from the specified directory.
     
-    # Group by Type and column, then normalize within each Type
-    grouped = data.groupby(['Type', columnname]).size().reset_index(name='Count')
-    grouped['Proportion'] = grouped.groupby('Type')['Count'].apply(lambda x: x / x.sum()).reset_index(drop=True)
-    
+    Each subfolder is assumed to be named by the participant ID.
 
-    # Plot the normalized data
-    if i<16:
-        plt.figure(figsize=(10, 6))
-        sns.barplot(data=grouped, x=columnname, y='Proportion', hue='Type', palette='muted')
-        plt.title(f'{columnname}')
-        plt.ylabel('Proportion')
-        plt.xlabel('')
-        plt.legend(title='Type')
-        plt.xticks(rotation=45, ha='right')  # Rotate labels 45 degrees and align them to the right
-        # Update legend with averages
-        handles, _ = plt.gca().get_legend_handles_labels()
-        plt.legend(handles, legend_labels, title='Type', loc='upper right')
+    Args:
+        datapath (str): Path to the directory containing participant folders.
 
-        plt.tight_layout()    
-        plt.suptitle('') 
-        plt.savefig(f'graph {i}.png', dpi=300, bbox_inches='tight')
-        plt.show()
-    else:
-        plt.figure(figsize=(6, 6))
-        sns.barplot(data=grouped, x=columnname, y='Proportion', hue='Type', palette='muted')
-        plt.title(f'{columnname}')
-        plt.ylabel('Proportion')
-        plt.xlabel('')
-        plt.legend(title='Type')
-        plt.xticks(rotation=45, ha='right')  # Rotate labels 45 degrees and align them to the right
-        plt.tight_layout()    
-        plt.suptitle('') 
-        plt.savefig(f'graph {i}.png', dpi=300, bbox_inches='tight')
-        plt.show()
+    Returns:
+        Dict[int, MuseumVRParticipantData]: Dictionary mapping participant IDs to their data.
+    """
+    participants = {}
 
-# all the paintings from the museum
-minidata = data.iloc[:, 9:16]
-minidata = data.melt(id_vars=['Type'], value_vars=data.columns[9:16], var_name='Painting', value_name='Rating')
-minidata['Rating'] = minidata['Rating'].map(order_mapping).astype(float)  # Ensure numerical type
-avg_painting_ratings = minidata.groupby('Type')['Rating'].mean().round(2).reset_index()
+    for folder in os.listdir(datapath):
+        folder = folder.strip()
+        folder_path = os.path.join(datapath, folder)
 
-#minidata['Rating'] = pd.Categorical(minidata['Rating'], categories=order_4, ordered=True)
-grouped_minidata = (minidata.groupby(['Type', 'Rating']).size().reset_index(name='Count'))
-grouped_minidata['Proportion'] = grouped_minidata.groupby('Type')['Count'].apply(lambda x: x / x.sum()).reset_index(drop=True)
 
-legend_labels = [
-    f"{row['Type']} (Avg: {row['Rating']})"
-    for _, row in avg_painting_ratings.iterrows()
-]
+        if not os.path.isdir(folder_path):
+            continue
 
-plt.figure(figsize=(10, 6))
-sns.barplot(data=grouped_minidata, x='Rating', y='Proportion', hue='Type', palette='muted')
-plt.title('How much you liked all the paintings from the museum by Type')
-plt.ylabel('Proportion')
-plt.xlabel('Rating')
-plt.legend(title='Type')
-plt.xticks(ticks=range(len(order_4)), labels=order_4, rotation=45, ha='right')
-handles, _ = plt.gca().get_legend_handles_labels()
-plt.legend(handles, legend_labels, title='Type', loc='upper right')
-plt.tight_layout()
-plt.savefig('All.png', dpi=300, bbox_inches='tight')
-plt.show()
+        # === Step 1: Check if folder name is numeric ===
+        try:
+            participant_id = int(folder)
+        except ValueError:
+            logging.warning(f"Skipping non-numeric folder name: {folder}")
+            continue
+
+        # === Step 2: Try loading participant data ===
+        try:
+            logging.info(f"Loading participant {participant_id}...")
+            data = MuseumVRParticipantData(participant_id=str(participant_id), data_path=folder_path, use_pkl=use_pkl)
+            participants[participant_id] = data
+        except Exception as e:
+            logging.info(f"Failed to load participant {participant_id}: {e}")
+            print(f"Skipping participant {participant_id} due to error: {e}")
+            continue
+
+    return participants
+
+def add_questionnaire_data_to_each_participant(
+    participants: Dict[int, MuseumVRParticipantData],
+    questionnaire_df: pd.DataFrame
+) -> None:
+    """
+    Add questionnaire data to each participant's data.
+
+    Args:
+        participants (Dict[int, MuseumVRParticipantData]): Dictionary mapping participant IDs to their data.
+        questionnaire_df (pd.DataFrame): DataFrame containing questionnaire data.
+    """
+    for participant in participants.values():
+        pid = int(participant.participant_id)
+        if pid in questionnaire_df.index:
+            participant.questionnaire_data = questionnaire_df.loc[pid]
+        else:
+            logging.warning(f"Participant {pid} not found in questionnaire data.")
+
+# endregion 
+
+if __name__ == "__main__":
+    main()

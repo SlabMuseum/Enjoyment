@@ -1,9 +1,0 @@
-Feature,SpearmanRho,p_value
-GazePercent_Audio,0.152,0.0054
-SaccadeRate,0.095,0.0845
-Audio_AvgValence,-0.068,0.2125
-ReactionTime,-0.066,0.2274
-FI_Valence,-0.045,0.4158
-Audio_DominantEmotionIntensity,-0.03,0.5886
-FI_MaxIntensity,0.029,0.5946
-GazeTime,-0.02,0.7139

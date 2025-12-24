@@ -1,0 +1,5 @@
+Group,N,PearsonR,Pearson_p,SpearmanRho,Spearman_p
+ALL,301,0.438,0.0,0.552,0.0
+TourType=1,105,0.506,0.0,0.555,0.0
+TourType=2,112,0.347,0.0002,0.469,0.0
+TourType=3,84,0.578,0.0,0.7,0.0
