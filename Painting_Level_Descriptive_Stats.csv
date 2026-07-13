@@ -1,6 +1,22 @@
-,TimeAtTheTile,TimeAtTheTile,TimeAtTheTile,TimeAtTheTile,TimeAtTheTile,TimeAtTheTile,TileTimePercent_Audio,TileTimePercent_Audio,TileTimePercent_Audio,TileTimePercent_Audio,TileTimePercent_Audio,TileTimePercent_Audio,SelfReportedLiking,SelfReportedLiking,SelfReportedLiking,SelfReportedLiking,SelfReportedLiking,SelfReportedLiking,GazeTime,GazeTime,GazeTime,GazeTime,GazeTime,GazeTime,GazePercent_Audio,GazePercent_Audio,GazePercent_Audio,GazePercent_Audio,GazePercent_Audio,GazePercent_Audio,SaccadeRate,SaccadeRate,SaccadeRate,SaccadeRate,SaccadeRate,SaccadeRate,ReactionTime,ReactionTime,ReactionTime,ReactionTime,ReactionTime,ReactionTime
-,mean,std,median,min,max,count,mean,std,median,min,max,count,mean,std,median,min,max,count,mean,std,median,min,max,count,mean,std,median,min,max,count,mean,std,median,min,max,count,mean,std,median,min,max,count
-TourType,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-1,87.46,22.76,86.54,57.33,185.59,112,120.93,14.84,116.28,107.47,212.67,112,27.75,15.61,27.5,1.5,53.0,112,51.06,19.85,51.5,6.0,96.1,112,72.08,20.6,77.9,17.1,99.8,112,9.34,4.97,7.88,3.25,27.84,112,7.77,9.27,5.7,1.54,74.06,112
-2,99.19,35.49,90.7,59.69,268.14,112,138.36,41.31,119.65,107.02,307.22,112,28.96,16.08,27.5,1.0,53.0,112,53.91,18.76,55.27,5.7,94.56,112,74.31,20.2,81.12,10.53,99.08,112,8.39,2.65,7.68,2.65,15.9,112,12.52,16.01,6.61,1.11,63.41,112
-3,87.81,28.83,84.05,55.62,286.8,112,121.82,29.23,114.73,106.93,328.6,112,27.94,15.37,28.25,1.0,53.0,112,58.68,17.27,57.58,5.06,109.84,112,80.33,15.49,84.35,7.82,98.9,112,8.84,2.55,8.5,4.36,17.03,112,7.1,10.77,4.95,0.01,74.74,112
+Measure,mean,median,std,min,max
+TimeAtTheTile Active,87.46,86.54,22.76,57.33,185.59
+TimeAtTheTile Semi-Active,99.19,90.7,35.49,59.69,268.14
+TimeAtTheTile Passive,87.81,84.05,28.83,55.62,286.8
+TileTimePercent_Audio Active,120.93,116.28,14.84,107.47,212.67
+TileTimePercent_Audio Semi-Active,138.36,119.65,41.31,107.02,307.22
+TileTimePercent_Audio Passive,121.82,114.73,29.23,106.93,328.6
+SelfReportedLiking Active,27.75,27.5,15.61,1.5,53.0
+SelfReportedLiking Semi-Active,28.96,27.5,16.08,1.0,53.0
+SelfReportedLiking Passive,27.94,28.25,15.37,1.0,53.0
+GazeTime Active,51.06,51.5,19.85,6.0,96.1
+GazeTime Semi-Active,53.91,55.27,18.76,5.7,94.56
+GazeTime Passive,58.68,57.58,17.27,5.06,109.84
+GazePercent_Audio Active,72.08,77.9,20.6,17.1,99.8
+GazePercent_Audio Semi-Active,74.31,81.12,20.2,10.53,99.08
+GazePercent_Audio Passive,80.33,84.35,15.49,7.82,98.9
+SaccadeRate Active,9.34,7.88,4.97,3.25,27.84
+SaccadeRate Semi-Active,8.39,7.68,2.65,2.65,15.9
+SaccadeRate Passive,8.84,8.5,2.55,4.36,17.03
+ReactionTime Active,7.77,5.7,9.27,1.54,74.06
+ReactionTime Semi-Active,12.52,6.61,16.01,1.11,63.41
+ReactionTime Passive,7.1,4.95,10.77,0.01,74.74

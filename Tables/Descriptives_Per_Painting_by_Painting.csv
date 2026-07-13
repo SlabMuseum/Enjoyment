@@ -1,0 +1,50 @@
+Painting,Metric,N,Mean,Std,Median,Min,Max
+Braque,SelfReportedLiking,48,28.167,16.134,23.500,4.000,53.000
+Braque,GazeTime,48,49.918,14.757,52.280,8.680,70.720
+Braque,GazePercent_Audio,48,68.064,19.425,72.305,11.520,92.580
+Braque,SaccadeRate,48,8.255,3.353,7.770,3.910,26.310
+Braque,TimeAtTheTile,48,85.889,4.073,85.220,80.890,105.740
+Braque,TileTimePercent_Audio,48,114.990,5.454,114.095,108.300,141.570
+Braque,ReactionTime,48,7.174,2.248,6.765,4.120,14.560
+Janco,SelfReportedLiking,48,28.594,15.256,24.500,1.000,43.500
+Janco,GazeTime,48,53.368,10.039,55.910,24.940,65.680
+Janco,GazePercent_Audio,48,81.599,13.942,84.865,37.090,98.220
+Janco,SaccadeRate,48,9.748,3.394,9.370,6.130,27.310
+Janco,TimeAtTheTile,48,96.090,28.398,78.060,70.250,148.760
+Janco,TileTimePercent_Audio,48,147.282,43.527,119.655,107.680,228.020
+Janco,ReactionTime,48,13.050,21.557,2.470,0.010,63.410
+Klimt,SelfReportedLiking,48,27.240,16.004,20.000,1.000,51.500
+Klimt,GazeTime,48,77.546,12.529,79.800,14.820,96.100
+Klimt,GazePercent_Audio,48,87.085,9.217,89.895,63.110,99.080
+Klimt,SaccadeRate,48,12.874,2.838,12.390,7.100,25.960
+Klimt,TimeAtTheTile,48,115.422,16.894,111.750,95.310,169.140
+Klimt,TileTimePercent_Audio,48,132.620,19.409,128.405,109.520,194.330
+Klimt,ReactionTime,48,18.592,15.888,14.675,1.820,74.060
+Picasso,SelfReportedLiking,48,28.594,16.135,37.500,1.500,51.000
+Picasso,GazeTime,48,44.913,12.484,48.270,5.060,60.240
+Picasso,GazePercent_Audio,48,74.388,20.405,80.770,7.820,99.800
+Picasso,SaccadeRate,48,8.111,3.513,7.600,3.350,27.560
+Picasso,TimeAtTheTile,48,67.452,1.797,66.905,64.310,72.840
+Picasso,TileTimePercent_Audio,48,112.231,2.991,111.310,107.020,121.190
+Picasso,ReactionTime,48,2.421,0.952,2.225,1.110,5.000
+Pollock,SelfReportedLiking,48,29.156,15.028,30.000,5.500,51.500
+Pollock,GazeTime,48,64.143,20.953,66.700,9.180,109.840
+Pollock,GazePercent_Audio,48,72.406,20.349,76.700,17.100,96.770
+Pollock,SaccadeRate,48,7.009,1.603,7.020,2.650,11.600
+Pollock,TimeAtTheTile,48,119.393,45.791,103.055,96.490,286.800
+Pollock,TileTimePercent_Audio,48,136.793,52.465,118.075,110.550,328.600
+Pollock,ReactionTime,48,5.572,3.421,5.125,1.310,18.370
+de Chirico,SelfReportedLiking,48,27.688,15.583,29.000,2.000,46.500
+de Chirico,GazeTime,48,38.873,8.747,42.370,5.700,48.300
+de Chirico,GazePercent_Audio,48,78.464,17.833,84.245,10.530,97.660
+de Chirico,SaccadeRate,48,8.197,3.165,7.570,3.250,25.520
+de Chirico,TimeAtTheTile,48,63.625,11.223,60.925,55.620,128.450
+de Chirico,TileTimePercent_Audio,48,130.796,23.072,125.250,114.340,264.050
+de Chirico,ReactionTime,48,10.725,10.086,8.215,4.650,70.210
+van Dongen,SelfReportedLiking,48,28.073,16.302,27.500,3.500,51.000
+van Dongen,GazeTime,48,53.077,19.610,59.940,6.000,78.980
+van Dongen,GazePercent_Audio,48,67.012,22.123,74.010,12.820,96.710
+van Dongen,SaccadeRate,48,7.812,3.496,7.420,3.750,27.840
+van Dongen,TimeAtTheTile,48,92.518,14.871,89.555,86.380,191.430
+van Dongen,TileTimePercent_Audio,48,114.543,18.408,110.870,106.930,236.990
+van Dongen,ReactionTime,48,6.382,10.316,4.435,2.140,74.740

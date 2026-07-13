@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02b8afd752ff26b44b9e987702577508, type: 3}
+  m_Name: ButtonVisualsRegular NEW
+  m_EditorClassIdentifier: 
+  backfaceGradientRadiusActive: 0
+  strokeThicknessActive: 0.001
+  backfaceZPositionActive: 0
+  activeDuration: 0.25
+  pressDuration: 0.25
+  strokeThicknessPress: 0.001
+  backfadeZPositionPress: -0.008
+  backfaceColorHide: {r: 0.8509804, g: 0.8509804, b: 0.8509804, a: 0}
+  hideDuration: 0.25
+  hoverDuration: 0.3
+  backfaceColorGradientHover: {r: 0.6679245, g: 0.6679245, b: 0.6679245, a: 1}
+  backfaceGradientRadiusHover: 0.02
+  strokeThicknessHover: 0.002
+  backfadeZPositionHover: 0.0049
+  textOpacityDisabled: 0.3
+  strokeThicknessDisabled: 0.0003
+  activeColor: {r: 0.8509804, g: 0.8509804, b: 0.8509804, a: 1}
+  pressColor: {r: 0.33333334, g: 0.50980395, b: 0.9490196, a: 1}
+  disableColor: {r: 0.4862745, g: 0.4862745, b: 0.4862745, a: 1}
+  hoverGradientColor: {r: 0.6666667, g: 0.6666667, b: 0.6666667, a: 1}

@@ -432,25 +432,233 @@ def plot_mean_trajectories_by_metric(participants: dict, summary_df: pd.DataFram
 
 # endregion
 
+# region ---- thesis descriptives boxplots ----
+
+def plot_boxplots_questions(
+    df: pd.DataFrame,
+    question_cols: list[str],
+    title: str,
+    filename: str,
+    show_fliers: bool = False,
+    close_plot: bool = True,
+):
+    # Prepare data (numeric only)
+    data = []
+    labels = []
+    for col in question_cols:
+        if col not in df.columns:
+            logging.warning(f"plot_boxplots_questions: column not found: {col} (skipping)")
+            continue
+        s = pd.to_numeric(df[col], errors="coerce").dropna()
+        if s.empty:
+            logging.warning(f"plot_boxplots_questions: column has no numeric values: {col} (skipping)")
+            continue
+        data.append(s.values)
+        labels.append(col)
+
+    if not data:
+        raise ValueError("plot_boxplots_questions: no valid columns to plot.")
+
+    # Reasonable default width scales with number of questions
+    fig_w = max(10, 1.2 * len(labels))
+    fig, ax = plt.subplots(figsize=(fig_w, 6))
+
+    ax.boxplot(data, showfliers=show_fliers)
+    ax.set_title(title)
+    ax.set_ylabel("Value")
+
+    ax.set_xticks(range(1, len(labels) + 1))
+    ax.set_xticklabels(labels, rotation=45, ha="right")
+
+    plt.tight_layout()
+
+    path = os.path.join(EXPORTS_FOLDER, filename)
+    fig.savefig(path, bbox_inches="tight", dpi=300)
+    logging.info(f"Saved to {path}")
+
+    if close_plot:
+        plt.close(fig)
+
+    return path
+
+
+def plot_boxplots_questions_by_painting(
+    per_painting_df: pd.DataFrame,
+    question_cols: list[str],
+    title_prefix: str,
+    filename_prefix: str = "Descriptives_Per_Painting_by_Painting",
+    painting_col: str = "Painting",
+    show_fliers: bool = False,
+    close_plot: bool = True,
+) -> dict[str, str]:
+    
+    if painting_col not in per_painting_df.columns:
+        raise KeyError(f"plot_boxplots_questions_by_painting: '{painting_col}' column not found.")
+
+    paths: dict[str, str] = {}
+    for painting, sub in per_painting_df.groupby(painting_col):
+        safe_name = str(painting).replace(" ", "_")
+        filename = f"{filename_prefix}_{safe_name}_boxplots.png"
+        title = f"{title_prefix} — {painting}"
+        paths[str(painting)] = plot_boxplots_questions(
+            df=sub,
+            question_cols=question_cols,
+            title=title,
+            filename=filename,
+            show_fliers=show_fliers,
+            close_plot=close_plot,
+        )
+    return paths
+
+def plot_boxplots_measures_by_painting(
+    per_painting_df: pd.DataFrame,
+    measures: list[str],
+    output_dir: str = ".",
+    filename_prefix: str = "Boxplot",
+    painting_col: str = "Painting",
+    show_fliers: bool = False,
+    close_plot: bool = True,
+    order: list[str] | None = None,
+    font_size: int = 22,
+) -> dict[str, str]:
+
+    if order is None:
+        order = list(pd.unique(per_painting_df[painting_col]))
+
+    median_props = {"color": "red", "linewidth": 3}
+
+    paths: dict[str, str] = {}
+
+    # Store old rcParams so we only affect this function's plots
+    old_rc = plt.rcParams.copy()
+    try:
+        plt.rcParams.update({
+            "font.size": font_size,
+            "axes.titlesize": font_size,
+            "axes.labelsize": font_size,
+            "xtick.labelsize": font_size,
+            "ytick.labelsize": font_size,
+            "legend.fontsize": font_size,
+        })
+
+        for m in measures:
+            if m not in per_painting_df.columns:
+                continue
+
+            plt.figure(figsize=(14, 7))
+            ax = sns.boxplot(
+                data=per_painting_df,
+                x=painting_col,
+                y=m,
+                order=order,
+                showfliers=show_fliers,
+                medianprops=median_props,
+            )
+
+            ax.set_title(f"{m} by painting", fontsize=font_size)
+            ax.set_xlabel("Painting", fontsize=font_size)
+            ax.set_ylabel(m, fontsize=font_size)
+
+            # tick label formatting
+            ax.tick_params(axis="x", labelsize=font_size, rotation=30)
+            ax.tick_params(axis="y", labelsize=font_size)
+
+            plt.tight_layout()
+
+            out_path = os.path.join(output_dir, f"{filename_prefix}_{m}_byPainting.png")
+            plt.savefig(out_path, dpi=300, bbox_inches="tight")
+            paths[m] = out_path
+
+            if close_plot:
+                plt.close()
+
+    finally:
+        plt.rcParams.update(old_rc)
+
+    return paths
+
+
+# endregion
+
+
 # region ---- Different plots ----
 
-def plot_gaze_per_painting(participants: dict):
+def plot_gaze_per_painting(participants: dict, audio_durations: dict | None = None):
     """
-    Plot a boxplot of gaze percent per painting across participants.
+    Plot a boxplot of gaze time per painting across participants, with audioguide duration
+    annotated as a red dot on the same axis.
     Expects a dict: {participant_id: MuseumVRParticipantData}
     """
-    all_summaries = pd.concat([
-        participant.get_per_painting_summary()
-        for participant in participants.values()
-    ])
+    all_summaries = pd.concat(
+        [p.get_per_painting_summary() for p in participants.values()],
+        ignore_index=True
+    )
 
-    sns.boxplot(data=all_summaries, x="Painting", y="GazeTime")
-    plt.title("Gaze Time by Painting Across Participants")
-    plt.xticks(rotation=45)
-    plt.tight_layout()
+    if audio_durations is None:
+        audio_durations = compute_audioguide_durations(participants, print_table=False)
+
+    # Stable order: prefer the order from audio_durations if it matches the data
+    paintings_in_data = set(all_summaries["Painting"].dropna().unique())
+    order = [p for p in audio_durations.keys() if p in paintings_in_data]
+    if not order:
+        order = list(all_summaries["Painting"].dropna().unique())
+
+    fig, ax = plt.subplots(figsize=(max(8, 1.2 * len(order)), 6))
+
+    # Boxplot
+    sns.boxplot(
+        data=all_summaries,
+        x="Painting",
+        y="GazeTime",
+        order=order,
+        ax=ax
+    )
+
+    # ---- Audio duration markers (red dots) ----
+    x_positions = np.arange(len(order))
+    y_durations = []
+    x_for_durations = []
+
+    for i, painting in enumerate(order):
+        dur = audio_durations.get(painting, None)
+        if dur is None or (isinstance(dur, float) and np.isnan(dur)):
+            continue
+        x_for_durations.append(i)
+        y_durations.append(float(dur))
+
+    # Plot durations as red dots at the center of each box
+    if len(x_for_durations) > 0:
+        ax.scatter(
+            x_for_durations,
+            y_durations,
+            color="red",
+            s=45,
+            zorder=6,
+            label="Duration of audio guide"
+        )
+
+    # Cosmetics
+    ax.set_title("Gaze Time by Painting Across Participants")
+    ax.set_xlabel("Painting")
+    ax.set_ylabel("GazeTime (s)")
+
+    # Ensure ticks match our fixed positions and keep labels clean
+    ax.set_xticks(x_positions)
+    ax.set_xticklabels(order, rotation=45, ha="right")
+
+    # Legend BELOW the plot (as you requested)
+    if len(x_for_durations) > 0:
+        ax.legend(
+            loc="upper center",
+            bbox_to_anchor=(0.5, -0.18),
+            frameon=False
+        )
+
+    # Give space for rotated labels + legend
+    plt.subplots_adjust(bottom=0.30)
     filename = "Gaze Time by Painting.png"
     path = os.path.join(EXPORTS_FOLDER, filename)
-    plt.savefig(path, bbox_inches='tight')
+    plt.savefig(path, bbox_inches="tight", dpi=300)
     plt.show()
 
 def plot_gaze_percent_per_painting(participants: dict):

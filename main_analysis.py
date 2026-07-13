@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import pickle
 from pathlib import Path
 from typing import Dict, Any
@@ -18,6 +19,7 @@ from collections import defaultdict
 from scipy.stats import kruskal
 import scikit_posthocs as sp
 from matplotlib.patches import Patch
+import matplotlib.pyplot as plt
 
 def compute_questionnaire_descriptive_stats(questionnaire_df: pd.DataFrame):
     """
@@ -59,66 +61,305 @@ def collect_all_ratings(participants):
     return pd.DataFrame(data)
 
 def plot_rating_distribution(df):
-    # Map rating numbers to descriptive labels
     rating_labels = {
-        1: "Did not like at all", 
-        2: "Did not like", 
-        3: "Quite disliked", 
+        1: "Did not like at all",
+        2: "Did not like",
+        3: "Quite disliked",
         4: "Neutral",
-        5: "Quite liked", 
-        6: "Liked", 
+        5: "Quite liked",
+        6: "Liked",
         7: "Really liked"
     }
     df["RatingLabel"] = df["Rating"].map(rating_labels)
 
-    # Define order of labels for plotting
     ordered_labels = list(rating_labels.values())
 
-    # Compute average rating per tour type
     avg_by_type = df.groupby("TourType")["Rating"].mean().round(2).to_dict()
 
-    # Compute proportions
     counts = df.groupby(["TourType", "RatingLabel"]).size().reset_index(name="Count")
     total_per_type = df["TourType"].value_counts().to_dict()
     counts["Proportion"] = counts.apply(
         lambda row: row["Count"] / total_per_type[row["TourType"]], axis=1
     )
 
-    # Define consistent custom colors for the 3 tour types
     custom_palette = {
-        1: "#3C3C3C",   # Dark gray
-        2: "#B76E79",   # Dusty pink
-        3: "#D9C8B4"    # Light beige
+        1: "#3C3C3C",
+        2: "#B76E79",
+        3: "#D9C8B4"
     }
 
-    # Plot
-    plt.figure(figsize=(14, 8))
+    TITLE_FS = 22
+    LABEL_FS = 22
+    TICK_FS  = 22
+    LEGEND_FS = 22
+    LEGEND_TITLE_FS = 22
+
+    plt.figure(figsize=(16, 9))
     sns.barplot(
         data=counts,
         x="RatingLabel",
         y="Proportion",
         hue="TourType",
         palette=custom_palette,
-        order=ordered_labels   # 👈 Force correct order here
+        order=ordered_labels
     )
 
     legend_patches = [
         Patch(
-            color=custom_palette[t], 
+            color=custom_palette[t],
             label=f"{t} {'Fully active' if t==1 else 'Semi-active' if t==2 else 'Passive'} (Avg: {avg_by_type[t]})"
         )
         for t in sorted(avg_by_type.keys())
     ]
-    plt.legend(title="Type", handles=legend_patches)
+    plt.legend(
+        title="Type",
+        handles=legend_patches,
+        fontsize=LEGEND_FS,
+        title_fontsize=LEGEND_TITLE_FS
+    )
 
-    plt.title("How much you liked all the paintings from the museum by Type")
-    plt.xlabel("Rating")
-    plt.ylabel("Proportion")
-    plt.xticks(rotation=45)
+    plt.title("How much you liked all the paintings from the museum by Type", fontsize=TITLE_FS)
+    plt.xlabel("Rating", fontsize=LABEL_FS)
+    plt.ylabel("Proportion", fontsize=LABEL_FS)
+
+    plt.xticks(rotation=45, fontsize=TICK_FS)
+    plt.yticks(fontsize=TICK_FS)
+
     plt.ylim(0, 0.3)
     plt.tight_layout()
-    plt.savefig("Average Liking by Type.png")
-    plt.show() 
+    plt.savefig("Average Liking by Type.png", dpi=300)
+    plt.show()
+
+
+# region ---- thesis descriptives (basic stats + boxplots) ----
+
+PAINTING_DESCRIPTIVE_COLS = [
+    "SelfReportedLiking",
+    "GazeTime",
+    "GazePercent_Audio",
+    "SaccadeRate",
+    "TimeAtTheTile",
+    "TileTimePercent_Audio",
+    "ReactionTime",
+]
+
+PARTICIPANT_DESCRIPTIVE_COLS = [
+    "AvgSelfReportedLiking",
+    "AvgGazeTime",
+    "AvgGazePercent_Audio",
+    "AvgSaccadeRate",
+    "TotalExperimentTime",
+    "AvgSpeed",
+    "TotalDistance",
+    "TimeStill",
+    "TimeMoving",
+]
+
+
+def _basic_stats_for_series(s: pd.Series) -> dict[str, float | int]:
+    """
+    Return N, Mean, Std, Median, Min, Max for a series.
+
+    - If the series is numeric (or can be coerced to numeric), stats are computed on numeric values (NaNs ignored).
+    - If the series is non-numeric, N is reported as number of non-null entries and numeric stats are set to NaN.
+    """
+    # N should reflect actual non-missing entries even for non-numeric columns
+    n_nonnull = int(s.notna().sum())
+
+    s_num = pd.to_numeric(s, errors="coerce").dropna()
+    if s_num.empty:
+        nan = float("nan")
+        return {"N": n_nonnull, "Mean": nan, "Std": nan, "Median": nan, "Min": nan, "Max": nan}
+
+    n = int(s_num.shape[0])
+    mean = float(s_num.mean())
+    std = float(s_num.std(ddof=1)) if n > 1 else 0.0
+    median = float(s_num.median())
+    vmin = float(s_num.min())
+    vmax = float(s_num.max())
+    return {"N": n, "Mean": mean, "Std": std, "Median": median, "Min": vmin, "Max": vmax}
+
+def compute_basic_descriptives(
+    df: pd.DataFrame,
+    metric_cols: list[str],
+    group_cols: list[str] | None = None,
+) -> pd.DataFrame:
+    """
+    Compute basic descriptives (N, mean, std, median, min, max) for a set of metrics.
+
+    Returns:
+        Long-form DataFrame:
+        - without grouping: Metric + stats columns
+        - with grouping: group columns + Metric + stats columns
+    """
+    metric_cols = [c for c in metric_cols if c in df.columns]
+    if not metric_cols:
+        raise ValueError("compute_basic_descriptives: no metric columns found in the dataframe.")
+
+    rows: list[dict] = []
+
+    if group_cols:
+        for gcol in group_cols:
+            if gcol not in df.columns:
+                raise KeyError(f"compute_basic_descriptives: grouping column not found: {gcol}")
+
+        for keys, g in df.groupby(group_cols):
+            if not isinstance(keys, tuple):
+                keys = (keys,)
+            group_dict = dict(zip(group_cols, keys))
+            for m in metric_cols:
+                stats = _basic_stats_for_series(g[m])
+                rows.append({**group_dict, "Metric": m, **stats})
+    else:
+        for m in metric_cols:
+            stats = _basic_stats_for_series(df[m])
+            rows.append({"Metric": m, **stats})
+
+    return pd.DataFrame(rows)
+
+
+def build_per_painting_summary(participants: Dict[str, MuseumVRParticipantData]) -> pd.DataFrame:
+    """
+    Build a concatenated painting-level table (one row per participant × painting).
+    Uses MuseumVRParticipantData.generate_painting_summary().
+
+    Adds TourType column for convenience.
+    """
+    frames = []
+    for _, p in participants.items():
+        df = p.generate_painting_summary()
+        df["TourType"] = p.tour_type
+        frames.append(df)
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
+def build_per_participant_summary(participants: Dict[str, MuseumVRParticipantData]) -> pd.DataFrame:
+    frames = []
+    col_order = []
+
+    for _, p in participants.items():
+        df = p.generate_participant_summary()
+        frames.append(df)
+
+        # stable union of columns in the order first encountered
+        for c in df.columns:
+            if c not in col_order:
+                col_order.append(c)
+
+    if not frames:
+        return pd.DataFrame()
+
+    out = pd.concat(frames, ignore_index=True, sort=False)
+    out = out.reindex(columns=col_order)
+    return out
+
+def Descriptives_Per_Painting_overall(
+    per_Painting_Summary: pd.DataFrame,
+    output_dir: str = ".",
+    metric_cols: list[str] | None = None,
+    make_boxplot: bool = True,
+):
+    """
+    Create:
+    - Descriptives_Per_Painting_overall.csv
+    - One overall boxplot figure (questions on x-axis)
+
+    Returns:
+        descriptives_df, plot_path (or None)
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    if metric_cols is None:
+        metric_cols = [c for c in PAINTING_DESCRIPTIVE_COLS if c in per_Painting_Summary.columns]
+
+    desc = compute_basic_descriptives(per_Painting_Summary, metric_cols=metric_cols, group_cols=None)
+    csv_path = os.path.join(output_dir, "Descriptives_Per_Painting_overall.csv")
+    desc.to_csv(csv_path, index=False, float_format="%.3f")
+    logging.info(f"Saved to {csv_path}")
+
+    plot_path = None
+    if make_boxplot:
+        plot_path = plot_boxplots_questions(
+            df=per_Painting_Summary,
+            question_cols=metric_cols,
+            title="Descriptives — Painting-level (overall)",
+            filename="Descriptives_Per_Painting_overall_boxplots.png",
+            show_fliers=False,
+            close_plot=True,
+        )
+
+    return desc, plot_path
+
+
+def Descriptives_Per_Painting_by_Painting(
+    per_Painting_Summary: pd.DataFrame,
+    output_dir: str = ".",
+    metric_cols: list[str] | None = None,
+    make_boxplots: bool = True,
+):
+    if metric_cols is None:
+        metric_cols = [
+            "SelfReportedLiking",
+            "GazeTime",
+            "GazePercent_Audio",
+            "SaccadeRate",
+            "TimeAtTheTile",
+            "TileTimePercent_Audio",
+            "ReactionTime",
+        ]
+
+    desc = compute_basic_descriptives(per_Painting_Summary, metric_cols=metric_cols, group_cols=["Painting"])
+    csv_path = os.path.join(output_dir, "Descriptives_Per_Painting_by_Painting.csv")
+    desc.to_csv(csv_path, index=False, float_format="%.3f")
+    logging.info(f"Saved to {csv_path}")
+
+    plot_paths: dict[str, str] = {}
+    if make_boxplots:
+        plot_paths = plot_boxplots_measures_by_painting(
+            per_painting_df=per_Painting_Summary,
+            measures=metric_cols,
+            output_dir=output_dir,
+            filename_prefix="Boxplot_PerPainting",
+            painting_col="Painting",
+            show_fliers=False,
+            close_plot=True,
+        )
+
+    return desc, plot_paths
+
+
+def Descriptives_Per_Participant_overall(
+    per_Participant_Summary: pd.DataFrame,
+    output_dir: str = "Plots",
+    metric_cols: list[str] | None = None,
+    make_boxplot: bool = True,
+):
+    # Stats table: include ALL columns by default
+    if metric_cols is None:
+        metric_cols = list(per_Participant_Summary.columns)
+
+    desc = compute_basic_descriptives(per_Participant_Summary, metric_cols=metric_cols, group_cols=None)
+    csv_path = os.path.join(output_dir, "Descriptives_Per_Participant_overall.csv")
+    desc.to_csv(csv_path, index=False, float_format="%.3f")
+    logging.info(f"Saved to {csv_path}")
+
+    # Plot: only the standard subset of participant-level metrics
+    plot_path = None
+    if make_boxplot:
+        plot_cols = [c for c in PARTICIPANT_DESCRIPTIVE_COLS if c in per_Participant_Summary.columns]
+        plot_path = plot_boxplots_questions(
+            df=per_Participant_Summary,
+            question_cols=plot_cols,
+            title="Descriptives — Participant-level (overall)",
+            filename="Descriptives_Per_Participant_overall_boxplots.png",
+            show_fliers=False,
+            close_plot=True,
+        )
+
+    return desc, plot_path
+
+# endregion
+
 
 def run_total_time_vs_questionnaire_spearman(
     per_Participant_Summary: pd.DataFrame,
@@ -371,6 +612,60 @@ def analyze_liking_vs_preference(questionnaire: pd.DataFrame) -> pd.DataFrame:
     print(results)
     return pd.DataFrame(results)
 
+def binary_choice_basic_stats_overall(
+    questionnaire_df: pd.DataFrame,
+    out_csv: str = "BinaryChoice_PreferredTour_basic_stats_overall.csv",
+) -> pd.DataFrame:
+    
+    painting_map = {
+        "Klimt":       {"pref_col": "Preferred image",   "option": 1},
+        "van Dongen":  {"pref_col": "Preferred image.1", "option": 2},
+        "Braque":      {"pref_col": "Preferred image.2", "option": 1},
+        "Pollock":     {"pref_col": "Preferred image.3", "option": 2},
+        "de Chirico":  {"pref_col": "Preferred image.4", "option": 2},
+        "Janco":       {"pref_col": "Preferred image.5", "option": 2},
+        "Picasso":     {"pref_col": "Preferred image.6", "option": 2},
+    }
+
+    df = questionnaire_df.copy()
+
+    rows = []
+    for painting, cfg in painting_map.items():
+        pref_col = cfg["pref_col"]
+        correct_option = str(cfg["option"])  # compare as strings to be robust
+
+        if pref_col not in df.columns:
+            print(f"[WARN] Missing column '{pref_col}' for {painting}. Skipping.")
+            continue
+
+        chosen = df[pref_col].astype(str)
+        preferred_tour = (chosen == correct_option).astype("float")  # float to allow NaN
+        preferred_tour[chosen.isna() | (chosen == "nan")] = float("nan")
+
+        s = preferred_tour.dropna()
+
+        if len(s) == 0:
+            mean_val = float("nan")
+            std_val = float("nan")
+            n = 0
+        else:
+            mean_val = float(s.mean())
+            std_val = float(s.std(ddof=1))  # sample std
+            n = int(s.shape[0])
+
+        rows.append({
+            "Painting": painting,
+            "N": n,
+            "mean": mean_val,
+            "std": std_val,
+        })
+
+    out = pd.DataFrame(rows).set_index("Painting").round(3)
+    out.to_csv(out_csv)
+    print(f"✅ Saved binary-choice basic stats to: {out_csv}")
+    print(out)
+    return out
+
 def analyze_preference_vs_measures(
     questionnaire_df: pd.DataFrame,
     per_Painting_Summary: pd.DataFrame,
@@ -489,7 +784,7 @@ def analyze_vr_correlation_with_liking(per_Painting_Summary: pd.DataFrame, per_P
     df_painting.to_csv("correlation_of_VR_measures_with_liking_per_painting.csv", index=False)
 
     # --- Participant-Level Analysis ---
-    target_2 = "Q1_SatisfactionTour"
+    target_2 = "AvgGeneralRating"
     numeric_cols_participant = per_Participant_Summary.select_dtypes(include='number').columns.tolist()
     numeric_cols_participant = [col for col in numeric_cols_participant if col != "ParticipantID"]
     subset_participant = per_Participant_Summary[numeric_cols_participant].dropna()
@@ -538,9 +833,31 @@ def run_per_participant_kruskal(per_Participant_Summary: pd.DataFrame):
         numeric_cols.remove("TourType")
 
     # Group by TourType for descriptive stats
-    grouped = per_Participant_Summary.groupby("TourType")[numeric_cols]
-    grouped.agg(["mean", "std", "median", "min", "max", "count"]).round(2)\
-        .to_csv("Participant_Level_Descriptive_Stats.csv")
+    type_labels = {1: "Active", 2: "Semi-Active", 3: "Passive"}
+    rows = []
+
+    for metric in numeric_cols:
+        for t in sorted(per_Participant_Summary["TourType"].dropna().unique()):
+            s = per_Participant_Summary.loc[per_Participant_Summary["TourType"] == t, metric]
+            s = pd.to_numeric(s, errors="coerce").dropna()
+
+            if len(s) == 0:
+                stats = {"mean": float("nan"), "median": float("nan"), "std": float("nan"),
+                         "min": float("nan"), "max": float("nan")}
+            else:
+                stats = {
+                    "mean": float(s.mean()),
+                    "median": float(s.median()),
+                    "std": float(s.std(ddof=1)) if len(s) > 1 else 0.0,
+                    "min": float(s.min()),
+                    "max": float(s.max()),
+                }
+
+            label = f"{metric} {type_labels.get(int(t), str(t))}"
+            rows.append({"Measure": label, **stats})
+
+    desc_df = pd.DataFrame(rows).set_index("Measure").round(2)
+    desc_df.to_csv("Participant_Level_Descriptive_Stats.csv")
 
     # Run Kruskal-Wallis for each numeric column
     results = []
@@ -557,10 +874,148 @@ def run_per_participant_kruskal(per_Participant_Summary: pd.DataFrame):
     new.to_csv("Measures per participant across types, kruskal.csv", index=False)
     print(new)
 
+def _plot_boxplot_by_type(
+    df,
+    measure_col: str,
+    tourtype_col: str = "TourType",
+    type_labels: dict = None,
+    out_prefix: str = "Boxplot",
+):
+
+    if type_labels is None:
+        type_labels = {1: "Active", 2: "Semi-Active", 3: "Passive"}
+
+    # Keep the plotting order fixed
+    type_order = [1, 2, 3]
+    data = []
+    labels = []
+
+    for t in type_order:
+        s = df.loc[df[tourtype_col] == t, measure_col]
+        s = s.dropna()
+        data.append(s.values)
+        labels.append(type_labels[t])
+
+    plt.rcParams.update({"font.size": 20})
+
+    fig, ax = plt.subplots(figsize=(9, 6))
+
+    ax.boxplot(
+        data,
+        labels=labels,
+        showfliers=True,
+        medianprops={"color": "red", "linewidth": 2},
+    )
+
+    ax.set_title(measure_col)
+    ax.set_xlabel("Tour Type")
+    ax.set_ylabel(measure_col)
+    ax.tick_params(axis="x", labelrotation=0)
+
+    safe_name = re.sub(r"[^A-Za-z0-9_]+", "_", measure_col)
+    fig.savefig(f"{out_prefix}_{safe_name}_by_TourType.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+
+TYPE_ORDER_NUM = [1, 2, 3]
+TYPE_LABELS_NUM = {1: "Active", 2: "Semi-Active", 3: "Passive"}
+TYPE_ORDER_STR = ["Active", "Semi-Active", "Passive"]
+
+def _safe_filename(s: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_]+", "_", str(s)).strip("_")
+
+def plot_questionnaire_boxplots_cols_1_15(
+    questionnaire_unranked: pd.DataFrame,
+    output_dir: str = "Plots/Questionnaire_Boxplots",
+    type_col: str = "Type",
+    show_fliers: bool = True,
+):
+    if type_col not in questionnaire_unranked.columns:
+        raise KeyError(f"Expected '{type_col}' column in questionnaire_unranked.")
+
+    os.makedirs(output_dir, exist_ok=True)
+    plt.rcParams.update({"font.size": 20})
+
+    cols_to_plot = list(questionnaire_unranked.columns[1:16])  # 1..15 inclusive
+
+    # detect whether Type is numeric-coded (1/2/3) or already string labels
+    type_vals = questionnaire_unranked[type_col].dropna().unique().tolist()
+    is_numeric_type = all(isinstance(v, (int, float, pd.Int64Dtype.__class__)) or str(v).isdigit() for v in type_vals)
+
+    saved = {}
+
+    for col in cols_to_plot:
+        # coerce to numeric; if it's mostly non-numeric (e.g., Timestamp), skip
+        s_all = pd.to_numeric(questionnaire_unranked[col], errors="coerce")
+        if s_all.notna().sum() < 3:
+            continue
+
+        data, labels = [], []
+
+        if is_numeric_type:
+            for t in TYPE_ORDER_NUM:
+                s = pd.to_numeric(
+                    questionnaire_unranked.loc[questionnaire_unranked[type_col] == t, col],
+                    errors="coerce"
+                ).dropna()
+                data.append(s.values)
+                labels.append(TYPE_LABELS_NUM[t])
+        else:
+            for t in TYPE_ORDER_STR:
+                s = pd.to_numeric(
+                    questionnaire_unranked.loc[questionnaire_unranked[type_col] == t, col],
+                    errors="coerce"
+                ).dropna()
+                data.append(s.values)
+                labels.append(t)
+
+        if sum(len(d) for d in data) == 0:
+            continue
+
+        fig, ax = plt.subplots(figsize=(10, 7))
+        ax.boxplot(
+            data,
+            labels=labels,
+            showfliers=show_fliers,
+            medianprops={"color": "red", "linewidth": 2},
+        )
+        ax.set_title(col)
+        ax.set_xlabel("Tour Type")
+        ax.set_ylabel("Rating")
+        ax.tick_params(axis="x", labelrotation=0)
+
+        outpath = os.path.join(output_dir, f"Boxplot_{_safe_filename(col)}_by_Type.png")
+        fig.savefig(outpath, dpi=300, bbox_inches="tight")
+        plt.close(fig)
+
+        saved[col] = outpath
+
+    return saved
+
 def run_per_painting_kruskal(per_Painting_Summary: pd.DataFrame, per_Participant_Summary: pd.DataFrame):
     # Add TourType to the painting-level summary
     participant_df = per_Participant_Summary[["ParticipantID", "TourType"]]
     merged = per_Painting_Summary.merge(participant_df, on="ParticipantID")
+
+    measures_for_boxplots = [
+        "TileTimePercent_Audio",
+        "ReactionTime",
+        "GazePercent_Audio",
+        "TimeAtTheTile",
+        "GazeTime",
+    ]
+
+    for m in measures_for_boxplots:
+        if m in merged.columns:
+            _plot_boxplot_by_type(
+                merged,
+                measure_col=m,
+                tourtype_col="TourType",
+                type_labels={1: "Active", 2: "Semi-Active", 3: "Passive"},
+                out_prefix="Boxplot",
+            )
+        else:
+            print(f"[WARN] {m} not found in merged columns; skipping boxplot.")
 
     # Get all numeric columns except identifiers
     numeric_cols = merged.select_dtypes(include="number").columns.tolist()
@@ -569,10 +1024,32 @@ def run_per_painting_kruskal(per_Painting_Summary: pd.DataFrame, per_Participant
             numeric_cols.remove(col)
 
     # Group by TourType for descriptive stats
-    grouped = merged.groupby("TourType")[numeric_cols]
-    grouped.agg(["mean", "std", "median", "min", "max", "count"]).round(2)\
-        .to_csv("Painting_Level_Descriptive_Stats.csv")
+    type_labels = {1: "Active", 2: "Semi-Active", 3: "Passive"}
+    rows = []
 
+    for metric in numeric_cols:
+        for t in sorted(merged["TourType"].dropna().unique()):
+            s = merged.loc[merged["TourType"] == t, metric]
+            s = pd.to_numeric(s, errors="coerce").dropna()
+
+            if len(s) == 0:
+                stats = {"mean": float("nan"), "median": float("nan"), "std": float("nan"),
+                         "min": float("nan"), "max": float("nan")}
+            else:
+                stats = {
+                    "mean": float(s.mean()),
+                    "median": float(s.median()),
+                    "std": float(s.std(ddof=1)) if len(s) > 1 else 0.0,
+                    "min": float(s.min()),
+                    "max": float(s.max()),
+                }
+
+            label = f"{metric} {type_labels.get(int(t), str(t))}"
+            rows.append({"Measure": label, **stats})
+
+    desc_df = pd.DataFrame(rows).set_index("Measure").round(2)
+    desc_df.to_csv("Painting_Level_Descriptive_Stats.csv")
+    
     # Run Kruskal-Wallis for each numeric column
     results = []
     for metric in numeric_cols:
@@ -644,10 +1121,6 @@ def run_per_painting_spearman(
     print(out)
     return out
             
-
-import pandas as pd
-from scipy.stats import spearmanr
-
 def run_per_participant_spearman(
     per_Participant_Summary: pd.DataFrame,
     target_col: str = "AvgGeneralRating",
